@@ -7,16 +7,10 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
     wfg(NULL)
 {
     ui->setupUi(this);
-    ui->comboBox_ch->addItem("channel 1");
-    ui->comboBox_ch->addItem("channel 2");
-    //ui->comboBox_ch->setCurrentIndex(0);
+    ui->comboBox_ch->setCurrentIndex(0);
+    ui->comboBox_WFG->setCurrentIndex(0);
 
-    ui->comboBox_WFG->addItem("Sin wave");
-    ui->comboBox_WFG->addItem("DC");
-    ui->comboBox_WFG->addItem("Noise");
-    //ui->comboBox_WFG->setCurrentIndex(0);
-
-    wfg = new WaveFromGenerator(KEYSIGHT33500B);
+    wfg = new WaveFromGenerator(KEYSIGHT33500B,0);
     wfg->ch = 1; // default channel 1
     wfg->wf = 1; // default sin
     wfg->GetSetting(wfg->ch);
@@ -24,7 +18,11 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
 
     wfg->GetWaveForm(1);
 
-    ui->lineEdit->setText(QString(wfg->name));
+    if( wfg->sta == VI_SUCCESS ) {
+        ui->lineEdit->setText(QString(wfg->name));
+    }else{
+        ui->lineEdit->setText("no Wave Form generator detected.");
+    }
 }
 
 WFG_Dialog::~WFG_Dialog()

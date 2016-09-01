@@ -43,7 +43,23 @@
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="2">
-     <widget class="QComboBox" name="comboBox_WFG"/>
+     <widget class="QComboBox" name="comboBox_WFG">
+      <item>
+       <property name="text">
+        <string>Sin wave</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>DC</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Noise</string>
+       </property>
+      </item>
+     </widget>
     </item>
     <item row="2" column="2">
      <widget class="QDoubleSpinBox" name="doubleSpinBox_Amp">
@@ -104,7 +120,18 @@
      </widget>
     </item>
     <item row="0" column="0">
-     <widget class="QComboBox" name="comboBox_ch"/>
+     <widget class="QComboBox" name="comboBox_ch">
+      <item>
+       <property name="text">
+        <string>Channel 1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Channel 2</string>
+       </property>
+      </item>
+     </widget>
     </item>
     <item row="2" column="1">
      <widget class="QLabel" name="label_3">

@@ -17,6 +17,7 @@ class WFG_Dialog : public QDialog
 
 public:
     bool chFlag;
+    WaveFromGenerator *wfg;
 
     explicit WFG_Dialog(QWidget *parent = 0);
     ~WFG_Dialog();
@@ -37,7 +38,7 @@ private slots:
 private:
     Ui::WFG_Dialog *ui;
 
-    WaveFromGenerator *wfg;
+
 };
 
 #endif // WFG_DIALOG_H

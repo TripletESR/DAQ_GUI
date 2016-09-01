@@ -11,7 +11,9 @@ class SCPI
 public:
     char cmd[100], buf[256], name[100];
 
-    SCPI(ViRsrc name);
+    ViStatus sta;
+
+    SCPI(ViRsrc name, bool init);
     ~SCPI();
 
     void Reset();

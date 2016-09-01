@@ -1,7 +1,7 @@
 #include "wavefromgenerator.h"
 
-WaveFromGenerator::WaveFromGenerator(ViRsrc name):
-    SCPI(name)
+WaveFromGenerator::WaveFromGenerator(ViRsrc name, bool init):
+    SCPI(name, init)
 {
 }
 
@@ -145,13 +145,14 @@ double WaveFromGenerator::GetPhase(int ch)
 
 void WaveFromGenerator::GetSetting(int ch)
 {
-    qDebug() << "---- Get WF setting ----";
-    //this->wf = GetWaveForm(ch);
-    this->freq = GetFreq(ch);
-    this->amp = GetAmp(ch);
-    this->offset = GetOffset(ch);
-    this->phase = GetPhase(ch);
-    this->IO = GetChIO(ch);
-
+    if( sta == VI_SUCCESS ){
+        qDebug() << "---- Get WF setting ----";
+        //this->wf = GetWaveForm(ch);
+        this->freq = GetFreq(ch);
+        this->amp = GetAmp(ch);
+        this->offset = GetOffset(ch);
+        this->phase = GetPhase(ch);
+        this->IO = GetChIO(ch);
+    }
 }
 

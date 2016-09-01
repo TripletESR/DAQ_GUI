@@ -5,12 +5,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     wfgui(NULL),
-    oscui(NULL)
+    oscui(NULL),
+    customPlot(NULL)
 {
     ui->setupUi(this);
     wfgui = new WFG_Dialog(this);
     oscui = new osc_Dialog(this);
-
 }
 
 MainWindow::~MainWindow()
@@ -18,6 +18,7 @@ MainWindow::~MainWindow()
     delete ui;
     delete wfgui;
     delete oscui;
+    delete customPlot;
 }
 
 void MainWindow::Log(QString str, bool end)
@@ -62,4 +63,28 @@ void MainWindow::on_actionOscilloscope_triggered()
                            oscui->geometry().height());
         oscui->show();
     }
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    oscui->osc->GetData(1, 100);
+
+    customPlot = ui->customPlot;
+    customPlot->addGraph();
+
+    QVector<double> xdat(100);
+    QVector<double> ydat(100);
+    for (int i = 0; i < 100; i++){
+        xdat[i] = oscui->osc->xData[i]; //TODO change data type to Qvector
+        ydat[i] = oscui->osc->yData[i];
+
+    }
+
+    customPlot->graph(0)->setData(xdat, ydat);
+    customPlot->xAxis->setLabel("time [us]");
+    customPlot->yAxis->setLabel("Volatge [V]");
+    customPlot->xAxis->setRange(-60,100);
+    customPlot->yAxis->setRange(-1,1);
+
+    customPlot->replot();
 }

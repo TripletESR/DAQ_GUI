@@ -6,15 +6,17 @@
 class Oscilloscope : public SCPI{
 public:
     double *xData,*yData;
-    //char cmd[200];
+    char rawData[2000];
 
-    Oscilloscope(ViRsrc name);
+    Oscilloscope(ViRsrc name, bool init);
     ~Oscilloscope();
 
     void Initialize(int ch);
+
+    void SetAcqMode(int mode);
     void SetAverage(int count);
 
-    //void Read(int ch);
+    void GetData(int ch, const int points);
 
 
 private:

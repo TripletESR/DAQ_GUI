@@ -17,11 +17,21 @@ win32: LIBS += "C:/Program Files (x86)/IVI Foundation/VISA/WinNT/lib/msc/visa32.
 SOURCES += main.cpp\
         mainwindow.cpp \
     qcustomplot.cpp \
-    wavefromgenerator.cpp
+    wavefromgenerator.cpp \
+    oscilloscope.cpp \
+    scpi.cpp \
+    wfg_dialog.cpp \
+    osc_dialog.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
     wavefromgenerator.h \
-    constant.h
+    constant.h \
+    oscilloscope.h \
+    scpi.h \
+    wfg_dialog.h \
+    osc_dialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    wfg_dialog.ui \
+    osc_dialog.ui

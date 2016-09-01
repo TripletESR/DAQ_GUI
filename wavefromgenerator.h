@@ -1,39 +1,36 @@
 #ifndef WAVEFROMGENERATOR_H
 #define WAVEFROMGENERATOR_H
 
-#include <stdio.h>
-#include <cmath>
-#include "C:\Program Files (x86)\IVI Foundation\VISA\WinNT\Include\visa.h"
-#include <QDebug>
+#include "scpi.h"
 
-class WaveFromGenerator
-{
+class WaveFromGenerator : public SCPI{
 public:
-    char cmd[100], wf[10], unit[5];
+    char unit[5];
     double freq, amp, offset, phase;
-    int ch;
+    int ch, wf, IO; //wf is the index in WFG_Dialog.h
 
     WaveFromGenerator(ViRsrc name);
     ~WaveFromGenerator();
 
-    void Reset();
     void OpenCh(int ch);
+    void CloseCh(int ch);
 
-    void SetSinWave(int ch, double freq, double amp, double offset, double phase, char unit[5] = "Vpp");
-    void SetDC(int ch, double offset);
-    void SetCustomWF(int ch, QString filenam);
+    void SetWaveForm(int ch, int wf_id);
+    void SetAmp(int ch, double amp);
+    void SetFreq(int ch, double freq);
+    void SetOffset(int ch, double offset);
+    void SetPhase(int ch, double phase);
 
-    void GetSetting(int ch);
+    int GetWaveForm(int ch);
+    int GetChIO(int ch);
     double GetFreq(int ch);
     double GetOffset(int ch);
     double GetAmp(int ch);
+    double GetPhase(int ch);
+
+    void GetSetting(int ch);
 
 private:
-    ViSession defaultRM;
-    ViSession device;
-    //ViRsrc name;
-
-    char buf[256];
 
 };
 

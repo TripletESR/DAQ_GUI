@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>676</width>
-    <height>369</height>
+    <height>501</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,48 +17,35 @@
    <widget class="QCustomPlot" name="widget" native="true">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>139</y>
-      <width>401</width>
-      <height>161</height>
+      <x>220</x>
+      <y>10</y>
+      <width>441</width>
+      <height>301</height>
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_WFG">
+   <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>80</y>
-      <width>81</width>
-      <height>31</height>
+      <x>10</x>
+      <y>310</y>
+      <width>651</width>
+      <height>131</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Set WFG</string>
+    <property name="title">
+     <string>Log : ./out_Log.txt</string>
     </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit_DC">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>30</y>
-      <width>101</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>30</y>
-      <width>50</width>
-      <height>12</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>DC</string>
-    </property>
+    <widget class="QPlainTextEdit" name="plainTextEdit">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>631</width>
+       <height>101</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -70,6 +57,12 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuDevice">
+    <property name="title">
+     <string>Devices</string>
+    </property>
+   </widget>
+   <addaction name="menuDevice"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -78,8 +71,20 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionWave_From_Generator"/>
+   <addaction name="actionOscilloscope"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionWave_From_Generator">
+   <property name="text">
+    <string>Wave From Generator</string>
+   </property>
+  </action>
+  <action name="actionOscilloscope">
+   <property name="text">
+    <string>Oscilloscope</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

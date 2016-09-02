@@ -28,34 +28,27 @@ SCPI::~SCPI(){
     qDebug() << "Closing VIAS session for " << this->name;
 }
 
-void SCPI::Reset()
-{
-    if( sta == VI_SUCCESS ) {
-        viPrintf(device, "*RST\n");
-        qDebug() << "Reset : " << this->name;
-    }
+void SCPI::Reset(){
+    if( sta != VI_SUCCESS ) return;
+    viPrintf(device, "*RST\n");
+    qDebug() << "Reset : " << this->name;
 }
 
-void SCPI::Clear()
-{
-    if( sta == VI_SUCCESS ){
-        viPrintf(device, "*CLS\n");
-        qDebug() << "Clear : " << this->name;
-    }
+void SCPI::Clear(){
+    if( sta != VI_SUCCESS ) return;
+    viPrintf(device, "*CLS\n");
+    qDebug() << "Clear : " << this->name;
 }
 
-QString SCPI::GetError()
-{
-    if( sta == VI_SUCCESS ){
-        qDebug() << "Ask device Error code : " << this->name;
-        viPrintf(device, "SYST:ERR?\n");
-        ReadRespond();
-        return buf;
-    }
+QString SCPI::GetError(){
+    if( sta != VI_SUCCESS ) return "Err.";
+    qDebug() << "Ask device Error code : " << this->name;
+    viPrintf(device, "SYST:ERR?\n");
+    ReadRespond();
+    return buf;
 }
 
-void SCPI::SendCmd(char *cmd)
-{
+void SCPI::SendCmd(char *cmd){
     if( sta == VI_SUCCESS ){
         viPrintf(device, cmd);
         *std::remove(cmd, cmd+strlen(cmd), '\n') = '\0'; //remove "\n"
@@ -67,10 +60,16 @@ void SCPI::SendCmd(char *cmd)
 
 QString SCPI::ReadRespond() //Change to AskQ
 {
-    if( sta == VI_SUCCESS ){
-        viScanf(device, "%t", this->buf);
-        *std::remove(buf, buf+strlen(buf), '\n') = '\0';
-        qDebug() << buf;
-        return QString(this->buf);
-    }
+    if( sta != VI_SUCCESS ) return "Err.";
+    viScanf(device, "%t", this->buf);
+    *std::remove(buf, buf+strlen(buf), '\n') = '\0';
+    qDebug() << buf;
+    return QString(this->buf);
+
+}
+
+QString SCPI::Ask(char *cmd){
+    if( sta != VI_SUCCESS) return "Err.";
+    SendCmd(cmd);
+    return ReadRespond();
 }

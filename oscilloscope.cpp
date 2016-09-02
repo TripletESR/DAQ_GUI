@@ -75,6 +75,7 @@ void Oscilloscope::SetAcqMode(int mode){
             SendCmd(cmd);
             sprintf(cmd,":acquire:count?\n");
             SendCmd(cmd);
+            //SendCmd(":acquire:count?\n");
             ReadRespond();
             this->count = QString(buf).toInt();
             break;
@@ -133,12 +134,12 @@ void Oscilloscope::GetData(int ch, const int points)
     viScanf(device, "%t", rawData);
     QString raw = rawData;
     QStringList data = raw.mid(10).split(',');
-    qDebug() << data;
+    //qDebug() << data;
     qDebug() << "number of data : " << data.length();
 
     sprintf(cmd,":waveform:xorigin?\n"); SendCmd(cmd);
     viScanf(device, "%t", buf);
-    qDebug() << buf;
+    //qDebug() << buf;
     double xOrigin = QString(buf).toDouble() * 1e+6 ; //time in us
     qDebug() << "x origin : "<< xOrigin;
 
@@ -151,7 +152,7 @@ void Oscilloscope::GetData(int ch, const int points)
         //qDebug() << (data[i]).toDouble();
         xData[i] = xOrigin + i * xInc;
         yData[i] = (data[i]).toDouble();
-        qDebug() << i << "," << xData[i] << "," << yData[i];
+        //qDebug() << i << "," << xData[i] << "," << yData[i];
     }
 
     sprintf(cmd,":RUN\n"); SendCmd(cmd);

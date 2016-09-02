@@ -12,11 +12,9 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
 
     wfg = new WaveFromGenerator(KEYSIGHT33500B,0);
     wfg->ch = 1; // default channel 1
-    wfg->wf = 1; // default sin
+    wfg->index = 1; // default sin
     wfg->GetSetting(wfg->ch);
     DisplaySetting();
-
-    wfg->GetWaveForm(1);
 
     if( wfg->sta == VI_SUCCESS ) {
         ui->lineEdit->setText(QString(wfg->name));
@@ -40,6 +38,7 @@ void WFG_Dialog::on_comboBox_ch_activated(int index)
     }
 
     wfg->GetSetting(wfg->ch);
+    on_comboBox_WFG_activated(wfg->index);
     DisplaySetting();
 }
 
@@ -55,7 +54,7 @@ void WFG_Dialog::on_checkBox_clicked(bool checked)
 void WFG_Dialog::on_comboBox_WFG_activated(int index)
 {
     if( index == 0) {
-        wfg->SetWaveForm(1,1); // 1 for Sin
+        wfg->SetWaveForm(wfg->ch,1); // 1 for Sin
         ui->doubleSpinBox_Amp->setDisabled(0);
         ui->doubleSpinBox_Freq->setDisabled(0);
         ui->doubleSpinBox_Offset->setDisabled(0);
@@ -68,7 +67,7 @@ void WFG_Dialog::on_comboBox_WFG_activated(int index)
         //ui->lineEdit_Phase->setText(QString::number(wfg->GetPhase(1)));
     }
     if( index == 1){
-        wfg->SetWaveForm(1,8); // 8 for DC
+        wfg->SetWaveForm(wfg->ch,8); // 8 for DC
         //ui->lineEdit_DC->setText(QString::number(wfg->GetOffset(1)));
         ui->doubleSpinBox_Amp->setDisabled(1);
         ui->doubleSpinBox_Freq->setDisabled(1);
@@ -78,7 +77,7 @@ void WFG_Dialog::on_comboBox_WFG_activated(int index)
         //Log("set WFG to DC",1);
     }
     if( index == 2){
-        wfg->SetWaveForm(1,7); // 7 for noise
+        wfg->SetWaveForm(wfg->ch,7); // 7 for noise
         ui->doubleSpinBox_Amp->setDisabled(0);
         ui->doubleSpinBox_Freq->setDisabled(1);
         ui->doubleSpinBox_Offset->setDisabled(0);
@@ -111,9 +110,9 @@ void WFG_Dialog::on_doubleSpinBox_Phase_valueChanged(double arg1)
 void WFG_Dialog::DisplaySetting()
 {
     ui->checkBox->setChecked(wfg->IO);
-    ui->doubleSpinBox_Freq->setValue(wfg->freq/1000);
-    ui->doubleSpinBox_Amp->setValue(wfg->amp*1000);
-    ui->doubleSpinBox_Offset->setValue(wfg->offset*1000);
+    ui->doubleSpinBox_Freq->setValue(wfg->freq);
+    ui->doubleSpinBox_Amp->setValue(wfg->amp);
+    ui->doubleSpinBox_Offset->setValue(wfg->offset);
     ui->doubleSpinBox_Phase->setValue(wfg->phase);
-    ui->comboBox_WFG->setCurrentIndex(wfg->wf);
+    ui->comboBox_WFG->setCurrentIndex(wfg->index);
 }

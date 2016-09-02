@@ -18,9 +18,11 @@ public:
 
     void Reset();
     void Clear();
+
     QString GetError();
     void SendCmd(char *cmd);
     QString ReadRespond();
+    QString Ask(char *cmd);
 
 protected:
     ViSession defaultRM;

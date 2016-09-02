@@ -67,7 +67,7 @@ void MainWindow::on_actionOscilloscope_triggered()
 
 void MainWindow::on_pushButton_clicked()
 {
-    oscui->osc->GetData(1, 100);
+    oscui->osc->GetData(ui->spinBox_ch->value(), ui->spinBox_count->value());
 
     customPlot = ui->customPlot;
     customPlot->addGraph();

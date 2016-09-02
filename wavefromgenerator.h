@@ -5,8 +5,10 @@
 
 class WaveFromGenerator : public SCPI{
 public:
-    double freq, amp, offset, phase;
-    int ch, wf, IO; //wf is the index in WFG_Dialog.h
+    double freq; //in kHz
+    double phase;
+    double amp, offset; // in mV
+    int ch, index, IO; //index is the index in WFG_Dialog.h
 
     WaveFromGenerator(ViRsrc name, bool init);
     ~WaveFromGenerator();

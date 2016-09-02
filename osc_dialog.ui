@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>390</width>
+    <height>317</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -30,7 +30,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>381</width>
+     <width>371</width>
      <height>20</height>
     </rect>
    </property>
@@ -80,14 +80,265 @@
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>170</y>
-     <width>75</width>
+     <x>20</x>
+     <y>80</y>
+     <width>131</width>
      <height>23</height>
     </rect>
    </property>
    <property name="text">
     <string>Get Data</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="gridLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>120</y>
+     <width>364</width>
+     <height>171</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="4">
+     <widget class="QCheckBox" name="checkBox_4_IO">
+      <property name="text">
+       <string>Ch4</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="2">
+     <widget class="QComboBox" name="comboBox_2_ohm">
+      <item>
+       <property name="text">
+        <string>50 ohm</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1M ohm</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="QCheckBox" name="checkBox_3_IO">
+      <property name="text">
+       <string>Ch3</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="4">
+     <widget class="QLineEdit" name="lineEdit_4_TL"/>
+    </item>
+    <item row="2" column="4">
+     <widget class="QLineEdit" name="lineEdit_4_offset"/>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Range [V]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QLineEdit" name="lineEdit_2_range"/>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Offset [V]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="lineEdit_1_range"/>
+    </item>
+    <item row="1" column="3">
+     <widget class="QLineEdit" name="lineEdit_3_range"/>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="lineEdit_1_offset"/>
+    </item>
+    <item row="5" column="1">
+     <widget class="QComboBox" name="comboBox_1_ohm">
+      <item>
+       <property name="text">
+        <string>50 ohm</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1M ohm</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <widget class="QLineEdit" name="lineEdit_4_range"/>
+    </item>
+    <item row="5" column="4">
+     <widget class="QComboBox" name="comboBox_4_ohm">
+      <item>
+       <property name="text">
+        <string>50 ohm</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1M ohm</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLineEdit" name="lineEdit_1_TL"/>
+    </item>
+    <item row="0" column="2">
+     <widget class="QCheckBox" name="checkBox_2_IO">
+      <property name="text">
+       <string>Ch2</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="2">
+     <widget class="QLineEdit" name="lineEdit_2_TL"/>
+    </item>
+    <item row="4" column="3">
+     <widget class="QLineEdit" name="lineEdit_3_TL"/>
+    </item>
+    <item row="0" column="1">
+     <widget class="QCheckBox" name="checkBox_1_IO">
+      <property name="text">
+       <string>Ch1</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Impedence</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="3">
+     <widget class="QComboBox" name="comboBox_3_ohm">
+      <item>
+       <property name="text">
+        <string>50 ohm</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1M ohm</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QLineEdit" name="lineEdit_2_offset"/>
+    </item>
+    <item row="2" column="3">
+     <widget class="QLineEdit" name="lineEdit_3_offset"/>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Trigger Level</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QRadioButton" name="radioButton_1">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Trigger</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2">
+     <widget class="QRadioButton" name="radioButton_2">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="3">
+     <widget class="QRadioButton" name="radioButton_3">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="4">
+     <widget class="QRadioButton" name="radioButton_4">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Reset">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>80</y>
+     <width>111</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Reset Default</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkBox_Touch">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>50</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Touch Screen</string>
    </property>
   </widget>
  </widget>

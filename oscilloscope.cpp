@@ -109,6 +109,13 @@ void Oscilloscope::SetDVM(bool IO, int ch, int mode)
     }
 }
 
+void Oscilloscope::GetChannelData(int ch)
+{
+    if( sta != VI_SUCCESS) return;
+    //sprintf(cmd,":trigger:level? Channel%d\n", ch);SendCmd(cmd); // in Voltage
+    //sprintf(cmd,":trigger:slope positive\n"); SendCmd(cmd);
+}
+
 void Oscilloscope::GetData(int ch, const int points)
 {
     if( sta != VI_SUCCESS) return;

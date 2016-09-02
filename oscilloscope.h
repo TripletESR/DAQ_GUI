@@ -26,6 +26,8 @@ public:
     void SetAverage(int count);
     void SetDVM(bool IO, int ch, int mode);
 
+    void GetChannelData(int ch);
+
     void GetData(int ch, const int points);
     double GetMax(QVector<double> vec);
     double GetMin(QVector<double> vec);

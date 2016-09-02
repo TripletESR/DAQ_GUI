@@ -12,10 +12,11 @@ Oscilloscope::~Oscilloscope(){
 void Oscilloscope::Initialize(int ch)
 {
     if( sta != VI_SUCCESS) return;
-        SetAcqMode(0);
-        SetTime(200E-6, 40E-6);
-        SetVoltage(1, 1, 4, 0, 1);
-        SetTrigger(1, 0);
+    SetAcqMode(0);
+    SetTime(200E-6, 40E-6);
+    SetVoltage(1, 1, 4, 0, 1);
+    SetTrigger(1, 0);
+    GetXOriginStep();
 }
 
 void Oscilloscope::SetTouch(bool touch)
@@ -74,10 +75,7 @@ void Oscilloscope::SetAcqMode(int mode){
             sprintf(cmd,":acquire:type average\n");
             SendCmd(cmd);
             sprintf(cmd,":acquire:count?\n");
-            SendCmd(cmd);
-            //SendCmd(":acquire:count?\n");
-            ReadRespond();
-            this->count = QString(buf).toInt();
+            this->count = Ask(cmd).toInt();
             break;
     }
 }
@@ -87,14 +85,10 @@ void Oscilloscope::SetAverage(int count)
     if( sta != VI_SUCCESS) return;
     sprintf(cmd,":acquire:type average\n"); SendCmd(cmd);
     sprintf(cmd,":acquire:count %d\n", count); SendCmd(cmd);
-    sprintf(cmd,":acquire:srate?\n"); SendCmd(cmd);
-    ReadRespond();
-    //viScanf(device, "%t", buf);
-    //*std::remove(buf, buf+strlen(buf), '\n') = '\0';
-    qDebug() << "sample rate : " << buf << " samples/s";
-    double srate = atof(buf);
+    sprintf(cmd,":acquire:srate?\n");
+    double srate = Ask(cmd).toInt();
+    qDebug() << "sample rate : " << srate << " samples/s";
     qDebug() << "estimated time for complete cycle : " << count / srate * 1e3 << " ms";
-
 }
 
 void Oscilloscope::SetDVM(bool IO, int ch, int mode)
@@ -113,8 +107,39 @@ void Oscilloscope::SetDVM(bool IO, int ch, int mode)
 void Oscilloscope::GetChannelData(int ch)
 {
     if( sta != VI_SUCCESS) return;
-    //sprintf(cmd,":trigger:level? Channel%d\n", ch);SendCmd(cmd); // in Voltage
-    //sprintf(cmd,":trigger:slope positive\n"); SendCmd(cmd);
+
+    sprintf(cmd,":trigger:level? Channel%d\n", ch);
+    trgLevel[ch] = Ask(cmd).toDouble();
+
+    sprintf(cmd,":channel%d:display?\n", ch);
+    IO[ch] = Ask(cmd).toInt();
+
+    sprintf(cmd,":channel%d:range?\n", ch);
+    xRange[ch] = Ask(cmd).toDouble();
+
+    sprintf(cmd,":channel%d:offset?\n", ch);
+    xOffset[ch] = Ask(cmd).toDouble();
+
+    sprintf(cmd,":channel%d:impedance?\n", ch);
+    QString ans = Ask(cmd);
+    if( ans == "FITT") ohm[ch] = 0; //need to match the checkbox index
+    if( ans == "ONEM") ohm[ch] = 1;
+
+    sprintf(cmd,":trigger:source?\n", ch);
+    trgCh = Ask(cmd).right(1).toInt();
+    qDebug() << "Trg Channel : " <<trgCh;
+
+}
+
+void Oscilloscope::GetTime()
+{
+    if( sta != VI_SUCCESS) return;
+
+    sprintf(cmd,":timebase:range?\n");
+    tRange = Ask(cmd).toDouble() * 1e6; // time in us
+
+    sprintf(cmd,":timebase:position?\n");
+    tDelay = Ask(cmd).toDouble() * 1e6; //time delay
 }
 
 void Oscilloscope::GetData(int ch, const int points)
@@ -137,20 +162,10 @@ void Oscilloscope::GetData(int ch, const int points)
     //qDebug() << data;
     qDebug() << "number of data : " << data.length();
 
-    sprintf(cmd,":waveform:xorigin?\n"); SendCmd(cmd);
-    viScanf(device, "%t", buf);
-    //qDebug() << buf;
-    double xOrigin = QString(buf).toDouble() * 1e+6 ; //time in us
-    qDebug() << "x origin : "<< xOrigin;
-
-    sprintf(cmd,":waveform:xincrement?\n"); SendCmd(cmd);
-    viScanf(device, "%t", buf);
-    double xInc = QString(buf).toDouble() * 1e+6; //time in us
-    qDebug() << "x inc : "<< xInc;
 
     for( int i = 0 ; i < data.length(); i++){
         //qDebug() << (data[i]).toDouble();
-        xData[i] = xOrigin + i * xInc;
+        xData[i] = xOrigin + i * xStep;
         yData[i] = (data[i]).toDouble();
         //qDebug() << i << "," << xData[i] << "," << yData[i];
     }
@@ -181,4 +196,15 @@ double Oscilloscope::GetMin(QVector<double> vec)
         if( vec[i] < min) min = vec[i];
     }
     return min;
+}
+
+void Oscilloscope::GetXOriginStep()
+{
+    sprintf(cmd,":waveform:xorigin?\n");
+    xOrigin = Ask(cmd).toDouble() * 1e+6 ; //time in us
+    qDebug() << "x origin : "<< xOrigin;
+
+    sprintf(cmd,":waveform:xincrement?\n");
+    xStep = Ask(cmd).toDouble() * 1e+6; //time in us
+    qDebug() << "x inc : "<< xStep;
 }

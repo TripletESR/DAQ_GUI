@@ -27,10 +27,14 @@ private slots:
 
     void on_spinBox_valueChanged(int arg1);
 
+
 private:
     Ui::osc_Dialog *ui;
 
-
+    void DisplayTime();
+    void DisplayChannel(int ch);
+    void DisplayTrigger();
+    void DisplayTouch();
 };
 
 #endif // OSC_DIALOG_H

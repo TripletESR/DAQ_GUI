@@ -12,6 +12,13 @@ public:
     double yMax, yMin;
     double xMax, xMin;
 
+    double xOrigin, xStep;
+
+    double tRange, tDelay;
+    double trgLevel[5]; // index 0 does not use for convienience
+    int trgCh, ohm[5], IO[5];
+    double xRange[5], xOffset[5];
+
     Oscilloscope(ViRsrc name, bool init);
     ~Oscilloscope();
 
@@ -27,11 +34,14 @@ public:
     void SetDVM(bool IO, int ch, int mode);
 
     void GetChannelData(int ch);
+    void GetTime();
+    //void GetTouch();
 
     void GetData(int ch, const int points);
     double GetMax(QVector<double> vec);
     double GetMin(QVector<double> vec);
 
+    void GetXOriginStep();
 
 private:
 

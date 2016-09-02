@@ -76,6 +76,7 @@ void MainWindow::on_pushButton_clicked()
                                   oscui->osc->yData);
     customPlot->xAxis->setLabel("time [us]");
     customPlot->yAxis->setLabel("Volatge [V]");
+    qDebug("%f, %f \n", oscui->osc->xMin, oscui->osc->xMax);
     customPlot->xAxis->setRange(oscui->osc->xMin,
                                 oscui->osc->xMax);
     customPlot->yAxis->setRange(oscui->osc->yMin * 2,

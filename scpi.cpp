@@ -14,7 +14,6 @@ SCPI::SCPI(ViRsrc name, bool init)
         viScanf(device, "%t", this->name);
         *std::remove(this->name, this->name+strlen(this->name), '\n') = '\0';
         // Print results
-        //printf("Instrument identification string:\n     %s\n", buf);
         qDebug() << "Instrument identification string:\n \t" <<  this->name;
     }else{
         qDebug() << "Cannot open " << name;
@@ -52,7 +51,7 @@ void SCPI::SendCmd(char *cmd){
     if( sta == VI_SUCCESS ){
         viPrintf(device, cmd);
         *std::remove(cmd, cmd+strlen(cmd), '\n') = '\0'; //remove "\n"
-        qDebug().noquote() << cmd;
+        qDebug("%s", cmd);
     }else{
         qDebug() << "Device offline." ;
     }
@@ -63,7 +62,7 @@ QString SCPI::ReadRespond() //Change to AskQ
     if( sta != VI_SUCCESS ) return "Err.";
     viScanf(device, "%t", this->buf);
     *std::remove(buf, buf+strlen(buf), '\n') = '\0';
-    qDebug() << buf;
+    qDebug("%s", buf);
     return QString(this->buf);
 
 }

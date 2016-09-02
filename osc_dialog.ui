@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>390</width>
-    <height>317</height>
+    <width>423</width>
+    <height>303</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -30,7 +30,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>371</width>
+     <width>401</width>
      <height>20</height>
     </rect>
    </property>
@@ -95,7 +95,7 @@
     <rect>
      <x>20</x>
      <y>120</y>
-     <width>364</width>
+     <width>381</width>
      <height>171</height>
     </rect>
    </property>
@@ -301,6 +301,9 @@
       <property name="text">
        <string/>
       </property>
+      <property name="autoExclusive">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
     <item row="3" column="4">
@@ -320,7 +323,7 @@
     <rect>
      <x>160</x>
      <y>80</y>
-     <width>111</width>
+     <width>91</width>
      <height>23</height>
     </rect>
    </property>
@@ -340,6 +343,57 @@
    <property name="text">
     <string>Touch Screen</string>
    </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>260</x>
+     <y>40</y>
+     <width>141</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Time [us]</string>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>121</width>
+      <height>48</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0" rowminimumheight="0,0,0">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Full Range</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Delay</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="lineEdit_timeDelay"/>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEdit_timeRange"/>
+     </item>
+    </layout>
+   </widget>
   </widget>
  </widget>
  <resources/>

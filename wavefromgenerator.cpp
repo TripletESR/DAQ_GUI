@@ -86,9 +86,7 @@ int WaveFromGenerator::GetWaveForm(int ch)
     if( QString(buf) == "SIN") this->index = 0;
     if( QString(buf) == "DC")  this->index = 1;
     if( QString(buf) == "NOIS") this->index = 2;
-
-
-    qDebug() << QString(buf) << "," << this->index;
+    //qDebug() << QString(buf) << "," << this->index;
 
     return this->index;
 }
@@ -100,7 +98,7 @@ int WaveFromGenerator::GetChIO(int ch)
     viPrintf(device, cmd);
     viScanf(device, "%t", buf);
     this->IO = atoi(buf);
-    qDebug() << "On/OFF : " << this->IO;
+    //qDebug() << "On/OFF : " << this->IO;
     return this->IO;
 }
 
@@ -109,7 +107,7 @@ double WaveFromGenerator::GetFreq(int ch)
     if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:frequency?\n", ch);
     this->freq = Ask(cmd).toDouble()/1000;
-    qDebug() << "Freq : " << this->freq << " kHz";
+    //qDebug() << "Freq : " << this->freq << " kHz";
     return this->freq;
 }
 
@@ -118,7 +116,7 @@ double WaveFromGenerator::GetOffset(int ch)
     if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:voltage:offset?\n", ch);
     this->offset = Ask(cmd).toDouble()*1000;
-    qDebug() << "Offset : " << this->offset << " mV";
+    //qDebug() << "Offset : " << this->offset << " mV";
     return this->offset;
 }
 
@@ -127,7 +125,7 @@ double WaveFromGenerator::GetAmp(int ch)
     if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:voltage?\n", ch);
     this->amp = Ask(cmd).toDouble()*1000;
-    qDebug() << "Amp : " << this->amp << " mV";
+    //qDebug() << "Amp : " << this->amp << " mV";
     return this->amp;
 }
 
@@ -136,7 +134,7 @@ double WaveFromGenerator::GetPhase(int ch)
     if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:phase?\n", ch);
     this->phase = Ask(cmd).toDouble();
-    qDebug() << "Phase : " << this->phase << " deg";
+    //qDebug() << "Phase : " << this->phase << " deg";
     return this->phase;
 }
 

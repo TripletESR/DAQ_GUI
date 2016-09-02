@@ -9,6 +9,7 @@ WaveFromGenerator::~WaveFromGenerator(){
 }
 
 void WaveFromGenerator::OpenCh(int ch){
+    if( sta != VI_SUCCESS) return;
     sprintf(cmd, "output%d ON\n", ch);
     //printf("%s\n", cmd);
     SendCmd(cmd);
@@ -16,6 +17,7 @@ void WaveFromGenerator::OpenCh(int ch){
 
 void WaveFromGenerator::CloseCh(int ch)
 {
+    if( sta != VI_SUCCESS) return;
     sprintf(cmd, "output%d Off\n", ch);
     //printf("%s\n", cmd);
     SendCmd(cmd);
@@ -23,9 +25,7 @@ void WaveFromGenerator::CloseCh(int ch)
 
 void WaveFromGenerator::SetWaveForm(int ch, int wf_id) {
 
-    if (ch != 1 && ch != 2) {
-        printf(" ch must be either 1 or 2 !! \n");
-    }
+    if( sta != VI_SUCCESS) return;
 
     switch (wf_id) {
         case 1: sprintf(cmd,"source%d:function sin\n", ch); break;
@@ -45,6 +45,7 @@ void WaveFromGenerator::SetWaveForm(int ch, int wf_id) {
 
 void WaveFromGenerator::SetAmp(int ch, double amp)
 {
+    if( sta != VI_SUCCESS) return;
     this->amp = amp;
     sprintf(cmd, "source%d:voltage %f\n", ch, amp);
     SendCmd(cmd);
@@ -52,6 +53,7 @@ void WaveFromGenerator::SetAmp(int ch, double amp)
 
 void WaveFromGenerator::SetFreq(int ch, double freq)
 {
+    if( sta != VI_SUCCESS) return;
     this->freq = freq;
     sprintf(cmd, "source%d:frequency %f\n", ch, freq);
     SendCmd(cmd);
@@ -59,7 +61,7 @@ void WaveFromGenerator::SetFreq(int ch, double freq)
 
 void WaveFromGenerator::SetOffset(int ch, double offset)
 {
-
+    if( sta != VI_SUCCESS) return;
     if( std::abs(offset) > 5) {
         //printf("DC offset must be smaller than +- 5 V !\n");
         qDebug() << "DC offset must be smaller than +- 5 V !\n";
@@ -73,6 +75,7 @@ void WaveFromGenerator::SetOffset(int ch, double offset)
 
 void WaveFromGenerator::SetPhase(int ch, double phase)
 {
+    if( sta != VI_SUCCESS) return;
     this->phase = phase;
     sprintf(cmd, "source%d:phase %f\n", ch, phase); // angle:unit = degree
     SendCmd(cmd);
@@ -80,6 +83,7 @@ void WaveFromGenerator::SetPhase(int ch, double phase)
 
 int WaveFromGenerator::GetWaveForm(int ch)
 {
+    if( sta != VI_SUCCESS) return -1;
     sprintf(cmd, "source%d:function?\n", ch);
     viPrintf(device, cmd);
     viScanf(device, "%t", buf);
@@ -95,6 +99,7 @@ int WaveFromGenerator::GetWaveForm(int ch)
 
 int WaveFromGenerator::GetChIO(int ch)
 {
+    if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "output%d?\n", ch);
     viPrintf(device, cmd);
     viScanf(device, "%t", buf);
@@ -105,6 +110,7 @@ int WaveFromGenerator::GetChIO(int ch)
 
 double WaveFromGenerator::GetFreq(int ch)
 {
+    if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:frequency?\n", ch);
     viPrintf(device, cmd);
     viScanf(device, "%t", buf);
@@ -115,6 +121,7 @@ double WaveFromGenerator::GetFreq(int ch)
 
 double WaveFromGenerator::GetOffset(int ch)
 {
+    if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:offset?\n", ch);
     viPrintf(device, cmd);
     viScanf(device, "%t", buf);
@@ -125,6 +132,7 @@ double WaveFromGenerator::GetOffset(int ch)
 
 double WaveFromGenerator::GetAmp(int ch)
 {
+    if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:voltage?\n", ch);
     viPrintf(device, cmd);
     viScanf(device, "%t", buf);
@@ -135,6 +143,7 @@ double WaveFromGenerator::GetAmp(int ch)
 
 double WaveFromGenerator::GetPhase(int ch)
 {
+    if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:phase?\n", ch);
     viPrintf(device, cmd);
     viScanf(device, "%t", buf);
@@ -145,14 +154,15 @@ double WaveFromGenerator::GetPhase(int ch)
 
 void WaveFromGenerator::GetSetting(int ch)
 {
-    if( sta == VI_SUCCESS ){
-        qDebug() << "---- Get WF setting ----";
-        //this->wf = GetWaveForm(ch);
-        this->freq = GetFreq(ch);
-        this->amp = GetAmp(ch);
-        this->offset = GetOffset(ch);
-        this->phase = GetPhase(ch);
-        this->IO = GetChIO(ch);
-    }
+    if( sta != VI_SUCCESS) return;
+
+    qDebug() << "---- Get WF setting ----";
+    //this->wf = GetWaveForm(ch);
+    this->freq = GetFreq(ch);
+    this->amp = GetAmp(ch);
+    this->offset = GetOffset(ch);
+    this->phase = GetPhase(ch);
+    this->IO = GetChIO(ch);
+
 }
 

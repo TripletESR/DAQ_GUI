@@ -72,19 +72,14 @@ void MainWindow::on_pushButton_clicked()
     customPlot = ui->customPlot;
     customPlot->addGraph();
 
-    QVector<double> xdat(100);
-    QVector<double> ydat(100);
-    for (int i = 0; i < 100; i++){
-        xdat[i] = oscui->osc->xData[i]; //TODO change data type to Qvector
-        ydat[i] = oscui->osc->yData[i];
-
-    }
-
-    customPlot->graph(0)->setData(xdat, ydat);
+    customPlot->graph(0)->setData(oscui->osc->xData,
+                                  oscui->osc->yData);
     customPlot->xAxis->setLabel("time [us]");
     customPlot->yAxis->setLabel("Volatge [V]");
-    customPlot->xAxis->setRange(-60,100);
-    customPlot->yAxis->setRange(-1,1);
+    customPlot->xAxis->setRange(oscui->osc->xMin,
+                                oscui->osc->xMax);
+    customPlot->yAxis->setRange(oscui->osc->yMin * 2,
+                                oscui->osc->yMax * 2);
 
     customPlot->replot();
 }

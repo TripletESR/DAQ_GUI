@@ -17,7 +17,7 @@ SCPI::SCPI(ViRsrc name, bool init)
         //printf("Instrument identification string:\n     %s\n", buf);
         qDebug() << "Instrument identification string:\n \t" <<  this->name;
     }else{
-        qDebug() << "Cannot open " << this->name;
+        qDebug() << "Cannot open " << name;
     }
 
 }
@@ -60,6 +60,8 @@ void SCPI::SendCmd(char *cmd)
         viPrintf(device, cmd);
         *std::remove(cmd, cmd+strlen(cmd), '\n') = '\0'; //remove "\n"
         qDebug().noquote() << cmd;
+    }else{
+        qDebug() << "Device offline." ;
     }
 }
 

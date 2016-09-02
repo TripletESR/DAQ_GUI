@@ -29,8 +29,13 @@ void osc_Dialog::on_comboBox_currentIndexChanged(int index)
 {
     osc->SetAcqMode(index);
     switch (index){
-        case 0: ui->spinBox->setDisabled(1);break;
-        case 1: ui->spinBox->setDisabled(0);break;
+        case 0:
+            ui->spinBox->setDisabled(1);
+            break;
+        case 1:
+            ui->spinBox->setDisabled(0);
+            ui->spinBox->setValue(osc->count);
+            break;
     }
 }
 

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>423</width>
-    <height>303</height>
+    <height>333</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -94,7 +94,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>120</y>
+     <y>150</y>
      <width>381</width>
      <height>171</height>
     </rect>
@@ -321,9 +321,9 @@
   <widget class="QPushButton" name="pushButton_Reset">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>80</y>
-     <width>91</width>
+     <x>20</x>
+     <y>110</y>
+     <width>131</width>
      <height>23</height>
     </rect>
    </property>
@@ -335,7 +335,7 @@
    <property name="geometry">
     <rect>
      <x>160</x>
-     <y>50</y>
+     <y>80</y>
      <width>101</width>
      <height>16</height>
     </rect>
@@ -348,7 +348,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>40</y>
+     <y>50</y>
      <width>141</width>
      <height>80</height>
     </rect>
@@ -394,6 +394,32 @@
      </item>
     </layout>
    </widget>
+  </widget>
+  <widget class="QCheckBox" name="checkBox_Lock">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>50</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Lock + Update</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Clear">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>110</y>
+     <width>91</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Clear</string>
+   </property>
   </widget>
  </widget>
  <resources/>

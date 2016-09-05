@@ -8,6 +8,7 @@ Oscilloscope::Oscilloscope(ViRsrc name, bool init):
 
 Oscilloscope::~Oscilloscope(){
     SystemLock(0);
+    SetRemoteLog(0);
 }
 
 void Oscilloscope::Initialize(int ch)
@@ -25,6 +26,7 @@ void Oscilloscope::SetRemoteLog(bool log)
 {
     if( sta != VI_SUCCESS) return;
     sprintf(cmd,":system:rlogger %d\n", log);SendCmd(cmd);
+    sprintf(cmd,":system:rlogger:display %d\n", log);SendCmd(cmd);
     logFlag =1;
 }
 
@@ -188,8 +190,6 @@ void Oscilloscope::GetSystemStatus(){
 
     sprintf(cmd,":trigger:source?\n");
     trgCh = Ask(cmd).right(1).toInt();
-
-    qDebug() << buf << "," << trgCh;
 
     sprintf(cmd,":system:rlogger:state?\n");
     logFlag = Ask(cmd).toInt();

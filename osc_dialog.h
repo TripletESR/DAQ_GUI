@@ -51,6 +51,22 @@ private slots:
 
     void on_radioButton_4_clicked();
 
+    void on_lineEdit_1_range_returnPressed();
+    void on_lineEdit_1_offset_returnPressed();
+    void on_comboBox_1_ohm_currentIndexChanged(int index);
+
+    void on_lineEdit_2_range_returnPressed();
+    void on_lineEdit_2_offset_returnPressed();
+    void on_comboBox_2_ohm_currentIndexChanged(int index);
+
+    void on_lineEdit_3_range_returnPressed();
+    void on_lineEdit_3_offset_returnPressed();
+    void on_comboBox_3_ohm_currentIndexChanged(int index);
+
+    void on_lineEdit_4_range_returnPressed();
+    void on_lineEdit_4_offset_returnPressed();
+    void on_comboBox_4_ohm_currentIndexChanged(int index);
+
 private:
     Ui::osc_Dialog *ui;
 
@@ -61,6 +77,8 @@ private:
     void DisplayChannel(int ch);
     void DisplayTrigger();
     void DisplayTouch();
+
+    void EnableControl(bool flag);  //Not finsihed
 };
 
 #endif // OSC_DIALOG_H

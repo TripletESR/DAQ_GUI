@@ -131,6 +131,29 @@ void osc_Dialog::DisplayTrigger()
     }
 }
 
+void osc_Dialog::EnableControl(bool flag) //Not finsihed
+{
+    ui->radioButton_1->setEnabled(flag);
+    ui->radioButton_2->setEnabled(flag);
+    ui->radioButton_3->setEnabled(flag);
+    ui->radioButton_4->setEnabled(flag);
+
+    ui->comboBox->setEnabled(flag);
+    ui->comboBox_1_ohm->setEnabled(flag);
+    ui->comboBox_2_ohm->setEnabled(flag);
+    ui->comboBox_3_ohm->setEnabled(flag);
+    ui->comboBox_4_ohm->setEnabled(flag);
+
+    ui->spinBox->setEnabled(flag);
+
+    ui->checkBox_Touch->setEnabled(flag);
+
+    ui->lineEdit_1_offset->setEnabled(flag);
+    ui->lineEdit_2_offset->setEnabled(flag);
+    ui->lineEdit_3_offset->setEnabled(flag);
+    ui->lineEdit_4_offset->setEnabled(flag);
+}
+
 
 void osc_Dialog::on_pushButton_Reset_clicked()
 {
@@ -188,12 +211,8 @@ void osc_Dialog::on_checkBox_1_IO_clicked(bool checked)
     ui->lineEdit_1_TL->setEnabled(checked);
     ui->comboBox_1_ohm->setEnabled(checked);
 
-    double range  = ui->lineEdit_1_range->text().toDouble();
-    double offset = ui->lineEdit_1_offset->text().toDouble();
-    bool      ohm = ui->comboBox_1_ohm->currentIndex(); //index 0 = 50, 1 = 1M
-
     osc->OpenCh(1, checked);
-    if(checked) osc->SetVoltage(1, range, offset, !ohm);
+    if(checked) on_lineEdit_1_range_returnPressed();
 }
 
 void osc_Dialog::on_checkBox_2_IO_clicked(bool checked)
@@ -203,13 +222,8 @@ void osc_Dialog::on_checkBox_2_IO_clicked(bool checked)
     ui->lineEdit_2_TL->setEnabled(checked);
     ui->comboBox_2_ohm->setEnabled(checked);
 
-    double range  = ui->lineEdit_2_range->text().toDouble();
-    double offset = ui->lineEdit_2_offset->text().toDouble();
-    bool      ohm = ui->comboBox_2_ohm->currentIndex(); //index 0 = 50, 1 = 1M
-
     osc->OpenCh(2, checked);
-    if(checked) osc->SetVoltage(2, range, offset, !ohm);
-
+    if(checked) on_lineEdit_2_range_returnPressed();
 }
 
 void osc_Dialog::on_checkBox_3_IO_clicked(bool checked)
@@ -219,12 +233,8 @@ void osc_Dialog::on_checkBox_3_IO_clicked(bool checked)
     ui->lineEdit_3_TL->setEnabled(checked);
     ui->comboBox_3_ohm->setEnabled(checked);
 
-    double range  = ui->lineEdit_3_range->text().toDouble();
-    double offset = ui->lineEdit_3_offset->text().toDouble();
-    bool      ohm = ui->comboBox_3_ohm->currentIndex(); //index 0 = 50, 1 = 1M
-
     osc->OpenCh(3, checked);
-    if(checked) osc->SetVoltage(3, range, offset, !ohm);
+    if(checked) on_lineEdit_3_range_returnPressed();
 }
 
 void osc_Dialog::on_checkBox_4_IO_clicked(bool checked)
@@ -234,13 +244,8 @@ void osc_Dialog::on_checkBox_4_IO_clicked(bool checked)
     ui->lineEdit_4_TL->setEnabled(checked);
     ui->comboBox_4_ohm->setEnabled(checked);
 
-    double range  = ui->lineEdit_4_range->text().toDouble();
-    double offset = ui->lineEdit_4_offset->text().toDouble();
-    bool      ohm = ui->comboBox_4_ohm->currentIndex(); //index 0 = 50, 1 = 1M
-
     osc->OpenCh(4, checked);
-    if(checked) osc->SetVoltage(4, range, offset, !ohm);
-
+    if(checked) on_lineEdit_4_range_returnPressed();
 }
 
 void osc_Dialog::on_lineEdit_timeRange_returnPressed()
@@ -297,4 +302,77 @@ void osc_Dialog::on_radioButton_3_clicked()
 void osc_Dialog::on_radioButton_4_clicked()
 {
     osc->SetTrigger(4);
+}
+
+void osc_Dialog::on_lineEdit_1_range_returnPressed()
+{
+    double range  = ui->lineEdit_1_range->text().toDouble();
+    double offset = ui->lineEdit_1_offset->text().toDouble();
+    bool      ohm = ui->comboBox_1_ohm->currentIndex(); //index 0 = 50, 1 = 1M
+    osc->SetVoltage(1, range, offset, !ohm);
+}
+
+void osc_Dialog::on_lineEdit_1_offset_returnPressed()
+{
+    on_lineEdit_1_range_returnPressed();
+}
+
+void osc_Dialog::on_comboBox_1_ohm_currentIndexChanged(int index)
+{
+    on_lineEdit_1_range_returnPressed();
+}
+
+void osc_Dialog::on_lineEdit_2_range_returnPressed()
+{
+    double range = ui->lineEdit_2_range->text().toDouble();
+    double offset= ui->lineEdit_2_offset->text().toDouble();
+    bool      ohm= ui->comboBox_2_ohm->currentIndex(); //index 0 = 50, 1 = 1M
+    osc->SetVoltage(2, range, offset, !ohm);
+}
+
+void osc_Dialog::on_lineEdit_2_offset_returnPressed()
+{
+    on_lineEdit_2_range_returnPressed();
+}
+
+void osc_Dialog::on_comboBox_2_ohm_currentIndexChanged(int index)
+{
+    on_lineEdit_2_range_returnPressed();
+}
+
+void osc_Dialog::on_lineEdit_3_range_returnPressed()
+{
+    double range = ui->lineEdit_3_range->text().toDouble();
+    double offset= ui->lineEdit_3_offset->text().toDouble();
+    bool      ohm= ui->comboBox_3_ohm->currentIndex(); //index 0 = 50, 1 = 1M
+    osc->SetVoltage(3, range, offset, !ohm);
+}
+
+void osc_Dialog::on_lineEdit_3_offset_returnPressed()
+{
+    on_lineEdit_3_range_returnPressed();
+}
+
+void osc_Dialog::on_comboBox_3_ohm_currentIndexChanged(int index)
+{
+    on_lineEdit_3_range_returnPressed();
+}
+
+void osc_Dialog::on_lineEdit_4_range_returnPressed()
+{
+    double range = ui->lineEdit_4_range->text().toDouble();
+    double offset= ui->lineEdit_4_offset->text().toDouble();
+    bool      ohm= ui->comboBox_4_ohm->currentIndex(); //index 0 = 50, 1 = 1M
+    osc->SetVoltage(4, range, offset, !ohm);
+}
+
+void osc_Dialog::on_lineEdit_4_offset_returnPressed()
+{
+    on_lineEdit_4_range_returnPressed();
+}
+
+
+void osc_Dialog::on_comboBox_4_ohm_currentIndexChanged(int index)
+{
+    on_lineEdit_4_range_returnPressed();
 }

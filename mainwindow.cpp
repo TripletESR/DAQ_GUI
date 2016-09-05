@@ -67,20 +67,38 @@ void MainWindow::on_actionOscilloscope_triggered()
 
 void MainWindow::on_pushButton_clicked()
 {
-    oscui->osc->GetData(ui->spinBox_ch->value(), ui->spinBox_count->value());
-
     customPlot = ui->customPlot;
-    customPlot->addGraph();
 
-    customPlot->graph(0)->setData(oscui->osc->xData,
-                                  oscui->osc->yData);
-    customPlot->xAxis->setLabel("time [us]");
-    customPlot->yAxis->setLabel("Volatge [V]");
-    qDebug("%f, %f \n", oscui->osc->xMin, oscui->osc->xMax);
-    customPlot->xAxis->setRange(oscui->osc->xMin,
-                                oscui->osc->xMax);
-    customPlot->yAxis->setRange(oscui->osc->yMin * 2,
-                                oscui->osc->yMax * 2);
+    int ch = ui->spinBox_ch->value();
+    GetDataAndPlot(customPlot, ch);
 
-    customPlot->replot();
+    //qDebug() << "Ready?" << oscui->osc->isReady();
+}
+
+void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
+
+    oscui->osc->GetData(ch, ui->spinBox_count->value());
+
+    if( Plot->graphCount() == 0){
+        Plot->xAxis->setLabel("time [us]");
+        Plot->yAxis->setLabel("Volatge [V]");
+        Plot->xAxis->setRange(oscui->osc->xMin,oscui->osc->xMax);
+        Plot->yAxis->setRange(oscui->osc->yMin * 2, oscui->osc->yMax * 2);
+    }
+
+    if( Plot->graphCount() < ch) {
+        Plot->addGraph();
+
+        switch (ch) {
+        case 1:Plot->graph(ch-1)->setPen(QPen(Qt::blue)); break;
+        case 2:Plot->graph(ch-1)->setPen(QPen(Qt::red)); break;
+        case 3:Plot->graph(ch-1)->setPen(QPen(Qt::darkGreen)); break;
+        case 4:Plot->graph(ch-1)->setPen(QPen(Qt::magenta)); break;
+        }
+    }
+    Plot->graph(ch-1)->setData(oscui->osc->xData[ch], oscui->osc->yData[ch]);
+        //qDebug("%f, %f \n", oscui->osc->xMin, oscui->osc->xMax);
+
+
+    Plot->replot();
 }

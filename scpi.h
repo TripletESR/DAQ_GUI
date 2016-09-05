@@ -23,6 +23,7 @@ public:
     void SendCmd(char *cmd);
     QString ReadRespond();
     QString Ask(char *cmd);
+    bool isReady();
 
 protected:
     ViSession defaultRM;

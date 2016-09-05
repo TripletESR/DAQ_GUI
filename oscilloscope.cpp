@@ -199,13 +199,13 @@ void Oscilloscope::GetSystemStatus(){
 void Oscilloscope::GetData(int ch, const int points)
 {
     if( sta != VI_SUCCESS) return;
-    xData.clear();
-    yData.clear();
+    xData[ch].clear();
+    yData[ch].clear();
 
     GetTime();
 
-    xData = QVector<double>(points);
-    yData = QVector<double>(points);
+    xData[ch] = QVector<double>(points);
+    yData[ch] = QVector<double>(points);
 
     //qDebug() << xData.size();
 
@@ -227,17 +227,17 @@ void Oscilloscope::GetData(int ch, const int points)
 
     for( int i = 0 ; i < data.length(); i++){
         //qDebug() << (data[i]).toDouble();
-        xData[i] = xOrigin + i * xStep;
-        yData[i] = (data[i]).toDouble();
+        xData[ch][i] = xOrigin + i * xStep;
+        yData[ch][i] = (data[i]).toDouble();
         //qDebug() << i << "," << xData[i] << "," << yData[i];
     }
 
     //sprintf(cmd,":RUN\n"); SendCmd(cmd);
 
-    xMax = GetMax(xData);
-    xMin = GetMin(xData);
-    yMax = GetMax(yData);
-    yMin = GetMin(yData);
+    xMax = GetMax(xData[ch]);
+    xMin = GetMin(xData[ch]);
+    yMax = GetMax(yData[ch]);
+    yMin = GetMin(yData[ch]);
 
 }
 

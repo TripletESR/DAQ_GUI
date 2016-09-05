@@ -73,3 +73,11 @@ QString SCPI::Ask(char *cmd){
     SendCmd(cmd);
     return ReadRespond();
 }
+
+bool SCPI::isReady(){
+    if( sta != VI_SUCCESS) return "Err.";
+    viPrintf(device, "*OPC?\n");
+    viScanf(device, "%t", this->buf);
+    *std::remove(buf, buf+strlen(buf), '\n') = '\0';
+    return QString(this->buf).toInt();
+}

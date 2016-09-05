@@ -28,7 +28,7 @@ private slots:
 
     void on_pushButton_clicked();
 
-    void GetDataAndPlot(QCustomPlot *Plot, int ch);
+    void GetDataAndPlot(QCustomPlot *Plot, int plotID);
 
 private:
     Ui::MainWindow *ui;

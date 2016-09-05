@@ -6,7 +6,7 @@
 
 class Oscilloscope : public SCPI{
 public:
-    QVector<double> xData, yData;
+    QVector<double> xData[5], yData[5];
     int count;
     double yMax, yMin;
     double xMax, xMin;

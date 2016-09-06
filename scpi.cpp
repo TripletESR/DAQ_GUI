@@ -3,8 +3,8 @@
 SCPI::SCPI(ViRsrc name, bool init)
 {
     viOpenDefaultRM(&defaultRM);
-//    sta = viOpen(defaultRM, name, VI_NULL, VI_NULL, &device);
-    sta = viOpen(defaultRM, name, VI_NULL, 1000., &device);
+    sta = viOpen(defaultRM, name, VI_NULL, VI_NULL, &device);
+//    sta = viOpen(defaultRM, name, VI_NULL, 1000., &device);
 
     if( sta == VI_SUCCESS ){
         // Initialize device

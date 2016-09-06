@@ -64,6 +64,7 @@ void Oscilloscope::SetTriggerLevel(int ch, double level)
 }
 
 void Oscilloscope::OpenCh(int ch, bool display){
+    if( sta != VI_SUCCESS) return;
     //:CHANnel<n>:DISPlay?
     sprintf(cmd,":channel%d:display %d\n", ch, display);SendCmd(cmd);
 }
@@ -98,18 +99,20 @@ void Oscilloscope::SetAcqMode(int mode){
         case 0:
             sprintf(cmd,":acquire:type normal\n");
             SendCmd(cmd);
+            acqFlag = 0;
             break;
         case 1:
             sprintf(cmd,":acquire:type average\n");
             SendCmd(cmd);
             sprintf(cmd,":acquire:count?\n");
-            this->count = Ask(cmd).toInt();
+            this->acqFlag = Ask(cmd).toInt();
             break;
     }
 }
 void Oscilloscope::SetAverage(int count)
 {
     if( sta != VI_SUCCESS) return;
+    acqCount = count;
     sprintf(cmd,":acquire:type average\n"); SendCmd(cmd);
     sprintf(cmd,":acquire:count %d\n", count); SendCmd(cmd);
     sprintf(cmd,":acquire:srate?\n");
@@ -196,7 +199,7 @@ void Oscilloscope::GetSystemStatus(){
 
 }
 
-void Oscilloscope::GetData(int ch, const int points)
+void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
 {
     if( sta != VI_SUCCESS) return;
     xData[ch].clear();
@@ -209,35 +212,140 @@ void Oscilloscope::GetData(int ch, const int points)
 
     //qDebug() << xData.size();
 
+    //======= block method
     //sprintf(cmd,":digitize channel%d\n", ch); SendCmd(cmd);
-    sprintf(cmd,":waveform:source channel%d\n", ch); SendCmd(cmd);
-    sprintf(cmd,":waveform:format ASCii\n"); SendCmd(cmd);
-    sprintf(cmd,":waveform:points %d\n", points); SendCmd(cmd);
 
-    sprintf(cmd,":waveform:data?\n"); SendCmd(cmd);
-    char rawData[90000];
-    viScanf(device, "%t", rawData);
-    QString raw = rawData;
-    QStringList data = raw.mid(10).split(',');
-    //qDebug() << data;
-    qDebug() << "number of data : " << data.length();
 
-    double xOrigin = -(tRange/2-tDelay);
-    double xStep = tRange/points;
+    if( GetMethod == 0){
+        //======= Polling method
+        sprintf(cmd,":STOP\n"); SendCmd(cmd);
+        sprintf(cmd,"*OPC?\n");
+        qDebug() << "Ready : " << Ask(cmd);
+        // Single Acquistion; cannot be average measurement
+        sprintf(cmd,":Single\n"); SendCmd(cmd);
 
-    for( int i = 0 ; i < data.length(); i++){
-        //qDebug() << (data[i]).toDouble();
-        xData[ch][i] = xOrigin + i * xStep;
-        yData[ch][i] = (data[i]).toDouble();
-        //qDebug() << i << "," << xData[i] << "," << yData[i];
+        const long lngTimeout = 10000; //10 sec
+        long lngElapsed = 0;
+
+        while (lngElapsed < lngTimeout) {
+            sprintf(cmd,":operegister:condition?\n");
+            int varQueryResult = Ask(cmd).toInt();
+            qDebug() << varQueryResult << ", " << (varQueryResult & 8);
+            if( (varQueryResult & 8) == 0){
+                break;
+            }else{
+                Sleep(100);
+                lngElapsed += 100;
+            }
+        }
+
+        //------- Get Data
+        if( lngElapsed < lngTimeout){
+            sprintf(cmd,":waveform:source channel%d\n", ch); SendCmd(cmd);
+            sprintf(cmd,":waveform:format ASCii\n"); SendCmd(cmd);
+            sprintf(cmd,":waveform:points %d\n", points); SendCmd(cmd);
+
+            sprintf(cmd,":waveform:data?\n"); SendCmd(cmd);
+            char rawData[90000];
+            viScanf(device, "%t", rawData);
+            QString raw = rawData;
+            QStringList data = raw.mid(10).split(',');
+            //qDebug() << data;
+            qDebug() << "number of data : " << data.length();
+
+            double xOrigin = -(tRange/2-tDelay);
+            double xStep = tRange/points;
+
+            for( int i = 0 ; i < data.length(); i++){
+                //qDebug() << (data[i]).toDouble();
+                xData[ch][i] = xOrigin + i * xStep;
+                yData[ch][i] = (data[i]).toDouble();
+                //qDebug() << i << "," << xData[i] << "," << yData[i];
+            }
+        }else{
+            qDebug() << "Timeout waiting for single-shot trigger.";
+        }
+
     }
 
-    //sprintf(cmd,":RUN\n"); SendCmd(cmd);
+    if( GetMethod == 1){
+        //Synchronizing in averaging acquisition mode.
+        sprintf(cmd,":STOP\n"); SendCmd(cmd);
+        sprintf(cmd,"*OPC?\n");
+        bool opc = Ask(cmd).toInt();
+        qDebug() << "Operation completed? " << opc;
+        if( !opc) {
+            qDebug() << "Operation did not complete ";
+            return;
+        }
+
+        //Clear ESR (Standard Event Status register)
+        int ESR = 0;
+        do{
+            sprintf(cmd,"*ESR?\n");
+            ESR = Ask(cmd).toInt();
+        }while(ESR !=0);
+
+        //Set *ESE mask to allow only OPC (Operation Complete) bit.
+        sprintf(cmd,"*ESE 1\n"); SendCmd(cmd);
+
+        //Acquire using :DIGitize. Set up OPC bit to be set when the operation is complete.
+        sprintf(cmd,":DIGITIZE channel%d\n", ch); SendCmd(cmd);
+        sprintf(cmd,"*OPC\n"); SendCmd(cmd);
+
+        ViUInt16 statusByte;
+        int lngElapsed = 0;
+
+        do{
+            Sleep(4000); //wait for 4 sec
+            lngElapsed += 4;
+            viReadSTB(device,&statusByte);
+            qDebug() << "Waiting for the device: " << lngElapsed << " sec.";
+            //qDebug("%d ...Status byte is 0x%x, 0x%x, 0x%x", lngElapsed, statusByte, 32, (statusByte & 32));
+        }while((statusByte & 32) == 0);
+        qDebug() << "total wait time : " << lngElapsed << " sec.";
+
+        // Clear ESR and restore previously saved *ESE mask.
+        sprintf(cmd,"*ESR?\n"); Ask(cmd);
+        sprintf(cmd,"*ESE 255\n"); SendCmd(cmd);
+
+        //Get Result
+        sprintf(cmd,":waveform:source channel%d\n", ch); SendCmd(cmd);
+        sprintf(cmd,":waveform:format ASCii\n");      SendCmd(cmd);
+        sprintf(cmd,":waveform:points %d\n", points); SendCmd(cmd);
+        sprintf(cmd,":waveform:data?\n");             SendCmd(cmd);
+        char rawData[90000];
+        viScanf(device, "%t", rawData);
+        QString raw = rawData;
+        QStringList data = raw.mid(10).split(',');
+        qDebug() << data;
+        qDebug() << "number of data : " << data.length();
+
+        double xOrigin = -(tRange/2-tDelay);
+        double xStep = tRange/points;
+
+        for( int i = 0 ; i < data.length(); i++){
+            //qDebug() << (data[i]).toDouble();
+            xData[ch][i] = xOrigin + i * xStep;
+            yData[ch][i] = (data[i]).toDouble();
+            //qDebug() << i << "," << xData[i] << "," << yData[i];
+        }
+
+    }
+
+    //resume
+    sprintf(cmd,":RUN\n"); SendCmd(cmd);
+    for( int i = 1; i <=4 ; i++){
+        OpenCh(i, IO[i]);
+    }
 
     xMax = GetMax(xData[ch]);
     xMin = GetMin(xData[ch]);
     yMax = GetMax(yData[ch]);
     yMin = GetMin(yData[ch]);
+
+    qDebug("X :(%7f, %7f)", xMin, xMax);
+    qDebug("Y :(%7f, %7f)", yMin, yMax);
 
 }
 

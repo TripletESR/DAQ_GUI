@@ -77,7 +77,8 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
 
-    oscui->osc->GetData(ch, ui->spinBox_count->value());
+    oscui->osc->GetData(ch, ui->spinBox_count->value(),oscui->osc->acqFlag);
+    //oscui->osc->GetData2(ch, ui->spinBox_count->value());
 
     if( Plot->graphCount() == 0){
         Plot->xAxis->setLabel("time [us]");
@@ -85,6 +86,8 @@ void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
         Plot->xAxis->setRange(oscui->osc->xMin,oscui->osc->xMax);
         Plot->yAxis->setRange(oscui->osc->yMin * 2, oscui->osc->yMax * 2);
     }
+
+    double plotyMin = Plot->yAxis->range().lower;
 
     if( Plot->graphCount() < ch) {
         Plot->addGraph();

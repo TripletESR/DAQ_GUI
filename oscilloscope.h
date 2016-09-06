@@ -3,13 +3,15 @@
 
 #include "scpi.h"
 #include <QVector>
+#include <windows.h> // for Sleep
 
 class Oscilloscope : public SCPI{
 public:
     QVector<double> xData[5], yData[5];
-    int count;
     double yMax, yMin;
     double xMax, xMin;
+
+    int acqCount;
 
     bool lockFlag, touchFlag, acqFlag, logFlag;
 
@@ -40,7 +42,7 @@ public:
     void GetTime();
     void GetSystemStatus();  // lock, touch, Acq Mode
 
-    void GetData(int ch, const int points);
+    void GetData(int ch, const int points, int GetMethod);
     double GetMax(QVector<double> vec);
     double GetMin(QVector<double> vec);
 

@@ -184,6 +184,9 @@ void Oscilloscope::GetSystemStatus(){
     sprintf(cmd,":acquire:type?\n");
     QString mode = Ask(cmd);
 
+    sprintf(cmd,":acquire:count?\n");
+    acqCount = Ask(cmd).toInt();
+
     if(mode == "AVER"){
         acqFlag = 1;
     }else{
@@ -210,13 +213,10 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
     xData[ch] = QVector<double>(points);
     yData[ch] = QVector<double>(points);
 
-    //qDebug() << xData.size();
-
-    //======= block method
-    //sprintf(cmd,":digitize channel%d\n", ch); SendCmd(cmd);
-
-
     if( GetMethod == 0){
+        //======= block method
+        //sprintf(cmd,":digitize channel%d\n", ch); SendCmd(cmd);
+
         //======= Polling method
         sprintf(cmd,":STOP\n"); SendCmd(cmd);
         sprintf(cmd,"*OPC?\n");
@@ -293,14 +293,16 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
         sprintf(cmd,":DIGITIZE channel%d\n", ch); SendCmd(cmd);
         sprintf(cmd,"*OPC\n"); SendCmd(cmd);
 
-        ViUInt16 statusByte;
+        //ViUInt16 statusByte;
+        int statusByte;
         int lngElapsed = 0;
-
+        int waitsec = 1;//wait for # sec
         do{
-            Sleep(4000); //wait for 4 sec
-            lngElapsed += 4;
-            viReadSTB(device,&statusByte);
-            qDebug() << "Waiting for the device: " << lngElapsed << " sec.";
+            Sleep(waitsec * 1000);
+            lngElapsed += waitsec;
+            //viReadSTB(device,&statusByte);
+            statusByte = StatusByteRegister();
+            qDebug() << "Waiting for the device: " << lngElapsed << " sec. " << statusByte;
             //qDebug("%d ...Status byte is 0x%x, 0x%x, 0x%x", lngElapsed, statusByte, 32, (statusByte & 32));
         }while((statusByte & 32) == 0);
         qDebug() << "total wait time : " << lngElapsed << " sec.";
@@ -318,7 +320,7 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
         viScanf(device, "%t", rawData);
         QString raw = rawData;
         QStringList data = raw.mid(10).split(',');
-        qDebug() << data;
+        //qDebug() << data;
         qDebug() << "number of data : " << data.length();
 
         double xOrigin = -(tRange/2-tDelay);

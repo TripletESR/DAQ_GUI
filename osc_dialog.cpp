@@ -37,7 +37,7 @@ void osc_Dialog::on_comboBox_currentIndexChanged(int index)
             break;
         case 1:
             ui->spinBox->setEnabled(1);
-            ui->spinBox->setValue(osc->count);
+            ui->spinBox->setValue(osc->acqCount);
             break;
     }
 }

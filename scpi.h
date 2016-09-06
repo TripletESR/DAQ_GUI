@@ -23,7 +23,9 @@ public:
     void SendCmd(char *cmd);
     QString ReadRespond();
     QString Ask(char *cmd);
-    bool isReady();
+    bool isOperationCompleted();
+
+    int StatusByteRegister();
 
 protected:
     ViSession defaultRM;

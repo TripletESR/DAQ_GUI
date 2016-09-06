@@ -74,10 +74,17 @@ QString SCPI::Ask(char *cmd){
     return ReadRespond();
 }
 
-bool SCPI::isReady(){
+bool SCPI::isOperationCompleted(){
     if( sta != VI_SUCCESS) return "Err.";
     viPrintf(device, "*OPC?\n");
     viScanf(device, "%t", this->buf);
     *std::remove(buf, buf+strlen(buf), '\n') = '\0';
     return QString(this->buf).toInt();
+}
+
+int SCPI::StatusByteRegister()
+{
+    ViUInt16 statusByte;
+    viReadSTB(device,&statusByte);
+    return statusByte;
 }

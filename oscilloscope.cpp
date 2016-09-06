@@ -282,8 +282,7 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
         //Clear ESR (Standard Event Status register)
         int ESR = 0;
         do{
-            sprintf(cmd,"*ESR?\n");
-            ESR = Ask(cmd).toInt();
+            ESR = EventStatusRegister();
         }while(ESR !=0);
 
         //Set *ESE mask to allow only OPC (Operation Complete) bit.
@@ -293,22 +292,19 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
         sprintf(cmd,":DIGITIZE channel%d\n", ch); SendCmd(cmd);
         sprintf(cmd,"*OPC\n"); SendCmd(cmd);
 
-        //ViUInt16 statusByte;
-        int statusByte;
-        int lngElapsed = 0;
-        int waitsec = 1;//wait for # sec
+        int SBR;
+        double lngElapsed = 0;
+        double waitsec = 0.5;//wait for # sec
         do{
             Sleep(waitsec * 1000);
             lngElapsed += waitsec;
-            //viReadSTB(device,&statusByte);
-            statusByte = StatusByteRegister();
-            qDebug() << "Waiting for the device: " << lngElapsed << " sec. " << statusByte;
-            //qDebug("%d ...Status byte is 0x%x, 0x%x, 0x%x", lngElapsed, statusByte, 32, (statusByte & 32));
-        }while((statusByte & 32) == 0);
-        qDebug() << "total wait time : " << lngElapsed << " sec.";
+            SBR = StatusByteRegister();
+            qDebug() << SBR;
+            qDebug("Waiting for the device: %5.1f sec. %#x =? %#x", lngElapsed, SBR, 161); //161 is system "good" status SBR
+        }while((SBR & 32) == 0); // 32 is the ESR registor bit
 
         // Clear ESR and restore previously saved *ESE mask.
-        sprintf(cmd,"*ESR?\n"); Ask(cmd);
+        EventStatusRegister();
         sprintf(cmd,"*ESE 255\n"); SendCmd(cmd);
 
         //Get Result
@@ -371,6 +367,7 @@ double Oscilloscope::GetMin(QVector<double> vec)
 }
 
 void SaveData(QString filename){
+
 
 
 

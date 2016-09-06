@@ -19,13 +19,14 @@ public:
     void Reset();
     void Clear();
 
-    QString GetError();
+    QString GetErrorMsg();
     void SendCmd(char *cmd);
     QString ReadRespond();
     QString Ask(char *cmd);
     bool isOperationCompleted();
 
     int StatusByteRegister();
+    int EventStatusRegister();
 
 protected:
     ViSession defaultRM;

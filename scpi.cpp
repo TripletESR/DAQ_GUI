@@ -40,12 +40,12 @@ void SCPI::Clear(){
     qDebug() << "Clear : " << this->name;
 }
 
-QString SCPI::GetError(){
+QString SCPI::GetErrorMsg(){
     if( sta != VI_SUCCESS ) return "Err.";
     qDebug() << "Ask device Error code : " << this->name;
     viPrintf(device, "SYST:ERR?\n");
     ReadRespond();
-    return buf;
+    return QString(buf);
 }
 
 void SCPI::SendCmd(char *cmd){
@@ -87,4 +87,10 @@ int SCPI::StatusByteRegister()
     ViUInt16 statusByte;
     viReadSTB(device,&statusByte);
     return statusByte;
+}
+
+int SCPI::EventStatusRegister()
+{
+    sprintf(cmd,"*ESR?\n");
+    return Ask(cmd).toInt();
 }

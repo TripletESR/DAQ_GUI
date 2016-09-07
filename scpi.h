@@ -9,15 +9,19 @@
 class SCPI
 {
 public:
-    char cmd[100], buf[256], name[100];
+    char cmd[100], buf[256];
+
+    QString name, Msg;
 
     ViStatus sta;
 
-    SCPI(ViRsrc name, bool init);
+    SCPI(ViRsrc name);
     ~SCPI();
 
     void Reset();
     void Clear();
+
+    QString GetName();
 
     QString GetErrorMsg();
     void SendCmd(char *cmd);

@@ -1,8 +1,18 @@
 #include "wavefromgenerator.h"
 
 WaveFromGenerator::WaveFromGenerator(ViRsrc name, bool init):
-    SCPI(name, init)
+    SCPI(name)
 {
+    if ( init ) viPrintf(device, "*RST\n");
+
+    this->name = GetName();
+
+    if( sta == VI_SUCCESS){
+        qDebug() << "Instrument identification string:\n \t" <<  this->name;
+    }else{
+        qDebug() << "Cannot open " << name;
+    }
+
 }
 
 WaveFromGenerator::~WaveFromGenerator(){

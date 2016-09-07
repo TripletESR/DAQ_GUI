@@ -1,28 +1,13 @@
 #include "scpi.h"
 
-SCPI::SCPI(ViRsrc name, bool init)
+SCPI::SCPI(ViRsrc name)
 {
+    qDebug() << "--------------------------------------";
     viOpenDefaultRM(&defaultRM);
     sta = viOpen(defaultRM, name, VI_NULL, VI_NULL, &device);
 //    sta = viOpen(defaultRM, name, VI_NULL, 1000., &device);
 
-    if( sta == VI_SUCCESS ){
-        // Initialize device
-        if ( init ) viPrintf(device, "*RST\n");
-        // Send an *IDN? string to the device, ask the devices name
-        viPrintf(device, "*IDN?\n");
-        // Read respond
-        viScanf(device, "%t", this->name);
-        *std::remove(this->name, this->name+strlen(this->name), '\n') = '\0';
-        // Print results
-        if( this->name == NULL){
-            sta = VI_ERROR_CONN_LOST;
-            qDebug() << "Cannot open " << name;
-        }
-        qDebug() << "Instrument identification string:\n \t" <<  this->name;
-    }else{
-        qDebug() << "Cannot open " << name;
-    }
+    //qDebug() << StatusByteRegister();
 
 }
 
@@ -44,12 +29,18 @@ void SCPI::Clear(){
     qDebug() << "Clear : " << this->name;
 }
 
+QString SCPI::GetName()
+{
+    if( sta != VI_SUCCESS ) return "";
+    sprintf(cmd,"*IDN?\n");
+    return Ask(cmd);
+}
+
 QString SCPI::GetErrorMsg(){
     if( sta != VI_SUCCESS ) return "Err.";
-    qDebug() << "Ask device Error code : " << this->name;
+    //qDebug() << "Ask device Error code : " << this->name;
     viPrintf(device, "SYST:ERR?\n");
-    ReadRespond();
-    return QString(buf);
+    return ReadRespond();
 }
 
 void SCPI::SendCmd(char *cmd){
@@ -68,7 +59,7 @@ QString SCPI::ReadRespond() //Change to AskQ
     viScanf(device, "%t", this->buf);
     *std::remove(buf, buf+strlen(buf), '\n') = '\0';
     qDebug("%s", buf);
-    return QString(this->buf);
+    return QString(buf);
 
 }
 

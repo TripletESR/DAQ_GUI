@@ -6,40 +6,54 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     wfgui(NULL),
     oscui(NULL),
-    customPlot(NULL)
+    customPlot(NULL),
+    logFile(NULL),
+    dataFile(NULL)
 {
     ui->setupUi(this);
     wfgui = new WFG_Dialog(this);
     oscui = new osc_Dialog(this);
+
 }
 
 MainWindow::~MainWindow()
 {
+    delete customPlot;
+
     delete ui;
     delete wfgui;
     delete oscui;
-    delete customPlot;
+
+    delete logFile;
+    delete dataFile;
+
 }
 
-void MainWindow::Log(QString str, bool end)
+void MainWindow::Log(QString logMsg)
 {
-    QString path = QCoreApplication::applicationDirPath();
+    //QString path = QCoreApplication::applicationDirPath();
     //qDebug()<<path;
-    path.append("/outlog.txt");
+    //path.append("/outlog.txt");
     //qDebug()<<path;
-    QFile myfile(path);
-    myfile.open(QIODevice::Append | QIODevice::Text);
+    //QFile myfile(path);
+    //myfile.open(QIODevice::Append | QIODevice::Text);
+    //
+    //QDateTime date = QDateTime::currentDateTime();
+    //QString text = date.toString().toStdString().c_str();
+    //text.append(":  ");
+    //text.append(str);
+    //myfile.write(text.toStdString().c_str());
+    //
+    //ui->plainTextEdit->appendPlainText(text);
+    //
+    //if(end) myfile.write("\n");
+    //myfile.close();
 
     QDateTime date = QDateTime::currentDateTime();
-    QString text = date.toString().toStdString().c_str();
-    text.append(":  ");
-    text.append(str);
-    myfile.write(text.toStdString().c_str());
+    logMsg.insert(0, ": ").insert(0,date.toString());
+    logFile->SaveLogData(logMsg);
+    ui->plainTextEdit->appendPlainText(logMsg);
 
-    ui->plainTextEdit->appendPlainText(text);
-
-    if(end) myfile.write("\n");
-    myfile.close();
 }
 
 
@@ -107,32 +121,39 @@ void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
     Plot->replot();
 }
 
-void MainWindow::on_pushButton_saveDir_clicked()
+void MainWindow::on_pushButton_openFile_clicked()
 {
-    QString dirName = QFileDialog::getExistingDirectory(this,
-                                                        "Open Saving Directory",
-                                                        "C:/Users/Triplet-ESR/Desktop",
-                                                        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
-    ui->lineEdit_Dir->setText(dirName);
+    QString old_fileName = ui->lineEdit_FileName->text();
 
-
-}
-
-void MainWindow::on_pushButton_saveFile_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this,
+    QString filePath = QFileDialog::getOpenFileName(this,
                                                     "Open File",
                                                     "C:/Users/Triplet-ESR/Desktop" );
-    QStringList sFile = fileName.split('/');
+    QStringList sFile = filePath.split('/');
     int size = sFile.size();
 
     QString dirName;
-    for ( int i = 0; i < size-1 ; i++){
+    for ( int i = 0; i < size-2 ; i++){
         dirName.append(sFile[i]);
         dirName.append("/");
     }
+    dirName.append(sFile[size-2]);
+    QString fileName = sFile[size-1];
 
-    ui->lineEdit_Dir->setText(dirName);
-    ui->lineEdit_FileName->setText(sFile[size-1]);
+    ui->groupBox_file->setTitle(filePath.insert(0, "File : "));
+    ui->lineEdit_FileName->setText(filePath);
 
+    /*
+    if( old_dirName != dirName) {
+        if( logFile != NULL ){
+            delete logFile;
+        }
+        logFile = new FileIO (dirName, "log.txt", 4);
+    }
+
+    if( old_fileName != fileName){
+        if( dataFile != NULL ){
+            delete dataFile;
+        }
+        dataFile = new FileIO (dirName, fileName, 4);
+    }*/
 }

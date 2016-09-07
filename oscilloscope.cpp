@@ -1,8 +1,34 @@
 #include "oscilloscope.h"
 
 Oscilloscope::Oscilloscope(ViRsrc name, bool init):
-    SCPI(name, init)
+    SCPI(name)
 {
+    if( sta != VI_SUCCESS) {
+        qDebug() << "Cannot open " << name;
+        return;
+    }
+
+    if ( init ) viPrintf(device, "*RST\n");
+
+    this->name = GetName();
+
+    int SBR;
+    do{
+        SBR = StatusByteRegister();
+        qDebug("%#x , %s", SBR, GetErrorMsg().toStdString().c_str());
+    }while( !(SBR & 161));
+
+    if( !(SBR & 161)) {
+        sta = VI_ERROR_ABORT;
+        Msg = "Try to restart the device.";
+        qDebug() << Msg;
+    }
+
+    if( sta == VI_SUCCESS){
+        qDebug() << "Instrument identification string:\n \t" <<  this->name;
+    }else{
+        qDebug() << "Cannot open " << name;
+    }
 
 }
 
@@ -365,17 +391,4 @@ double Oscilloscope::GetMin(QVector<double> vec)
     return min;
 }
 
-void SaveData(QString filename){
 
-    QString path = QCoreApplication::applicationDirPath();
-    //qDebug()<<path;
-    path.append("/data.dat");
-    //qDebug()<<path;
-    QFile myfile(path);
-    myfile.open(QIODevice::ReadWrite | QIODevice::Text);
-
-
-
-    myfile.close();
-
-}

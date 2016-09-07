@@ -5,10 +5,22 @@
 #include <QVector>
 #include <windows.h> // for Sleep
 #include <QFile>
-#include <QCoreApplication>
 
 class Oscilloscope : public SCPI{
 public:
+
+    //status Byte Register
+    /*** Table 77
+     0 = trigger
+     1 = user event
+     2 = Message , usually error msg
+     3 = no used, always 0
+     4 = message in output Queue, after send an question
+     5 = event status bit, *ESR?
+     6 = Request Services or Master Summary Status
+     7 = Operation Status Register
+    ***/
+
     QVector<double> xData[5], yData[5];
     double yMax, yMin;
     double xMax, xMin;
@@ -47,8 +59,6 @@ public:
     void GetData(int ch, const int points, int GetMethod);
     double GetMax(QVector<double> vec);
     double GetMin(QVector<double> vec);
-
-    void SaveData(QString filename);
 
 private:
 

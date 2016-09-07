@@ -40,8 +40,7 @@ QString SCPI::GetErrorMsg(){
     if( sta != VI_SUCCESS ) return "Err.";
     //qDebug() << "Ask device Error code : " << this->name;
     viPrintf(device, "SYST:ERR?\n");
-    ReadRespond();
-    return QString(buf);
+    return ReadRespond();
 }
 
 void SCPI::SendCmd(char *cmd){
@@ -57,11 +56,10 @@ void SCPI::SendCmd(char *cmd){
 QString SCPI::ReadRespond() //Change to AskQ
 {
     if( sta != VI_SUCCESS ) return "Err.";
-    //need to ask SBR, if there is something in the output Queue
     viScanf(device, "%t", this->buf);
     *std::remove(buf, buf+strlen(buf), '\n') = '\0';
     qDebug("%s", buf);
-    return QString(this->buf);
+    return QString(buf);
 
 }
 

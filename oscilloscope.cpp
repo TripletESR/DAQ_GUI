@@ -3,6 +3,10 @@
 Oscilloscope::Oscilloscope(ViRsrc name, bool init):
     SCPI(name)
 {
+    if( sta != VI_SUCCESS) {
+        qDebug() << "Cannot open " << name;
+        return;
+    }
 
     if ( init ) viPrintf(device, "*RST\n");
 
@@ -11,7 +15,7 @@ Oscilloscope::Oscilloscope(ViRsrc name, bool init):
     int SBR;
     do{
         SBR = StatusByteRegister();
-        qDebug("%#x , %s", SBR, GetErrorMsg());
+        qDebug("%#x , %s", SBR, GetErrorMsg().toStdString().c_str());
     }while( !(SBR & 161));
 
     if( !(SBR & 161)) {

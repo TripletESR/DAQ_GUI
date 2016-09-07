@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     oscilloscope.cpp \
     scpi.cpp \
     wfg_dialog.cpp \
-    osc_dialog.cpp
+    osc_dialog.cpp \
+    fileio.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
@@ -30,7 +31,8 @@ HEADERS  += mainwindow.h \
     oscilloscope.h \
     scpi.h \
     wfg_dialog.h \
-    osc_dialog.h
+    osc_dialog.h \
+    fileio.h
 
 FORMS    += mainwindow.ui \
     wfg_dialog.ui \

@@ -106,3 +106,33 @@ void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
 
     Plot->replot();
 }
+
+void MainWindow::on_pushButton_saveDir_clicked()
+{
+    QString dirName = QFileDialog::getExistingDirectory(this,
+                                                        "Open Saving Directory",
+                                                        "C:/Users/Triplet-ESR/Desktop",
+                                                        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
+    ui->lineEdit_Dir->setText(dirName);
+
+
+}
+
+void MainWindow::on_pushButton_saveFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                    "Open File",
+                                                    "C:/Users/Triplet-ESR/Desktop" );
+    QStringList sFile = fileName.split('/');
+    int size = sFile.size();
+
+    QString dirName;
+    for ( int i = 0; i < size-1 ; i++){
+        dirName.append(sFile[i]);
+        dirName.append("/");
+    }
+
+    ui->lineEdit_Dir->setText(dirName);
+    ui->lineEdit_FileName->setText(sFile[size-1]);
+
+}

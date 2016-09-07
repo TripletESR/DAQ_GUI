@@ -4,6 +4,8 @@
 #include "scpi.h"
 #include <QVector>
 #include <windows.h> // for Sleep
+#include <QFile>
+#include <QCoreApplication>
 
 class Oscilloscope : public SCPI{
 public:

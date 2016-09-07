@@ -15,6 +15,10 @@ SCPI::SCPI(ViRsrc name, bool init)
         viScanf(device, "%t", this->name);
         *std::remove(this->name, this->name+strlen(this->name), '\n') = '\0';
         // Print results
+        if( this->name == NULL){
+            sta = VI_ERROR_CONN_LOST;
+            qDebug() << "Cannot open " << name;
+        }
         qDebug() << "Instrument identification string:\n \t" <<  this->name;
     }else{
         qDebug() << "Cannot open " << name;

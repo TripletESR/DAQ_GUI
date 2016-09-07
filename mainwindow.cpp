@@ -29,7 +29,7 @@ MainWindow::~MainWindow()
 
 }
 
-void MainWindow::Log(QString logMsg)
+void MainWindow::Log(QString logMsg) //TODO not finished
 {
     //QString path = QCoreApplication::applicationDirPath();
     //qDebug()<<path;
@@ -119,41 +119,86 @@ void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
     Plot->graph(ch-1)->setData(oscui->osc->xData[ch], oscui->osc->yData[ch]);
 
     Plot->replot();
+
+    if( dataFile != NULL){
+        dataFile->AppendData("test", oscui->osc->xData[ch], oscui->osc->yData[ch]);
+    }
 }
 
 void MainWindow::on_pushButton_openFile_clicked()
 {
-    QString old_fileName = ui->lineEdit_FileName->text();
+    //Get current file Path
+    QString old_filePath = ui->lineEdit_FileName->text();
+    QString old_dirName  = "";
+    QString old_fileName = "";
 
-    QString filePath = QFileDialog::getOpenFileName(this,
-                                                    "Open File",
-                                                    "C:/Users/Triplet-ESR/Desktop" );
-    QStringList sFile = filePath.split('/');
-    int size = sFile.size();
-
-    QString dirName;
-    for ( int i = 0; i < size-2 ; i++){
-        dirName.append(sFile[i]);
-        dirName.append("/");
+    QStringList old_sFile = old_filePath.split('/');
+    int old_size = old_sFile.size();
+    if( old_size >= 2){
+        for ( int i = 0; i < old_size-2 ; i++){
+            old_dirName.append(old_sFile[i]);
+            old_dirName.append("/");
+        }
+        old_dirName.append(old_sFile[old_size-2]);
+        old_fileName = old_sFile[old_size-1];
     }
-    dirName.append(sFile[size-2]);
-    QString fileName = sFile[size-1];
 
-    ui->groupBox_file->setTitle(filePath.insert(0, "File : "));
+    //qDebug() << old_filePath << "," << old_dirName << "," << old_fileName;
+
+    // Set new FIle Path
+    QString filePath = QFileDialog::getOpenFileName(this, "Open File", "C:/Users/Triplet-ESR/Desktop" );
+    QString dirName;
+    QString fileName;
+
+
+    if( filePath == "" ) {
+        filePath = old_filePath;
+        dirName  = old_dirName;
+        fileName = old_fileName;
+    }else{
+        QStringList sFile = filePath.split('/');
+        int size = sFile.size();
+        if( size >= 2){
+            for ( int i = 0; i < size-2 ; i++){
+                dirName.append(sFile[i]);
+                dirName.append("/");
+            }
+            dirName.append(sFile[size-2]);
+            fileName = sFile[size-1];
+        }
+    }
+    //qDebug() << filePath << "," << dirName << "," << fileName;
+
+    //Display
     ui->lineEdit_FileName->setText(filePath);
+    if( filePath != old_filePath){
+        QString logfilePath = dirName;
+        logfilePath.append("/log.txt").insert(0, "Log : ");
+        ui->groupBox_log->setTitle(logfilePath);
+    }
 
-    /*
+    // refreash file
     if( old_dirName != dirName) {
         if( logFile != NULL ){
             delete logFile;
         }
         logFile = new FileIO (dirName, "log.txt", 4);
-    }
 
-    if( old_fileName != fileName){
         if( dataFile != NULL ){
             delete dataFile;
         }
-        dataFile = new FileIO (dirName, fileName, 4);
-    }*/
+        dataFile = new FileIO (dirName, fileName, 3);
+        dataFile->FileStructure();
+
+    }
+
+    if( old_dirName == dirName && old_fileName != fileName){
+        if( dataFile != NULL ){
+            delete dataFile;
+        }
+        dataFile = new FileIO (dirName, fileName, 3);
+        dataFile->FileStructure();
+    }
+
+
 }

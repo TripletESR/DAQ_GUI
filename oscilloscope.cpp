@@ -8,23 +8,18 @@ Oscilloscope::Oscilloscope(ViRsrc name, bool init):
         return;
     }
 
-    if ( init ) viPrintf(device, "*RST\n");
+    int SBR = StatusByteRegister();
+    qDebug("%#x, %#x, %s", SBR, EventStatusRegister() ,GetErrorMsg().toStdString().c_str());
 
-    this->name = GetName();
-
-    int SBR;
-    do{
-        SBR = StatusByteRegister();
-        qDebug("%#x , %s", SBR, GetErrorMsg().toStdString().c_str());
-    }while( !(SBR & 161));
-
-    if( !(SBR & 161)) {
+    if( SBR != 161 ) {
         sta = VI_ERROR_ABORT;
         Msg = "Try to restart the device.";
         qDebug() << Msg;
     }
 
     if( sta == VI_SUCCESS){
+        if ( init ) viPrintf(device, "*RST\n");
+        this->name = GetName();
         qDebug() << "Instrument identification string:\n \t" <<  this->name;
     }else{
         qDebug() << "Cannot open " << name;

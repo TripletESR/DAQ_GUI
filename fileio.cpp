@@ -7,9 +7,9 @@ FileIO::FileIO(QString dir, QString name, int mode)
     fileDir  = dir;
     filePath = dir.append("/").append(name);
 
-    myfile = new QFile();
-    QDir::setCurrent(dir);
-    myfile->setFileName(name);
+    myfile = new QFile(filePath);
+//    QDir::setCurrent(dir);
+//    myfile->setFileName(name);
 
     switch (mode) {
     case 1:isOpen = myfile->open(QIODevice::ReadOnly | QIODevice::Text);break;
@@ -32,11 +32,92 @@ FileIO::~FileIO(){
     delete myfile;
 }
 
+void FileIO::FileStructure()
+{
+    myfile->seek(0);
+    QTextStream in(myfile);
+
+    row = 0;
+    col = 0;
+
+    while(!in.atEnd()){
+        QString line = in.readLine();
+        QStringList linelist = line.split(',');
+        if( row == 0 ){
+            col = linelist.size();
+            if(col > 2){
+                xdata = QVector<double>(col);
+                for(int i = 0; i < col ; i ++){
+                    xdata[i] = QString(linelist[i]).toDouble();
+                }
+            }
+        }
+        row++;
+    }
+
+    endPos = myfile->pos();
+
+    qDebug() << xdata;
+    qDebug("(row, col, endPos) = (%d,%d, %d)", row, col, endPos);
+
+}
+
+void FileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zdata)
+{
+
+    myfile->seek(endPos);
+    QTextStream out(myfile);
+    QString outStr;
+    QString temp;
+
+    if( endPos == 0 ){
+        this->xdata = xdata;
+        col = this->xdata.size();
+        outStr = "  ";
+        for(int i = 0; i < col ; i++){
+            temp.sprintf(",%12.3e", (this->xdata)[i]);
+            outStr.append(temp);
+        }
+        outStr.append("\n");
+        out << outStr;
+        outStr.clear();
+        col = col + 1;
+    }
+
+    //check data structure consistancy
+    int size = zdata.size();
+    if( col != size + 1) {
+        qDebug() << "the size of saving data is difference from existing data sturcture. Abort.";
+        return;
+    }
+    //compare xdata and this->xdata
+    for(int i = 0; i < size ; i ++ ){
+        if( xdata[i] != (this->xdata)[i]){
+            qDebug() << "the x-data of saving data is not matching with existing xdata. Abort.";
+            return;
+        }
+    }
+
+    //save ydata
+    outStr = head;
+    for(int i = 0; i < col-1 ; i++){
+        temp.sprintf(",%12.3e", zdata[i]);
+        outStr.append(temp);
+    }
+    outStr.append("\n");
+    out << outStr;
+    outStr.clear();
+
+}
+
 void FileIO::SaveLogData(QString Msg){
 
     //QString path = QCoreApplication::applicationDirPath();
     //path.append("/data.dat");
     //QFile myfile(path);
+
+    //QDateTime date = QDateTime::currentDateTime();
+    //Msg.insert(0, ": ").insert(0,date.toString());
     myfile->write(Msg.toStdString().c_str());
     myfile->write("\n");
 }

@@ -24,13 +24,13 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>70</y>
+      <y>50</y>
       <width>441</width>
       <height>331</height>
      </rect>
     </property>
    </widget>
-   <widget class="QGroupBox" name="groupBox">
+   <widget class="QGroupBox" name="groupBox_log">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -40,7 +40,7 @@
      </rect>
     </property>
     <property name="title">
-     <string>Log : ./out_Log.txt</string>
+     <string>Log : &lt;File Path&gt;</string>
     </property>
     <widget class="QPlainTextEdit" name="plainTextEdit">
      <property name="geometry">
@@ -116,44 +116,37 @@
      <number>1</number>
     </property>
    </widget>
-   <widget class="QGroupBox" name="groupBox_file">
+   <widget class="QLineEdit" name="lineEdit_FileName">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>20</y>
+      <width>551</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="inputMask">
+     <string/>
+    </property>
+    <property name="text">
+     <string>&lt;File Path&gt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_openFile">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
-      <width>651</width>
-      <height>51</height>
+      <y>20</y>
+      <width>91</width>
+      <height>20</height>
      </rect>
     </property>
-    <property name="title">
-     <string>File</string>
+    <property name="text">
+     <string>Open File</string>
     </property>
-    <widget class="QLineEdit" name="lineEdit_FileName">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>20</y>
-       <width>530</width>
-       <height>20</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_openFile">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>91</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Open File</string>
-     </property>
-    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

@@ -17,32 +17,6 @@ SCPI::~SCPI(){
     qDebug() << "Closing VIAS session for " << this->name;
 }
 
-void SCPI::Reset(){
-    if( sta != VI_SUCCESS ) return;
-    viPrintf(device, "*RST\n");
-    qDebug() << "Reset : " << this->name;
-}
-
-void SCPI::Clear(){
-    if( sta != VI_SUCCESS ) return;
-    viPrintf(device, "*CLS\n");
-    qDebug() << "Clear : " << this->name;
-}
-
-QString SCPI::GetName()
-{
-    if( sta != VI_SUCCESS ) return "";
-    sprintf(cmd,"*IDN?\n");
-    return Ask(cmd);
-}
-
-QString SCPI::GetErrorMsg(){
-    if( sta != VI_SUCCESS ) return "Err.";
-    //qDebug() << "Ask device Error code : " << this->name;
-    viPrintf(device, "SYST:ERR?\n");
-    return ReadRespond();
-}
-
 void SCPI::SendCmd(char *cmd){
     if( sta == VI_SUCCESS ){
         viPrintf(device, cmd);
@@ -69,12 +43,35 @@ QString SCPI::Ask(char *cmd){
     return ReadRespond();
 }
 
+void SCPI::Reset(){
+    if( sta != VI_SUCCESS ) return;
+    viPrintf(device, "*RST\n");
+    qDebug() << "Reset : " << this->name;
+}
+
+void SCPI::Clear(){
+    if( sta != VI_SUCCESS ) return;
+    viPrintf(device, "*CLS\n");
+    qDebug() << "Clear : " << this->name;
+}
+
+QString SCPI::GetName()
+{
+    if( sta != VI_SUCCESS ) return "";
+    sprintf(cmd,"*IDN?\n");
+    return Ask(cmd);
+}
+
+QString SCPI::GetErrorMsg(){
+    if( sta != VI_SUCCESS ) return "Err.";
+    sprintf(cmd,"SYST:ERR?\n");
+    return Ask(cmd);
+}
+
 bool SCPI::isOperationCompleted(){
     if( sta != VI_SUCCESS) return "Err.";
-    viPrintf(device, "*OPC?\n");
-    viScanf(device, "%t", this->buf);
-    *std::remove(buf, buf+strlen(buf), '\n') = '\0';
-    return QString(this->buf).toInt();
+    sprintf(cmd,"*OPC?\n");
+    return Ask(cmd).toInt();
 }
 
 int SCPI::StatusByteRegister()

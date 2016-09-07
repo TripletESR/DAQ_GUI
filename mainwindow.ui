@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>676</width>
-    <height>501</height>
+    <width>670</width>
+    <height>580</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,19 +24,21 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>10</y>
+      <y>100</y>
       <width>441</width>
       <height>301</height>
      </rect>
     </property>
+    <zorder>groupBox_2</zorder>
+    <zorder>groupBox_2</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>310</y>
+      <y>400</y>
       <width>651</width>
-      <height>131</height>
+      <height>111</height>
      </rect>
     </property>
     <property name="title">
@@ -48,7 +50,7 @@
        <x>10</x>
        <y>20</y>
        <width>631</width>
-       <height>101</height>
+       <height>81</height>
       </rect>
      </property>
     </widget>
@@ -116,13 +118,81 @@
      <number>1</number>
     </property>
    </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>651</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>File</string>
+    </property>
+    <widget class="QPushButton" name="pushButton_saveDir">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>91</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Save Directory</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_Dir">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>20</y>
+       <width>530</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_FileName">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>50</y>
+       <width>530</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_saveFile">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>91</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Save File Name</string>
+     </property>
+    </widget>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>676</width>
+     <width>670</width>
      <height>21</height>
     </rect>
    </property>

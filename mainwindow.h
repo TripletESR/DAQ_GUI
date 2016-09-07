@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QString>
 #include <QDateTime>
+#include <QFileDialog>
 
 namespace Ui {
 class MainWindow;
@@ -27,6 +28,10 @@ private slots:
     void on_actionOscilloscope_triggered();
     void on_pushButton_clicked();
     void GetDataAndPlot(QCustomPlot *Plot, int ch);
+
+    void on_pushButton_saveDir_clicked();
+
+    void on_pushButton_saveFile_clicked();
 
 private:
     Ui::MainWindow *ui;

@@ -115,10 +115,10 @@ void Oscilloscope::SetAverage(int count)
     acqCount = count;
     sprintf(cmd,":acquire:type average\n"); SendCmd(cmd);
     sprintf(cmd,":acquire:count %d\n", count); SendCmd(cmd);
-    sprintf(cmd,":acquire:srate?\n");
-    double srate = Ask(cmd).toInt();
-    qDebug() << "sample rate : " << srate << " samples/s";
-    qDebug() << "estimated time for complete cycle : " << count / srate * 1e3 << " ms";
+    //sprintf(cmd,":acquire:srate?\n");
+    //double srate = Ask(cmd).toInt();
+    //qDebug() << "sample rate : " << srate << " samples/s";
+    //qDebug() << "estimated time for complete cycle : " << count / srate * 1e3 << " ms";
 }
 
 void Oscilloscope::SetDVM(bool IO, int ch, int mode)
@@ -299,7 +299,6 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
             Sleep(waitsec * 1000);
             lngElapsed += waitsec;
             SBR = StatusByteRegister();
-            qDebug() << SBR;
             qDebug("Waiting for the device: %5.1f sec. %#x =? %#x", lngElapsed, SBR, 161); //161 is system "good" status SBR
         }while((SBR & 32) == 0); // 32 is the ESR registor bit
 
@@ -368,7 +367,15 @@ double Oscilloscope::GetMin(QVector<double> vec)
 
 void SaveData(QString filename){
 
+    QString path = QCoreApplication::applicationDirPath();
+    //qDebug()<<path;
+    path.append("/data.dat");
+    //qDebug()<<path;
+    QFile myfile(path);
+    myfile.open(QIODevice::ReadWrite | QIODevice::Text);
 
 
+
+    myfile.close();
 
 }

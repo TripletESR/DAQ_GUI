@@ -25,9 +25,7 @@ private slots:
 
     void on_actionWave_From_Generator_triggered();
     void on_actionOscilloscope_triggered();
-
     void on_pushButton_clicked();
-
     void GetDataAndPlot(QCustomPlot *Plot, int ch);
 
 private:

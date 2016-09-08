@@ -51,8 +51,12 @@ void MainWindow::Log(QString logMsg) //TODO not finished
 
     QDateTime date = QDateTime::currentDateTime();
     logMsg.insert(0, ": ").insert(0,date.toString());
-    logFile->SaveLogData(logMsg);
+
+    if( logFile != NULL){
+        logFile->SaveLogData(logMsg);
+    }
     ui->plainTextEdit->appendPlainText(logMsg);
+
 
 }
 
@@ -85,6 +89,9 @@ void MainWindow::on_pushButton_clicked()
 
     int ch = ui->spinBox_ch->value();
     GetDataAndPlot(customPlot, ch);
+
+    LogMsg.sprintf("Get data & try to save. ch %d, points %d", ch, ui->spinBox_count->value() );
+    Log(LogMsg);
 
 }
 

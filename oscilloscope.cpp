@@ -11,9 +11,9 @@ Oscilloscope::Oscilloscope(ViRsrc name, bool init):
     int SBR = StatusByteRegister();
     qDebug("%#x, %#x, %s", SBR, EventStatusRegister() ,GetErrorMsg().toStdString().c_str());
 
-    if( SBR != 161 ) {
+    if( !(SBR == 161 || SBR == 129) ) {
         sta = VI_ERROR_ABORT;
-        Msg = "Try to restart the device.";
+        Msg = "Try to change trigger level & try again. Exact reason unknown.";
         qDebug() << Msg;
     }
 
@@ -30,6 +30,7 @@ Oscilloscope::Oscilloscope(ViRsrc name, bool init):
 Oscilloscope::~Oscilloscope(){
     SystemLock(0);
     SetRemoteLog(0);
+    Clear();
 }
 
 void Oscilloscope::Initialize(int ch)
@@ -264,7 +265,7 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
         if( lngElapsed < lngTimeout){
             sprintf(cmd,":waveform:source channel%d\n", ch); SendCmd(cmd);
             sprintf(cmd,":waveform:format ASCii\n"); SendCmd(cmd);
-            sprintf(cmd,":waveform:points %d\n", points); SendCmd(cmd);
+            sprintf(cmd,":waveform:points %d\n", points+1); SendCmd(cmd);
 
             sprintf(cmd,":waveform:data?\n"); SendCmd(cmd);
             char rawData[90000];
@@ -330,7 +331,7 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
         //Get Result
         sprintf(cmd,":waveform:source channel%d\n", ch); SendCmd(cmd);
         sprintf(cmd,":waveform:format ASCii\n");      SendCmd(cmd);
-        sprintf(cmd,":waveform:points %d\n", points); SendCmd(cmd);
+        sprintf(cmd,":waveform:points %d\n", points+1); SendCmd(cmd);
         sprintf(cmd,":waveform:data?\n");             SendCmd(cmd);
         char rawData[90000];
         viScanf(device, "%t", rawData);
@@ -342,7 +343,7 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
         double xOrigin = -(tRange/2-tDelay);
         double xStep = tRange/points;
 
-        for( int i = 0 ; i < data.length(); i++){
+        for( int i = 0 ; i < points; i++){
             //qDebug() << (data[i]).toDouble();
             xData[ch][i] = xOrigin + i * xStep;
             yData[ch][i] = (data[i]).toDouble();

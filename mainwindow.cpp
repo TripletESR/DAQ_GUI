@@ -146,7 +146,7 @@ void MainWindow::on_pushButton_openFile_clicked()
     //qDebug() << old_filePath << "," << old_dirName << "," << old_fileName;
 
     // Set new FIle Path
-    QString filePath = QFileDialog::getOpenFileName(this, "Open File", "C:/Users/Triplet-ESR/Desktop" );
+    QString filePath = QFileDialog::getSaveFileName(this, "Save File", "C:/Users/Triplet-ESR/Desktop");
     QString dirName;
     QString fileName;
 

@@ -35,7 +35,8 @@ public:
     bool isOpen;
 
     //file structure
-    int row, col;
+    int row, col, endPos;
+    QVector<double> xdata;
 
 
     FileIO(QString dir, QString name, int mode);

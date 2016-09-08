@@ -24,6 +24,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    QString LogMsg;
+
 private slots:
 
     void on_actionWave_From_Generator_triggered();

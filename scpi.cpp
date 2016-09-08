@@ -18,13 +18,10 @@ SCPI::~SCPI(){
 }
 
 void SCPI::SendCmd(char *cmd){
-    if( sta == VI_SUCCESS ){
-        viPrintf(device, cmd);
-        *std::remove(cmd, cmd+strlen(cmd), '\n') = '\0'; //remove "\n"
-        qDebug("%s", cmd);
-    }else{
-        qDebug() << "Device offline." ;
-    }
+    if( sta != VI_SUCCESS ) return;
+    viPrintf(device, cmd);
+    *std::remove(cmd, cmd+strlen(cmd), '\n') = '\0'; //remove "\n"
+    qDebug("%s", cmd);
 }
 
 QString SCPI::ReadRespond() //Change to AskQ

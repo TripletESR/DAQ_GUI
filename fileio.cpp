@@ -8,8 +8,6 @@ FileIO::FileIO(QString dir, QString name, int mode)
     filePath = dir.append("/").append(name);
 
     myfile = new QFile(filePath);
-//    QDir::setCurrent(dir);
-//    myfile->setFileName(name);
 
     switch (mode) {
     case 1:isOpen = myfile->open(QIODevice::ReadOnly | QIODevice::Text);break;
@@ -48,7 +46,7 @@ void FileIO::FileStructure()
             if(col > 0){
                 xdata = QVector<double>(col);
                 for(int i = 0; i < col ; i ++){
-                    xdata[i] = QString(linelist[i]).toDouble();
+                    xdata[i] = QString(linelist[i+1]).toDouble();
                 }
             }
         }
@@ -57,7 +55,16 @@ void FileIO::FileStructure()
 
     endPos = myfile->pos();
 
-    qDebug() << xdata;
+    //qDebug() << xdata;
+    double x1 = (this->xdata)[0];
+    double x2 = (this->xdata)[col-1];
+    double xStep = (x2-x1)/(col-1);
+    double range = x2 - x1 + xStep;
+    qDebug()<<"=========== Existing x-data";
+    qDebug("(%f, %f) us", x1, x2);
+    qDebug("Range  = %f us", range);
+    qDebug("Scale  = %f us/div", range/10);
+    qDebug("Offset = %f us", x1 + range/2);
     qDebug("(row, col, endPos) = (%d, %d, %d)", row, col, endPos);
 
 }
@@ -86,8 +93,9 @@ void FileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zda
         //check data structure consistancy
         int size = zdata.size();
         if( col != size ) {
-            qDebug() << "the size of saving data is difference from existing data sturcture. Abort.";
-            qDebug() << col << "," << size ;
+            qDebug() << "The size of saving data is difference from existing data sturcture. Abort.";
+            qDebug() << "Existing col : " << col;
+            qDebug() << "Saving col   : " << size ;
             return;
         }
         //compare xdata and this->xdata
@@ -96,9 +104,15 @@ void FileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zda
             if( xdata[i] != (this->xdata)[i]){
                 qDebug() << xdata[i] << "," << (this->xdata)[i];
                 qDebug() << "the x-data of saving data is not matching with existing xdata. Abort.";
-                double x1 = (this->xdata)[1];
+                double x1 = (this->xdata)[0];
                 double x2 = (this->xdata)[col-1];
-                qDebug("(%f, %f) us, Range = %f us, Scale = %f us/div", x1, x2, x2-x1,(x2-x1)/10);
+                double xStep = (x2-x1)/(col-1);
+                double range = x2 - x1 + xStep;
+                qDebug()<<"=========== Existing x-data";
+                qDebug("(%f, %f) us", x1, x2);
+                qDebug("Range  = %f us", range);
+                qDebug("Scale  = %f us/div", range/10);
+                qDebug("Offset = %f us", x1 + range/2);
                 return;
             }
         }

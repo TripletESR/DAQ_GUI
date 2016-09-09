@@ -137,7 +137,9 @@ void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
     Plot->replot();
 
     if( dataFile != NULL){
-        Log("Saving Data .... ");
+        logMsg = "++++++ Saving Data .... Data name :";
+        logMsg += "test";
+        Log(logMsg);
         dataFile->AppendData("test", oscui->osc->xData[ch], oscui->osc->yData[ch]);
     }
 }
@@ -200,15 +202,18 @@ void MainWindow::on_pushButton_openFile_clicked()
             delete logFile;
         }
         logFile = new QFileIO (dirName, "log.txt", 4);
+        Log(logFile->Msg);
         connect(logFile, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
         logFile->SaveLogData("==========================================");
+        logFile->SaveLogData(logFile->Msg);
 
         if( dataFile != NULL ){
             delete dataFile;
         }
         dataFile = new QFileIO (dirName, fileName, 3);
-        dataFile->FileStructure();
+        Log(logFile->Msg);
         connect(dataFile, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
+        dataFile->FileStructure();
 
     }
 
@@ -217,8 +222,9 @@ void MainWindow::on_pushButton_openFile_clicked()
             delete dataFile;
         }
         dataFile = new QFileIO (dirName, fileName, 3);
-        dataFile->FileStructure();
         connect(dataFile, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
+        dataFile->FileStructure();
+
 
     }
 

@@ -16,14 +16,15 @@ QFileIO::QFileIO(QString dir, QString name, int mode, QObject *parent) : QObject
     }
 
     if( isOpen ){
-        qDebug() << name << " opened.";
+        Msg = filePath;
+        Msg.append(" opened.");
     }else{
-        qDebug() << "fail to open : " <<name ;
+        Msg = "Fail to open";
+        Msg += filePath;
     }
 }
 
 QFileIO::~QFileIO(){
-    qDebug() << "Closing file : " << filePath;
     myfile->close();
     delete myfile;
 }
@@ -58,12 +59,12 @@ void QFileIO::FileStructure()
     double x2 = (this->xdata)[col-1];
     double xStep = (x2-x1)/(col-1);
     double range = x2 - x1 + xStep;
-    qDebug()<<"=========== Existing x-data";
-    qDebug("(%f, %f) us", x1, x2);
-    qDebug("Range  = %f us", range);
-    qDebug("Scale  = %f us/div", range/10);
-    qDebug("Offset = %f us", x1 + range/2);
-    qDebug("(row, col, endPos) = (%d, %d, %d)", row, col, endPos);
+    SendMsg("=========== Existing x-data");
+    Msg.sprintf("(%f, %f) us", x1, x2);                                  SendMsg(Msg);
+    Msg.sprintf("Range  = %f us", range);                                SendMsg(Msg);
+    Msg.sprintf("Scale  = %f us/div", range/10);                         SendMsg(Msg);
+    Msg.sprintf("Offset = %f us", x1 + range/2);                         SendMsg(Msg);
+    Msg.sprintf("(row, col, endPos) = (%d, %d, %d)", row, col, endPos);  SendMsg(Msg);
 
 }
 
@@ -91,26 +92,27 @@ void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zd
         //check data structure consistancy
         int size = zdata.size();
         if( col != size ) {
-            qDebug() << "The size of saving data is difference from existing data sturcture. Abort.";
-            qDebug() << "Existing col : " << col;
-            qDebug() << "Saving col   : " << size ;
+            SendMsg("The size of input data is difference from existing data sturcture. Abort.");
+            Msg.sprintf("Existing col : %d", col ); SendMsg(Msg);
+            Msg.sprintf(" Input col   : %d", size); SendMsg(Msg);
             return;
         }
         //compare xdata and this->xdata
         //qDebug() << xdata;
         for(int i = 0; i < size ; i ++ ){
             if( xdata[i] != (this->xdata)[i]){
-                qDebug() << xdata[i] << "," << (this->xdata)[i];
-                qDebug() << "the x-data of saving data is not matching with existing xdata. Abort.";
-                double x1 = (this->xdata)[0];
-                double x2 = (this->xdata)[col-1];
+                SendMsg("The x-data of input data is not matching with existing xdata. Abort.");
+                Msg.sprintf("Difference at %d , input x-data = %f, existing x-data = %f", i, xdata[i], (this->xdata)[i]);
+                SendMsg(Msg);
+                SendMsg("======== Input x-data structure.");
+                double x1 = xdata[0];
+                double x2 = xdata[col-1];
                 double xStep = (x2-x1)/(col-1);
                 double range = x2 - x1 + xStep;
-                qDebug()<<"=========== Existing x-data";
-                qDebug("(%f, %f) us", x1, x2);
-                qDebug("Range  = %f us", range);
-                qDebug("Scale  = %f us/div", range/10);
-                qDebug("Offset = %f us", x1 + range/2);
+                Msg.sprintf("(%f, %f) us", x1, x2);          SendMsg(Msg);
+                Msg.sprintf("Range  = %f us", range);        SendMsg(Msg);
+                Msg.sprintf("Scale  = %f us/div", range/10); SendMsg(Msg);
+                Msg.sprintf("Offset = %f us", x1 + range/2); SendMsg(Msg);
                 return;
             }
         }
@@ -130,18 +132,14 @@ void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zd
 
     myfile->flush();
     endPos = myfile->pos();
-    qDebug() << "saving data" << endPos;
+    Msg = "===== Data saved. Data Name : ";
+    Msg += head;
+    SendMsg(Msg);
 
 }
 
 void QFileIO::SaveLogData(QString Msg){
 
-    //QString path = QCoreApplication::applicationDirPath();
-    //path.append("/data.dat");
-    //QFile myfile(path);
-
-    //QDateTime date = QDateTime::currentDateTime();
-    //Msg.insert(0, ": ").insert(0,date.toString());
     myfile->write(Msg.toStdString().c_str());
     myfile->write("\n");
 }

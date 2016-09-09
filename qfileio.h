@@ -5,8 +5,6 @@
 #include <QFile>
 #include <QDir>
 #include <QString>
-#include <QDateTime>
-#include <QCoreApplication>
 #include <QVector>
 #include <QDebug>
 

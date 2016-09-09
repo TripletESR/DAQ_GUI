@@ -239,6 +239,8 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
     yData[ch].clear();
 
     GetTime();
+    GetSystemStatus();
+    GetChannelData(ch);
 
     xData[ch] = QVector<double>(points);
     yData[ch] = QVector<double>(points);

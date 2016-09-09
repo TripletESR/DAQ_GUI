@@ -1,16 +1,16 @@
 #ifndef WAVEFROMGENERATOR_H
 #define WAVEFROMGENERATOR_H
 
-#include "scpi.h"
+#include "qscpi.h"
 
-class WaveFromGenerator : public SCPI{
+class WaveFromGenerator : public QSCPI{
 public:
     double freq; //in kHz
     double phase;
     double amp, offset; // in mV
     int ch, index, IO; //index is the index in WFG_Dialog.h
 
-    WaveFromGenerator(ViRsrc name, bool init);
+    WaveFromGenerator(ViRsrc name, QObject *parent = 0);
     ~WaveFromGenerator();
 
     void OpenCh(int ch);

@@ -1,21 +1,28 @@
-#ifndef SCPI_H
-#define SCPI_H
+#ifndef QSCPI_H
+#define QSCPI_H
 
+#include <QObject>
 #include <stdio.h>
 #include <cmath>
 #include "C:\Program Files (x86)\IVI Foundation\VISA\WinNT\Include\visa.h"
 #include <QDebug>
 
-class SCPI
+class QSCPI : public QObject
 {
+    Q_OBJECT
 public:
     char cmd[100], buf[256];
-    QString name, Msg;
-
     ViStatus sta;
+    QString name, scpi_Msg;
 
-    SCPI(ViRsrc name);
-    ~SCPI();
+    explicit QSCPI(ViRsrc name,QObject *parent = 0);
+    ~QSCPI();
+
+signals:
+
+    void SendMsg(QString msg);
+
+public slots:
 
     void Reset();
     void Clear();
@@ -36,4 +43,4 @@ protected:
     ViSession device;
 };
 
-#endif // SCPI_H
+#endif // QSCPI_H

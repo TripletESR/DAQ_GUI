@@ -8,14 +8,14 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    wfg = new WaveFromGenerator(KEYSIGHT33500B,0);
+    wfg = new WaveFromGenerator(KEYSIGHT33500B);
 
     if( wfg->sta == VI_SUCCESS ) {
+        Msg.sprintf("Opened : %s", wfg->name.toStdString().c_str());
         ui->lineEdit->setText(wfg->name);
-        Msg = "Openined WFG";
     }else{
-        ui->lineEdit->setText("no Wave Form generator detected.");
-        Msg = "Cannot open WFG";
+        Msg = "Cannot Open Wave Form generator.";
+        ui->lineEdit->setText(Msg);
     }
 
     //on_comboBox_ch_activated(1); //get setting of ch2
@@ -37,7 +37,7 @@ void WFG_Dialog::on_comboBox_ch_activated(int index)
     }
 
     wfg->GetSetting(wfg->ch);
-    on_comboBox_WFG_activated(wfg->index);
+    ui->comboBox_WFG->setCurrentIndex(wfg->index);
     DisplaySetting();
 }
 

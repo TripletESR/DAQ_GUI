@@ -1,10 +1,8 @@
 #include "wavefromgenerator.h"
 
-WaveFromGenerator::WaveFromGenerator(ViRsrc name, bool init):
-    SCPI(name)
+WaveFromGenerator::WaveFromGenerator(ViRsrc name, QObject *parent):
+    QSCPI(name, parent)
 {
-    if ( init ) viPrintf(device, "*RST\n");
-
     this->name = GetName();
 
     if( sta == VI_SUCCESS){
@@ -12,11 +10,11 @@ WaveFromGenerator::WaveFromGenerator(ViRsrc name, bool init):
     }else{
         qDebug() << "Cannot open " << name;
     }
-
 }
 
 WaveFromGenerator::~WaveFromGenerator(){
 }
+
 
 void WaveFromGenerator::OpenCh(int ch){
     if( sta != VI_SUCCESS) return;
@@ -161,4 +159,3 @@ void WaveFromGenerator::GetSetting(int ch)
     GetChIO(ch);
 
 }
-

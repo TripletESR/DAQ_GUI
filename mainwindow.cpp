@@ -10,9 +10,25 @@ MainWindow::MainWindow(QWidget *parent) :
     logFile(NULL),
     dataFile(NULL)
 {
+    MsgCount = 0;
     ui->setupUi(this);
     wfgui = new WFG_Dialog(this);
+    LogMsg = wfgui->Msg;
+    Log(LogMsg);
     oscui = new osc_Dialog(this);
+    LogMsg = oscui->Msg;
+    Log(LogMsg);
+
+    //Setting up connectting
+    connect(oscui, SIGNAL(osc_LogMsg(QString)), this, SLOT(Log(QString)));
+    connect(wfgui, SIGNAL(wfg_LogMsg(QString)), this, SLOT(Log(QString)));
+
+    //Get Setting
+    wfgui->on_comboBox_ch_activated(1);
+    wfgui->on_comboBox_ch_activated(0);
+
+    oscui->osc->SetRemoteLog(1);
+    oscui->on_checkBox_Lock_clicked(1); //get osc status
 
 }
 
@@ -31,32 +47,18 @@ MainWindow::~MainWindow()
 
 void MainWindow::Log(QString logMsg) //TODO not finished
 {
-    //QString path = QCoreApplication::applicationDirPath();
-    //qDebug()<<path;
-    //path.append("/outlog.txt");
-    //qDebug()<<path;
-    //QFile myfile(path);
-    //myfile.open(QIODevice::Append | QIODevice::Text);
-    //
-    //QDateTime date = QDateTime::currentDateTime();
-    //QString text = date.toString().toStdString().c_str();
-    //text.append(":  ");
-    //text.append(str);
-    //myfile.write(text.toStdString().c_str());
-    //
-    //ui->plainTextEdit->appendPlainText(text);
-    //
-    //if(end) myfile.write("\n");
-    //myfile.close();
+    MsgCount ++;
 
     QDateTime date = QDateTime::currentDateTime();
-    logMsg.insert(0, ": ").insert(0,date.toString());
+    QString countStr;
+    countStr.sprintf(" [%04d]:    ", MsgCount);
+    logMsg.insert(0,countStr).insert(0,date.toString());
 
     if( logFile != NULL){
         logFile->SaveLogData(logMsg);
     }
     ui->plainTextEdit->appendPlainText(logMsg);
-
+    qDebug() << logMsg;
 
 }
 
@@ -80,6 +82,7 @@ void MainWindow::on_actionOscilloscope_triggered()
                            oscui->geometry().width(),
                            oscui->geometry().height());
         oscui->show();
+        Log(oscui->Msg);
     }
 }
 

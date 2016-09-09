@@ -9,15 +9,18 @@ osc_Dialog::osc_Dialog(QWidget *parent) :
     ui->setupUi(this);
 
     osc = new Oscilloscope(KEYSIGHTDSOX3024T,0);
-    //osc->Initialize(1);
-    osc->SetRemoteLog(1);
-    on_checkBox_Lock_clicked(1);//get osc status
 
     if( osc->sta == VI_SUCCESS ) {
-        ui->lineEdit->setText(QString(osc->name));
+        ui->lineEdit->setText(osc->name);
+        Msg.sprintf("Opened : %s", osc->name.toStdString().c_str());
     }else{
         ui->lineEdit->setText("no Oscilloscope detected.");
+        Msg.sprintf("Cannot Open Oscillopscope.");
     }
+
+    //osc->Initialize(1);
+    //osc->SetRemoteLog(1);
+    //on_checkBox_Lock_clicked(1);//get osc status
 
 }
 
@@ -26,6 +29,7 @@ osc_Dialog::~osc_Dialog()
     delete ui;
     delete osc;
 }
+
 
 void osc_Dialog::on_comboBox_currentIndexChanged(int index)
 {
@@ -51,6 +55,7 @@ void osc_Dialog::DisplayTime()
 {
     ui->lineEdit_timeRange->setText(QString::number(osc->tRange));
     ui->lineEdit_timeDelay->setText(QString::number(osc->tDelay));
+
 }
 
 void osc_Dialog::DisplayChannel(int ch)
@@ -206,6 +211,8 @@ void osc_Dialog::on_pushButton_Clear_clicked()
 
 void osc_Dialog::on_checkBox_1_IO_clicked(bool checked)
 {
+    emit osc_LogMsg("hahahahahahahaha");
+
     ui->lineEdit_1_range->setEnabled(checked);
     ui->lineEdit_1_offset->setEnabled(checked);
     ui->lineEdit_1_TL->setEnabled(checked);

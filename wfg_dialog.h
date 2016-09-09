@@ -17,12 +17,19 @@ class WFG_Dialog : public QDialog
 
 public:
     bool chFlag;
+
+    QString Msg;
+
     WaveFromGenerator *wfg;
 
     explicit WFG_Dialog(QWidget *parent = 0);
     ~WFG_Dialog();
 
-private slots:
+signals:
+
+    void wfg_LogMsg(QString msg);
+
+public slots:
     void on_checkBox_clicked(bool checked);
 
     void on_comboBox_ch_activated(int index);

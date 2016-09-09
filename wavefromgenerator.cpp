@@ -103,10 +103,7 @@ int WaveFromGenerator::GetChIO(int ch)
 {
     if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "output%d?\n", ch);
-    viPrintf(device, cmd);
-    viScanf(device, "%t", buf);
-    this->IO = atoi(buf);
-    //qDebug() << "On/OFF : " << this->IO;
+    this->IO = Ask(cmd).toInt();
     return this->IO;
 }
 
@@ -150,7 +147,8 @@ void WaveFromGenerator::GetSetting(int ch)
 {
     if( sta != VI_SUCCESS) return;
 
-    qDebug() << "---- Get WF setting ----";
+    scpi_Msg.sprintf("------- Get WF setting, Ch %d", ch);
+    SendMsg(scpi_Msg);
     GetWaveForm(ch);
     GetFreq(ch);
     GetAmp(ch);

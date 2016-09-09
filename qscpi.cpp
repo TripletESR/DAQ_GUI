@@ -32,7 +32,7 @@ QString QSCPI::ReadRespond() //Change to AskQ
     viScanf(device, "%t", this->buf);
     *std::remove(buf, buf+strlen(buf), '\n') = '\0';
     //qDebug("%s", buf);
-    scpi_Msg.sprintf("%s" , buf);
+    scpi_Msg.sprintf("%s ; %#x" , buf, StatusByteRegister());
     emit SendMsg(scpi_Msg);
     return QString(buf);
 }
@@ -85,8 +85,8 @@ int QSCPI::StatusByteRegister()
 {
     ViUInt16 statusByte;
     viReadSTB(device,&statusByte);
-    scpi_Msg.sprintf("Device Status Byte Register : %#x , %s", statusByte, this->name.toStdString().c_str());
-    emit SendMsg(scpi_Msg);
+    //scpi_Msg.sprintf("Device Status Byte Register : %#x , %s", statusByte, this->name.toStdString().c_str());
+    //emit SendMsg(scpi_Msg);
     return statusByte;
 }
 

@@ -109,6 +109,9 @@
     </item>
     <item row="5" column="2">
      <widget class="QComboBox" name="comboBox_2_ohm">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
       <item>
        <property name="text">
         <string>50 ohm</string>
@@ -168,6 +171,9 @@
     </item>
     <item row="5" column="1">
      <widget class="QComboBox" name="comboBox_1_ohm">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
       <item>
        <property name="text">
         <string>50 ohm</string>
@@ -185,6 +191,9 @@
     </item>
     <item row="5" column="4">
      <widget class="QComboBox" name="comboBox_4_ohm">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
       <item>
        <property name="text">
         <string>50 ohm</string>
@@ -232,6 +241,9 @@
     </item>
     <item row="5" column="3">
      <widget class="QComboBox" name="comboBox_3_ohm">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
       <item>
        <property name="text">
         <string>50 ohm</string>

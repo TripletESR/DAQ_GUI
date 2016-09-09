@@ -11,26 +11,25 @@ MainWindow::MainWindow(QWidget *parent) :
     dataFile(NULL)
 {
     MsgCount = 0;
+
     ui->setupUi(this);
+
     wfgui = new WFG_Dialog(this);
-    LogMsg = wfgui->Msg;
-    Log(LogMsg);
+    logMsg = wfgui->Msg;
+    Log(logMsg);
     oscui = new osc_Dialog(this);
-    LogMsg = oscui->Msg;
-    Log(LogMsg);
+    logMsg = oscui->Msg;
+    Log(logMsg);
+
 
     //Setting up connectting
-    //connect(oscui, SIGNAL(osc_LogMsg(QString)), this, SLOT(Log(QString)));
-    //connect(wfgui, SIGNAL(wfg_LogMsg(QString)), this, SLOT(Log(QString)));
-
+    connect(oscui, SIGNAL(SendLogMsg(QString)), this, SLOT(Log(QString)));
+    connect(wfgui, SIGNAL(SendLogMsg(QString)), this, SLOT(Log(QString)));
     connect(wfgui->wfg, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
     connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
 
     //Get Setting
-    //wfgui->on_comboBox_ch_activated(1);
     wfgui->on_comboBox_ch_activated(0);
-
-    oscui->osc->SetRemoteLog(1);
     oscui->on_checkBox_Lock_clicked(1); //get osc status
 
 }
@@ -46,25 +45,25 @@ MainWindow::~MainWindow()
     delete logFile;
     delete dataFile;
 
-    Log("Program ended.");
+    Log("========================= Program ended.");
 
 }
 
-void MainWindow::Log(QString logMsg) //TODO not finished
+void MainWindow::Log(QString msg) //TODO not finished
 {
     MsgCount ++;
 
     QDateTime date = QDateTime::currentDateTime();
     QString countStr;
     countStr.sprintf(" [%04d]:    ", MsgCount);
-    logMsg.insert(0,countStr).insert(0,date.toString());
+    msg.insert(0,countStr).insert(0,date.toString());
     if( logFile != NULL){
-        logFile->SaveLogData(logMsg);
+        logFile->SaveLogData(msg);
     }
-    ui->plainTextEdit->appendPlainText(logMsg); //has default endline
+    ui->plainTextEdit->appendPlainText(msg); //has default endline
     QScrollBar *v = ui->plainTextEdit->verticalScrollBar();
     v->setValue(v->maximum());
-    qDebug() << logMsg;
+    qDebug() << msg;
 
 }
 
@@ -72,6 +71,7 @@ void MainWindow::Log(QString logMsg) //TODO not finished
 void MainWindow::on_actionWave_From_Generator_triggered()
 {
     if( wfgui->isHidden()){
+        Log("=== Open Wave From Generator Pannel.");
         wfgui->setGeometry(this->geometry().x()+ this->geometry().width()+20,
                            this->geometry().y(),
                            wfgui->geometry().width(),
@@ -83,12 +83,12 @@ void MainWindow::on_actionWave_From_Generator_triggered()
 void MainWindow::on_actionOscilloscope_triggered()
 {
     if( oscui->isHidden()){
+        Log("=== Open Oscillopscope Pannel.");
         oscui->setGeometry(this->geometry().x()+ this->geometry().width()+20,
-                           wfgui->geometry().y()+ wfgui->geometry().height()+60,
+                           this->geometry().y() + wfgui->geometry().height()+ 60,
                            oscui->geometry().width(),
                            oscui->geometry().height());
         oscui->show();
-        Log(oscui->Msg);
     }
 }
 
@@ -98,16 +98,16 @@ void MainWindow::on_pushButton_clicked()
 
     int ch = ui->spinBox_ch->value();
     GetDataAndPlot(customPlot, ch);
-
-    LogMsg.sprintf("Get data & try to save. ch %d, points %d", ch, ui->spinBox_count->value() );
-    Log(LogMsg);
-
 }
 
 void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
 
+    logMsg.sprintf("=========== Get Data == Ch %d, #pt %d", ch, ui->spinBox_count->value());
+    Log(logMsg);
     oscui->osc->GetData(ch, ui->spinBox_count->value(),oscui->osc->acqFlag);
 
+    logMsg.sprintf("=========== Plot Ch %d", ch);
+    Log(logMsg);
     if( Plot->graphCount() == 0){
         Plot->xAxis->setLabel("time [us]");
         Plot->yAxis->setLabel("Volatge [V]");
@@ -137,6 +137,9 @@ void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
     Plot->replot();
 
     if( dataFile != NULL){
+        logMsg = "++++++ Saving Data .... Data name :";
+        logMsg += "test";
+        Log(logMsg);
         dataFile->AppendData("test", oscui->osc->xData[ch], oscui->osc->yData[ch]);
     }
 }
@@ -198,12 +201,18 @@ void MainWindow::on_pushButton_openFile_clicked()
         if( logFile != NULL ){
             delete logFile;
         }
-        logFile = new FileIO (dirName, "log.txt", 4);
+        logFile = new QFileIO (dirName, "log.txt", 4);
+        Log(logFile->Msg);
+        connect(logFile, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
+        logFile->SaveLogData("==========================================");
+        logFile->SaveLogData(logFile->Msg);
 
         if( dataFile != NULL ){
             delete dataFile;
         }
-        dataFile = new FileIO (dirName, fileName, 3);
+        dataFile = new QFileIO (dirName, fileName, 3);
+        Log(logFile->Msg);
+        connect(dataFile, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
         dataFile->FileStructure();
 
     }
@@ -212,8 +221,11 @@ void MainWindow::on_pushButton_openFile_clicked()
         if( dataFile != NULL ){
             delete dataFile;
         }
-        dataFile = new FileIO (dirName, fileName, 3);
+        dataFile = new QFileIO (dirName, fileName, 3);
+        connect(dataFile, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
         dataFile->FileStructure();
+
+
     }
 
 

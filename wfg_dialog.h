@@ -27,7 +27,7 @@ public:
 
 signals:
 
-    void wfg_LogMsg(QString msg);
+    void SendLogMsg(QString msg);
 
 public slots:
     void on_checkBox_clicked(bool checked);

@@ -1,12 +1,12 @@
 #ifndef OSCILLOSCOPE_H
 #define OSCILLOSCOPE_H
 
-#include "scpi.h"
+#include "qscpi.h"
 #include <QVector>
 #include <windows.h> // for Sleep
 #include <QFile>
 
-class Oscilloscope : public SCPI{
+class Oscilloscope : public QSCPI{
 public:
 
     //status Byte Register
@@ -34,7 +34,7 @@ public:
     int trgCh, ohm[5], IO[5];
     double xRange[5], xOffset[5];
 
-    Oscilloscope(ViRsrc name, bool init);
+    Oscilloscope(ViRsrc name, QObject *parent = 0);
     ~Oscilloscope();
 
     void Initialize(int ch);

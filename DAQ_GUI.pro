@@ -19,20 +19,20 @@ SOURCES += main.cpp\
     qcustomplot.cpp \
     wavefromgenerator.cpp \
     oscilloscope.cpp \
-    scpi.cpp \
     wfg_dialog.cpp \
     osc_dialog.cpp \
-    fileio.cpp
+    fileio.cpp \
+    qscpi.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
     wavefromgenerator.h \
     constant.h \
     oscilloscope.h \
-    scpi.h \
     wfg_dialog.h \
     osc_dialog.h \
-    fileio.h
+    fileio.h \
+    qscpi.h
 
 FORMS    += mainwindow.ui \
     wfg_dialog.ui \

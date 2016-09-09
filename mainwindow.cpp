@@ -20,11 +20,14 @@ MainWindow::MainWindow(QWidget *parent) :
     Log(LogMsg);
 
     //Setting up connectting
-    connect(oscui, SIGNAL(osc_LogMsg(QString)), this, SLOT(Log(QString)));
-    connect(wfgui, SIGNAL(wfg_LogMsg(QString)), this, SLOT(Log(QString)));
+    //connect(oscui, SIGNAL(osc_LogMsg(QString)), this, SLOT(Log(QString)));
+    //connect(wfgui, SIGNAL(wfg_LogMsg(QString)), this, SLOT(Log(QString)));
+
+    connect(wfgui->wfg, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
+    connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
 
     //Get Setting
-    wfgui->on_comboBox_ch_activated(1);
+    //wfgui->on_comboBox_ch_activated(1);
     wfgui->on_comboBox_ch_activated(0);
 
     oscui->osc->SetRemoteLog(1);
@@ -43,6 +46,8 @@ MainWindow::~MainWindow()
     delete logFile;
     delete dataFile;
 
+    Log("Program ended.");
+
 }
 
 void MainWindow::Log(QString logMsg) //TODO not finished
@@ -53,11 +58,12 @@ void MainWindow::Log(QString logMsg) //TODO not finished
     QString countStr;
     countStr.sprintf(" [%04d]:    ", MsgCount);
     logMsg.insert(0,countStr).insert(0,date.toString());
-
     if( logFile != NULL){
         logFile->SaveLogData(logMsg);
     }
-    ui->plainTextEdit->appendPlainText(logMsg);
+    ui->plainTextEdit->appendPlainText(logMsg); //has default endline
+    QScrollBar *v = ui->plainTextEdit->verticalScrollBar();
+    v->setValue(v->maximum());
     qDebug() << logMsg;
 
 }

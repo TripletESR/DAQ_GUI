@@ -1,7 +1,7 @@
 #include "oscilloscope.h"
 
-Oscilloscope::Oscilloscope(ViRsrc name, bool init):
-    SCPI(name)
+Oscilloscope::Oscilloscope(ViRsrc name, QObject *parent):
+    QSCPI(name, parent)
 {
     if( sta != VI_SUCCESS) {
         qDebug() << "Cannot open " << name;
@@ -17,7 +17,6 @@ Oscilloscope::Oscilloscope(ViRsrc name, bool init):
     }
 
     if( sta == VI_SUCCESS){
-        if ( init ) viPrintf(device, "*RST\n");
         this->name = GetName();
         qDebug() << "Instrument identification string:\n \t" <<  this->name;
     }else{

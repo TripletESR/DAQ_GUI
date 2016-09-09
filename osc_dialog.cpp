@@ -8,14 +8,14 @@ osc_Dialog::osc_Dialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    osc = new Oscilloscope(KEYSIGHTDSOX3024T,0);
+    osc = new Oscilloscope(KEYSIGHTDSOX3024T);
 
     if( osc->sta == VI_SUCCESS ) {
         ui->lineEdit->setText(osc->name);
         Msg.sprintf("Opened : %s", osc->name.toStdString().c_str());
     }else{
-        ui->lineEdit->setText("no Oscilloscope detected.");
-        Msg.sprintf("Cannot Open Oscillopscope.");
+        ui->lineEdit->setText("Cannot Open Oscillopscope.");
+        Msg = "Cannot Open Oscillopscope.";
     }
 
     //osc->Initialize(1);
@@ -211,8 +211,6 @@ void osc_Dialog::on_pushButton_Clear_clicked()
 
 void osc_Dialog::on_checkBox_1_IO_clicked(bool checked)
 {
-    emit osc_LogMsg("hahahahahahahaha");
-
     ui->lineEdit_1_range->setEnabled(checked);
     ui->lineEdit_1_offset->setEnabled(checked);
     ui->lineEdit_1_TL->setEnabled(checked);

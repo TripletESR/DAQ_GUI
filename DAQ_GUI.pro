@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     wfg_dialog.cpp \
     osc_dialog.cpp \
     qscpi.cpp \
-    qfileio.cpp
+    qfileio.cpp \
+    qanalysis.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
@@ -32,8 +33,11 @@ HEADERS  += mainwindow.h \
     wfg_dialog.h \
     osc_dialog.h \
     qscpi.h \
-    qfileio.h
+    qfileio.h \
+    qanalysis.h \
+    Matrix.h
 
 FORMS    += mainwindow.ui \
     wfg_dialog.ui \
     osc_dialog.ui
+

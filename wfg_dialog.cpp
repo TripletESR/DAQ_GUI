@@ -7,20 +7,19 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
     wfg(NULL)
 {
     ui->setupUi(this);
-    ui->comboBox_ch->setCurrentIndex(0);
-    ui->comboBox_WFG->setCurrentIndex(0);
 
     wfg = new WaveFromGenerator(KEYSIGHT33500B,0);
-    wfg->ch = 1; // default channel 1
-    wfg->index = 1; // default sin
-    wfg->GetSetting(wfg->ch);
-    DisplaySetting();
 
     if( wfg->sta == VI_SUCCESS ) {
-        ui->lineEdit->setText(QString(wfg->name));
+        ui->lineEdit->setText(wfg->name);
+        Msg = "Openined WFG";
     }else{
         ui->lineEdit->setText("no Wave Form generator detected.");
+        Msg = "Cannot open WFG";
     }
+
+    //on_comboBox_ch_activated(1); //get setting of ch2
+    //on_comboBox_ch_activated(0); //get setting of ch1
 }
 
 WFG_Dialog::~WFG_Dialog()

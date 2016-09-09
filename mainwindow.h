@@ -24,6 +24,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    int MsgCount;
     QString LogMsg;
 
 private slots:
@@ -35,6 +36,8 @@ private slots:
 
     void on_pushButton_openFile_clicked();
 
+    void Log(QString logMsg);
+
 private:
     Ui::MainWindow *ui;
 
@@ -45,9 +48,6 @@ private:
     FileIO * dataFile;
 
     QCustomPlot *customPlot;
-
-    void Log(QString logMsg);
-
 
 };
 

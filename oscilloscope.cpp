@@ -11,10 +11,9 @@ Oscilloscope::Oscilloscope(ViRsrc name, bool init):
     int SBR = StatusByteRegister();
     qDebug("%#x, %#x, %s", SBR, EventStatusRegister() ,GetErrorMsg().toStdString().c_str());
 
-    if( !(SBR == 161 || SBR == 129) ) {
+    if( !(SBR == 161 || SBR == 129 || SBR == 1) ) {
         sta = VI_ERROR_ABORT;
-        Msg = "Try to change trigger level & try again. Exact reason unknown.";
-        qDebug() << Msg;
+        qDebug() << "Try to change trigger level & try again. Exact reason unknown.";
     }
 
     if( sta == VI_SUCCESS){
@@ -24,7 +23,6 @@ Oscilloscope::Oscilloscope(ViRsrc name, bool init):
     }else{
         qDebug() << "Cannot open " << name;
     }
-
 }
 
 Oscilloscope::~Oscilloscope(){

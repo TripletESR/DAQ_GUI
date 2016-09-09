@@ -17,12 +17,17 @@ class osc_Dialog : public QDialog
 
 public:
 
+    QString Msg;
     Oscilloscope *osc;
 
     explicit osc_Dialog(QWidget *parent = 0);
     ~osc_Dialog();
 
-private slots:
+signals:
+
+    void osc_LogMsg(QString msg);
+
+public slots:
     void on_comboBox_currentIndexChanged(int index);
     void on_spinBox_valueChanged(int arg1);
     void on_pushButton_Reset_clicked();
@@ -44,11 +49,8 @@ private slots:
     void on_lineEdit_4_TL_returnPressed();
 
     void on_radioButton_1_clicked();
-
     void on_radioButton_2_clicked();
-
     void on_radioButton_3_clicked();
-
     void on_radioButton_4_clicked();
 
     void on_lineEdit_1_range_returnPressed();
@@ -79,6 +81,7 @@ private:
     void DisplayTouch();
 
     void EnableControl(bool flag);  //Not finsihed
+
 };
 
 #endif // OSC_DIALOG_H

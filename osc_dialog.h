@@ -23,6 +23,10 @@ public:
     explicit osc_Dialog(QWidget *parent = 0);
     ~osc_Dialog();
 
+signals:
+
+    void SendLogMsg(QString msg);
+
 public slots:
     void on_comboBox_currentIndexChanged(int index);
     void on_spinBox_valueChanged(int arg1);

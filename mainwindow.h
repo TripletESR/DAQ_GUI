@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "fileio.h"
+#include "qfileio.h"
 #include "wfg_dialog.h"
 #include "osc_dialog.h"
 #include "qcustomplot.h"
@@ -24,7 +24,7 @@ public:
     ~MainWindow();
 
     int MsgCount;
-    QString LogMsg;
+    QString logMsg;
 
 private slots:
 
@@ -35,7 +35,7 @@ private slots:
 
     void on_pushButton_openFile_clicked();
 
-    void Log(QString logMsg);
+    void Log(QString msg);
 
 private:
     Ui::MainWindow *ui;
@@ -43,8 +43,8 @@ private:
     WFG_Dialog *wfgui;
     osc_Dialog *oscui;
 
-    FileIO * logFile;
-    FileIO * dataFile;
+    QFileIO * logFile;
+    QFileIO * dataFile;
 
     QCustomPlot *customPlot;
 

@@ -22,6 +22,8 @@ Oscilloscope::Oscilloscope(ViRsrc name, QObject *parent):
     }else{
         qDebug() << "Cannot open " << name;
     }
+
+    SetRemoteLog(1);
 }
 
 Oscilloscope::~Oscilloscope(){
@@ -33,6 +35,8 @@ Oscilloscope::~Oscilloscope(){
 void Oscilloscope::Initialize(int ch)
 {
     if( sta != VI_SUCCESS) return;
+
+    SendMsg("======= Initialize Oscilloscope");
     SetAcqMode(0);
     SetTime(200E-6, 40E-6);
     SetVoltage(1, 4, 0, 1);
@@ -157,11 +161,14 @@ void Oscilloscope::GetChannelData(int ch)
 {
     if( sta != VI_SUCCESS) return;
 
-    sprintf(cmd,":trigger:level? Channel%d\n", ch);
-    trgLevel[ch] = Ask(cmd).toDouble();
+    scpi_Msg.sprintf("==== Getting Channal Setting, CH %d", ch);
+    SendMsg(scpi_Msg);
 
     sprintf(cmd,":channel%d:display?\n", ch);
     IO[ch] = Ask(cmd).toInt();
+
+    sprintf(cmd,":trigger:level? Channel%d\n", ch);
+    trgLevel[ch] = Ask(cmd).toDouble();
 
     sprintf(cmd,":channel%d:range?\n", ch);
     xRange[ch] = Ask(cmd).toDouble();
@@ -174,15 +181,17 @@ void Oscilloscope::GetChannelData(int ch)
     if( ans == "FITT") ohm[ch] = 0; //need to match the checkbox index
     if( ans == "ONEM") ohm[ch] = 1;
 
-    sprintf(cmd,":trigger:source?\n", ch);
-    trgCh = Ask(cmd).right(1).toInt();
-    qDebug() << "Trg Channel : " <<trgCh;
+    //sprintf(cmd,":trigger:source?\n", ch);
+    //trgCh = Ask(cmd).right(1).toInt();
+    //qDebug() << "Trg Channel : " <<trgCh;
 
 }
 
 void Oscilloscope::GetTime()
 {
     if( sta != VI_SUCCESS) return;
+
+    SendMsg("==== Getting Time Setting");
 
     sprintf(cmd,":timebase:range?\n");
     tRange = Ask(cmd).toDouble() * 1e6; // time in us
@@ -193,6 +202,8 @@ void Oscilloscope::GetTime()
 
 void Oscilloscope::GetSystemStatus(){
     if( sta != VI_SUCCESS) return;
+
+    SendMsg("==== Getting System Setting");
 
     sprintf(cmd,":system:lock?\n");
     lockFlag = Ask(cmd).toInt();
@@ -237,9 +248,16 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
         //sprintf(cmd,":digitize channel%d\n", ch); SendCmd(cmd);
 
         //======= Polling method
+        SendMsg("===== Polling Data.");
         sprintf(cmd,":STOP\n"); SendCmd(cmd);
         sprintf(cmd,"*OPC?\n");
-        qDebug() << "Ready : " << Ask(cmd);
+        bool opc = Ask(cmd).toInt();
+        qDebug() << "Operation completed? " << opc;
+        if( !opc) {
+            qDebug() << "Operation did not complete ";
+            return;
+        }
+
         // Single Acquistion; cannot be average measurement
         sprintf(cmd,":Single\n"); SendCmd(cmd);
 
@@ -270,7 +288,7 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
             QString raw = rawData;
             QStringList data = raw.mid(10).split(',');
             //qDebug() << data;
-            qDebug() << "number of data : " << data.length();
+            //qDebug() << "number of data : " << data.length();
 
             double xOrigin = -(tRange/2-tDelay);
             double xStep = tRange/points;
@@ -282,13 +300,13 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
                 //qDebug() << i << "," << xData[i] << "," << yData[i];
             }
         }else{
-            qDebug() << "Timeout waiting for single-shot trigger.";
+            SendMsg("===== 10 sec timeout for single-shot trigger.");
         }
 
     }
 
     if( GetMethod == 1){
-        //Synchronizing in averaging acquisition mode.
+        SendMsg("===== Synchronizing in averaging acquisition mode.");
         sprintf(cmd,":STOP\n"); SendCmd(cmd);
         sprintf(cmd,"*OPC?\n");
         bool opc = Ask(cmd).toInt();
@@ -318,7 +336,9 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
             Sleep(waitsec * 1000);
             lngElapsed += waitsec;
             SBR = StatusByteRegister();
-            qDebug("Waiting for the device: %5.1f sec. %#x =? %#x", lngElapsed, SBR, 161); //161 is system "good" status SBR
+            //qDebug("Waiting for the device: %5.1f sec. %#x =? %#x", lngElapsed, SBR, 161); //161 is system "good" status SBR
+            scpi_Msg.sprintf("Waiting for the device: %5.1f sec. %#x =? %#x", lngElapsed, SBR, 161);
+            SendMsg(scpi_Msg);
         }while((SBR & 32) == 0); // 32 is the ESR registor bit
 
         // Clear ESR and restore previously saved *ESE mask.
@@ -335,7 +355,7 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
         QString raw = rawData;
         QStringList data = raw.mid(10).split(',');
         //qDebug() << data;
-        qDebug() << "number of data : " << data.length();
+        //qDebug() << "number of data : " << data.length();
 
         double xOrigin = -(tRange/2-tDelay);
         double xStep = tRange/points;
@@ -350,6 +370,7 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
     }
 
     //resume
+    SendMsg("===== Resume RUN.");
     sprintf(cmd,":RUN\n"); SendCmd(cmd);
     for( int i = 1; i <=4 ; i++){
         OpenCh(i, IO[i]);
@@ -360,8 +381,8 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
     yMax = GetMax(yData[ch]);
     yMin = GetMin(yData[ch]);
 
-    qDebug("X :(%7f, %7f)", xMin, xMax);
-    qDebug("Y :(%7f, %7f)", yMin, yMax);
+    scpi_Msg.sprintf("X :(%7f, %7f)", xMin, xMax); SendMsg(scpi_Msg);
+    scpi_Msg.sprintf("Y :(%7f, %7f)", yMin, yMax); SendMsg(scpi_Msg);
 
 }
 

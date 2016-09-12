@@ -6,6 +6,7 @@
 #include "wfg_dialog.h"
 #include "osc_dialog.h"
 #include "qcustomplot.h"
+#include "analysis.h"
 #include <QFileDialog>
 
 #include <QString>
@@ -35,7 +36,7 @@ private slots:
 
     void on_pushButton_openFile_clicked();
 
-    void Log(QString msg);
+    void Write2Log(QString msg);
 
 private:
     Ui::MainWindow *ui;

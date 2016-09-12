@@ -10,23 +10,34 @@ MainWindow::MainWindow(QWidget *parent) :
     logFile(NULL),
     dataFile(NULL)
 {
-    MsgCount = 0;
 
     ui->setupUi(this);
+    this->setGeometry(10,50,this->geometry().width(),this->geometry().height());
 
+    // logfile
+    MsgCount = 0;
+    QString logFileName;
+    QDate date = QDate::currentDate();
+    logFileName.sprintf("Log%s.txt", date.toString("yyyyMMdd").toStdString().c_str());
+    logFile = new QFileIO ("C:/Users/Triplet-ESR/Desktop/DAQ_Log", logFileName, 4);
+    logFile->SaveLogData("========================================== new session.");
+    Write2Log(logFile->Msg);
+    connect(logFile, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
+
+    ui->groupBox_log->setTitle(logFileName.insert(0,"Log : C:/Users/Triplet-ESR/Desktop/DAQ_Log/"));
+
+    // call wfg and osc dialog, in which the wfg and osc will be created
     wfgui = new WFG_Dialog(this);
-    logMsg = wfgui->Msg;
-    Log(logMsg);
+    Write2Log(wfgui->Msg);
     oscui = new osc_Dialog(this);
-    logMsg = oscui->Msg;
-    Log(logMsg);
+    Write2Log(oscui->Msg);
 
 
     //Setting up connectting
-    connect(oscui, SIGNAL(SendLogMsg(QString)), this, SLOT(Log(QString)));
-    connect(wfgui, SIGNAL(SendLogMsg(QString)), this, SLOT(Log(QString)));
-    connect(wfgui->wfg, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
-    connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
+    connect(oscui, SIGNAL(SendLogMsg(QString)), this, SLOT(Write2Log(QString)));
+    connect(wfgui, SIGNAL(SendLogMsg(QString)), this, SLOT(Write2Log(QString)));
+    connect(wfgui->wfg, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
+    connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
 
     //Get Setting
     wfgui->on_comboBox_ch_activated(0);
@@ -45,11 +56,11 @@ MainWindow::~MainWindow()
     delete logFile;
     delete dataFile;
 
-    Log("========================= Program ended.");
+    Write2Log("========================= Program ended.");
 
 }
 
-void MainWindow::Log(QString msg) //TODO not finished
+void MainWindow::Write2Log(QString msg) //TODO not finished
 {
     MsgCount ++;
 
@@ -71,7 +82,7 @@ void MainWindow::Log(QString msg) //TODO not finished
 void MainWindow::on_actionWave_From_Generator_triggered()
 {
     if( wfgui->isHidden()){
-        Log("=== Open Wave From Generator Pannel.");
+        Write2Log("=== Open Wave From Generator Pannel.");
         wfgui->setGeometry(this->geometry().x()+ this->geometry().width()+20,
                            this->geometry().y(),
                            wfgui->geometry().width(),
@@ -83,7 +94,7 @@ void MainWindow::on_actionWave_From_Generator_triggered()
 void MainWindow::on_actionOscilloscope_triggered()
 {
     if( oscui->isHidden()){
-        Log("=== Open Oscillopscope Pannel.");
+        Write2Log("=== Open Oscillopscope Pannel.");
         oscui->setGeometry(this->geometry().x()+ this->geometry().width()+20,
                            this->geometry().y() + wfgui->geometry().height()+ 60,
                            oscui->geometry().width(),
@@ -103,11 +114,11 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
 
     logMsg.sprintf("=========== Get Data == Ch %d, #pt %d", ch, ui->spinBox_count->value());
-    Log(logMsg);
+    Write2Log(logMsg);
     oscui->osc->GetData(ch, ui->spinBox_count->value(),oscui->osc->acqFlag);
 
     logMsg.sprintf("=========== Plot Ch %d", ch);
-    Log(logMsg);
+    Write2Log(logMsg);
     if( Plot->graphCount() == 0){
         Plot->xAxis->setLabel("time [us]");
         Plot->yAxis->setLabel("Volatge [V]");
@@ -139,8 +150,10 @@ void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
     if( dataFile != NULL){
         logMsg = "++++++ Saving Data .... Data name :";
         logMsg += "test";
-        Log(logMsg);
+        Write2Log(logMsg);
         dataFile->AppendData("test", oscui->osc->xData[ch], oscui->osc->yData[ch]);
+    }else{
+        Write2Log("Save file did not set. Data not saved.");
     }
 }
 
@@ -190,41 +203,15 @@ void MainWindow::on_pushButton_openFile_clicked()
 
     //Display
     ui->lineEdit_FileName->setText(filePath);
-    if( filePath != old_filePath){
-        QString logfilePath = dirName;
-        logfilePath.append("/log.txt").insert(0, "Log : ");
-        ui->groupBox_log->setTitle(logfilePath);
-    }
 
-    // refreash file
-    if( old_dirName != dirName) {
-        if( logFile != NULL ){
-            delete logFile;
-        }
-        logFile = new QFileIO (dirName, "log.txt", 4);
-        Log(logFile->Msg);
-        connect(logFile, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
-        logFile->SaveLogData("==========================================");
-        logFile->SaveLogData(logFile->Msg);
-
+    // refreash data file while changed
+    if( old_dirName != dirName || old_fileName != fileName){
         if( dataFile != NULL ){
             delete dataFile;
         }
         dataFile = new QFileIO (dirName, fileName, 3);
-        Log(logFile->Msg);
-        connect(dataFile, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
+        connect(dataFile, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
         dataFile->FileStructure();
-
-    }
-
-    if( old_dirName == dirName && old_fileName != fileName){
-        if( dataFile != NULL ){
-            delete dataFile;
-        }
-        dataFile = new QFileIO (dirName, fileName, 3);
-        connect(dataFile, SIGNAL(SendMsg(QString)), this, SLOT(Log(QString)));
-        dataFile->FileStructure();
-
 
     }
 

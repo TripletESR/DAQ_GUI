@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QDebug>
-#include "scpi.h"
+#include "qscpi.h"
 #include "oscilloscope.h"
 #include "constant.h"
 

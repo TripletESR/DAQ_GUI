@@ -7,14 +7,7 @@ Analysis::Analysis(QObject *parent) : QObject(parent)
 
 Analysis::Analysis(const QVector<double> x, const QVector<double> y)
 {
-    // assume x.size() == y.size()
-    //this->xdata = x;
-    //this->ydata = y;
-
-    //this->n = this->xdata.size();
-
     SetData(x,y);
-
 }
 
 void Analysis::SetData(const QVector<double> x, const QVector<double> y)
@@ -26,6 +19,12 @@ void Analysis::SetData(const QVector<double> x, const QVector<double> y)
     this->n = this->xdata.size();
     Msg.sprintf("Input Data, size = %d", this->n);
     emit SendMsg(Msg);
+
+    this->startFitIndex = 0;
+}
+
+void Analysis::SetStartFitIndex(int index){
+    this->startFitIndex = index;
 }
 
 double Analysis::Mean(int index_1, int index_2)
@@ -72,27 +71,18 @@ double Analysis::Variance(int index_1, int index_2)
 
 }
 
-Matrix *Analysis::Regression(bool fitType, int startFitIndex, QVector<double> par)
+void Analysis::Regression(bool fitType, QVector<double> par)
 {
-    int xStart = startFitIndex;
-    int xEnd = this->n;
+    errFlag = 0;
+    int xStart = this->startFitIndex;
+    int xEnd = this->n-1;
     int fitSize = xStart - xEnd + 1;
 
     this->p = 2;//default is 2 parameters fit
     if (fitType) this->p = 4;
 
     this->DF = fitSize - this->p;
-
-    this->par = par;
-
-    //All Matrix started from below
-    Matrix *output = new Matrix[6]; // 0 = par; 1 = dpar; 2 = sigma ; 3 = t-dis, 4 = p-value, 5 = SSR
-    output[0] = Matrix(p,1);
-    output[1] = Matrix(p,1);
-    output[2] = Matrix(p,1);
-    output[3] = Matrix(p,1);
-    output[4] = Matrix(p,1);
-    output[5] = Matrix(1,1);
+    this->par = QVector2ColVector(par);
 
     //============================Start regression
     Matrix Y(fitSize,1);
@@ -122,8 +112,8 @@ Matrix *Analysis::Regression(bool fitType, int startFitIndex, QVector<double> pa
     try{
         CoVar = FtF.Inverse();  //printf(" CoVar(%d,%d)\n", CoVar.GetRows(), CoVar.GetCols());
     }catch( Exception err){
-        (output[4])(1,1) = 9999; // set the p-Value to be 9999;
-        return output;
+        errFlag = 1;
+        return;
     }
 
     //CoVar.Print();
@@ -137,33 +127,88 @@ Matrix *Analysis::Regression(bool fitType, int startFitIndex, QVector<double> pa
     if( fitType ) par_old(3,1) = par[2];
     if( fitType ) par_old(4,1) = par[3];
 
-    Matrix dpar = CoVar * FtdY;  //printf("  dpar(%d,%d)\n", dpar.GetRows(), dpar.GetCols());
-    Matrix par_new = par_old + dpar;
-    Matrix SSR = dY.Transpose() * dY;
-
-    this->SSR = SSR(1,1);
+    this->dpar = CoVar * FtdY;  //printf("  dpar(%d,%d)\n", dpar.GetRows(), dpar.GetCols());
+    this->par = par_old + dpar;
+    this->SSR = (dY.Transpose() * dY)(1,1);
     this->sigma = this->SSR / this->DF;
 
-    Matrix sigma(p,1); for( int i = 1; i <= p ; i++){ sigma(i,1) = sqrt(this->sigma * CoVar(i,i)); }
-    Matrix tDis(p,1); for( int i = 1; i <= p ; i++){ tDis(i,1) = par_new(i,1)/sigma(i,1); }
-    Matrix ApValue(p,1); for( int i = 1; i <= p ; i++){ ApValue(i,1) = cum_tDis30(- std::abs(tDis(i,1)));}
-
-    output[0] = par_new;
-    output[1] = dpar;
-    output[2] = sigma;
-    output[3] = tDis;
-    output[4] = ApValue;
-    output[5] = SSR/DF;
-
-    this->par = RowVector2QVector(par_new);
-    this->error = RowVector2QVector(sigma);
-    this->pValue = RowVector2QVector(ApValue);
-
-    return output;
+    this->error  = Matrix(p,1); for( int i = 1; i <= p ; i++){ (this->error)(i,1)  = sqrt(this->sigma * CoVar(i,i)); }
+    this->tDis   = Matrix(p,1); for( int i = 1; i <= p ; i++){ (this->tDis)(i,1)   = (this->par)(i,1)/(this->error)(i,1); }
+    this->pValue = Matrix(p,1); for( int i = 1; i <= p ; i++){ (this->pValue)(i,1) = cum_tDis30(- std::abs(tDis(i,1)));}
 
 }
 
-Matrix *Analysis::NonLinearFit(int startFitIndex, QVector<double> iniPar)
+void Analysis::NonLinearFit(QVector<double> par)
 {
+    // regression of 4, fitType = 1;
+    int count = 0 ;
+    QString tmp;
+    Msg = "Regression of 4-parameters: ";
+    do{
+        Regression(1, par);
+        count ++;
+        tmp.sprintf("%d ",count);
+        Msg.append(tmp);
+    }while( errFlag == 0 &&
+            std::abs(dpar(1,1)) > 0.01 &&
+            std::abs(dpar(2,1)) > 0.01 &&
+            std::abs(dpar(3,1)) > 0.01 &&
+            std::abs(dpar(4,1)) > 0.01 );
+
+    if(errFlag){
+        Msg.append("| Unable to calculated Covariance, terminated.");
+        SendMsg(Msg);
+        SendMsg(" ------ try 2-parameters fits. User may adjust the inital parameters.");
+    }else{
+        Msg.append("| Finsihed. Iteration converged.");
+        SendMsg(Msg);
+    }
+    if( errFlag == 0){
+        this->par.Transpose().PrintM("sol");
+        this->error.Transpose().PrintM("error");
+        this->pValue.Transpose().PrintM("pValue");
+    }
+
+    //Check should it go to 2-parameters fit
+    bool try2parFit = 0;
+    if( errFlag ||
+        (this->pValue)(1,1) > 0.05 ||
+        (this->pValue)(2,1) > 0.05 ||
+        (this->pValue)(3,1) > 0.05 ||
+        (this->pValue)(4,1) > 0.05 ){
+        Msg = " +++++++++++++  Result rejected.";
+        try2parFit = 1;
+        count = 0;
+        errFlag = 0;
+    }
+
+    if( try2parFit == 0 ) return;
+
+    Msg = "Regression of 2-parameters: ";
+    do{
+        Regression(0, par);
+        count ++;
+        tmp.sprintf("%d ",count);
+        Msg.append(tmp);
+    }while( errFlag == 0 &&
+            std::abs(dpar(1,1)) > 0.01 &&
+            std::abs(dpar(2,1)) > 0.01 &&
+            std::abs(dpar(3,1)) > 0.01 &&
+            std::abs(dpar(4,1)) > 0.01 );
+
+    if(errFlag){
+        Msg.append("| Unable to calculated Covariance, terminated.");
+        SendMsg(Msg);
+        SendMsg(" ------ User may adjust the inital parameters.");
+    }else{
+        Msg.append("| Finsihed. Iteration converged.");
+        SendMsg(Msg);
+    }
+
+    if( errFlag == 0){
+        this->par.Transpose().PrintM("sol");
+        this->error.Transpose().PrintM("error");
+        this->pValue.Transpose().PrintM("pValue");
+    }
 
 }

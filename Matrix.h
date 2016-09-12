@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDebug>
+#include <QVector>
 
 class Exception
 {
@@ -76,8 +77,8 @@ signals:
 
 public slots:
 
-    void PrintM() const;
-    void PrintM(QString str) const;
+    void PrintM();
+    void PrintM(QString str);
 
 private:
     double **p;

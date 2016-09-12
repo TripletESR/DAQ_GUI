@@ -330,7 +330,7 @@ double Matrix::Det(){
 
 
 
-void Matrix::PrintM() const
+void Matrix::PrintM()
 {
     QString tmp, msg;
     if( p != NULL){
@@ -348,16 +348,20 @@ void Matrix::PrintM() const
             }
             msg += tmp;
             qDebug().noquote() << msg;
+            SendMsg(msg);
             msg.clear();
         }
     }else{
         qDebug("[]");
+        SendMsg("[]");
     }
 }
 
-void Matrix::PrintM(QString str) const
+void Matrix::PrintM(QString str)
 {
-    qDebug("%s(%d,%d) = ", str.toStdString().c_str(), this->rows, this->cols);
+    QString msg;
+    msg.sprintf("%s(%d,%d) = ", str.toStdString().c_str(), this->rows, this->cols);
+    SendMsg(msg);
     PrintM();
 }
 

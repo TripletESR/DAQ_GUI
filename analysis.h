@@ -18,11 +18,13 @@ public:
     Analysis(const QVector<double> x, const QVector<double> y);
 
     void SetData(const QVector<double> x, const QVector<double> y);
+    void SetStartFitIndex(int index);
 
     double Mean(int index_1, int index_2);
     double Variance(int index_1, int index_2);
-    Matrix *Regression(bool fitType, int startFitIndex, QVector<double> par);
-    Matrix *NonLinearFit(int startFitIndex, QVector<double> iniPar);
+
+    void Regression(bool fitType, QVector<double> par);
+    void NonLinearFit(QVector<double> par);
 
 signals:
 
@@ -34,20 +36,25 @@ public slots:
     int GetDegreeOfFreedom() {return DF;}
     QVector<double> GetData_x() {return xdata;}
     QVector<double> GetData_y() {return ydata;}
-    QVector<double> GetParameters() {return par;}
-    QVector<double> GetParError() {return error;}
-    QVector<double> GetParPValue() {return pValue;}
+    Matrix GetParameters() {return par;}
+    Matrix GetParError() {return error;}
+    Matrix GetParPValue() {return pValue;}
     double GetSSR() {return SSR;}
     double GetFitSigma() {return sigma;}
 
 private:
     QVector<double> xdata, ydata;
-    QVector<double> par;
-    QVector<double> error;
-    QVector<double> pValue;
+    Matrix par;
+    Matrix dpar;
+    Matrix error;
+    Matrix tDis;
+    Matrix pValue;
     double SSR;
     double sigma; //fit sigma
     int n, p, DF;
+    int startFitIndex;
+
+    bool errFlag;
 
     double cum_tDis30(double x){
         return 1/(1+exp(-x/0.6));
@@ -60,13 +67,22 @@ private:
         return fit;
     }
 
-    QVector<double> RowVector2QVector(Matrix m){
+    QVector<double> ColVector2QVector(Matrix m){
         QVector<double> out;
         for(int i = 1; i <= m.GetRows(); i++){
             out.push_back(m(i,1));
         }
         return out;
     }
+
+    Matrix QVector2ColVector(QVector<double> vec){
+        Matrix res(vec.size(),1);
+        for(int i = 0; i < vec.size(); i++){
+            res(i+1, 1) = vec[i];
+        }
+        return res;
+    }
+
 };
 
 #endif // ANALYSIS_H

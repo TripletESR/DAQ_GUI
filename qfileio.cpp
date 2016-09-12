@@ -55,6 +55,7 @@ void QFileIO::FileStructure()
     endPos = myfile->pos();
 
     //qDebug() << xdata;
+    if( col > 0 ){
     double x1 = (this->xdata)[0];
     double x2 = (this->xdata)[col-1];
     double xStep = (x2-x1)/(col-1);
@@ -65,7 +66,9 @@ void QFileIO::FileStructure()
     Msg.sprintf("Scale  = %f us/div", range/10);                         SendMsg(Msg);
     Msg.sprintf("Offset = %f us", x1 + range/2);                         SendMsg(Msg);
     Msg.sprintf("(row, col, endPos) = (%d, %d, %d)", row, col, endPos);  SendMsg(Msg);
-
+    }else{
+        SendMsg("Openned an empty File.");
+    }
 }
 
 void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zdata)

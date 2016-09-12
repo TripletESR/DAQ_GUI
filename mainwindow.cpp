@@ -108,50 +108,71 @@ void MainWindow::on_pushButton_clicked()
     customPlot = ui->customPlot;
 
     int ch = ui->spinBox_ch->value();
-    GetDataAndPlot(customPlot, ch);
+    int points = ui->spinBox_count->value();
+    GetData(ch, points);
+    Plot(customPlot, ch, oscui->osc->xData[ch],
+                         oscui->osc->yData[ch],
+                         oscui->osc->xMin,
+                         oscui->osc->xMax,
+                         oscui->osc->yMin,
+                         oscui->osc->yMin);
+    SaveData("test",  oscui->osc->xData[ch], oscui->osc->yData[ch]);
 }
 
-void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
-
+void MainWindow::GetData(int ch, int points){
     logMsg.sprintf("=========== Get Data == Ch %d, #pt %d", ch, ui->spinBox_count->value());
     Write2Log(logMsg);
-    oscui->osc->GetData(ch, ui->spinBox_count->value(),oscui->osc->acqFlag);
+    oscui->osc->GetData(ch, points ,oscui->osc->acqFlag);
+}
+
+void MainWindow::Plot(QCustomPlot *Plot, int ch, QVector<double> x, QVector<double> y, double xMin, double xMax, double yMin, double yMax){
 
     logMsg.sprintf("=========== Plot Ch %d", ch);
     Write2Log(logMsg);
+
+    // initialize
     if( Plot->graphCount() == 0){
         Plot->xAxis->setLabel("time [us]");
         Plot->yAxis->setLabel("Volatge [V]");
-        Plot->xAxis->setRange(oscui->osc->xMin,oscui->osc->xMax);
-        Plot->yAxis->setRange(oscui->osc->yMin * 2, oscui->osc->yMax * 2);
+        Plot->xAxis->setRange(xMin, xMax);
+        Plot->yAxis->setRange(yMin * 2, yMax * 2);
     }
 
+    // adjust y range
     double plotyMax = Plot->yAxis->range().upper;
     double plotyMin = Plot->yAxis->range().lower;
-    if( oscui->osc->yMin * 2 < plotyMin ) plotyMin = oscui->osc->yMin * 2;
-    if( oscui->osc->yMax * 2 > plotyMax ) plotyMax = oscui->osc->yMax * 2;
+    if( yMin * 2 < plotyMin ) plotyMin = yMin * 2;
+    if( yMax * 2 > plotyMax ) plotyMax = yMax * 2;
     Plot->yAxis->setRange(plotyMin, plotyMax);
 
+    // add graph
     while(Plot->graphCount() < ch){
         Plot->addGraph();
     }
 
+    // set plot color
     switch (ch) {
     case 1:Plot->graph(ch-1)->setPen(QPen(Qt::blue)); break;
     case 2:Plot->graph(ch-1)->setPen(QPen(Qt::red)); break;
     case 3:Plot->graph(ch-1)->setPen(QPen(Qt::darkGreen)); break;
     case 4:Plot->graph(ch-1)->setPen(QPen(Qt::magenta)); break;
+        // when ch > 4, it would be the fitting function.
     }
 
-    Plot->graph(ch-1)->setData(oscui->osc->xData[ch], oscui->osc->yData[ch]);
+    //fill data
+    Plot->graph(ch-1)->setData(x, y);
 
+    //replot
     Plot->replot();
+}
+
+void MainWindow::SaveData(QString head, QVector<double> x, QVector<double> y){
 
     if( dataFile != NULL){
         logMsg = "++++++ Saving Data .... Data name :";
-        logMsg += "test";
+        logMsg += head;
         Write2Log(logMsg);
-        dataFile->AppendData("test", oscui->osc->xData[ch], oscui->osc->yData[ch]);
+        dataFile->AppendData(head, x, y);
     }else{
         Write2Log("Save file did not set. Data not saved.");
     }
@@ -175,13 +196,12 @@ void MainWindow::on_pushButton_openFile_clicked()
         old_fileName = old_sFile[old_size-1];
     }
 
-    //qDebug() << old_filePath << "," << old_dirName << "," << old_fileName;
+    qDebug() << old_filePath << "," << old_dirName << "," << old_fileName;
 
     // Set new FIle Path
     QString filePath = QFileDialog::getSaveFileName(this, "Save File", "C:/Users/Triplet-ESR/Desktop");
     QString dirName;
     QString fileName;
-
 
     if( filePath == "" ) {
         filePath = old_filePath;
@@ -199,7 +219,7 @@ void MainWindow::on_pushButton_openFile_clicked()
             fileName = sFile[size-1];
         }
     }
-    //qDebug() << filePath << "," << dirName << "," << fileName;
+    qDebug() << filePath << "," << dirName << "," << fileName;
 
     //Display
     ui->lineEdit_FileName->setText(filePath);

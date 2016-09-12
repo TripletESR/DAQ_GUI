@@ -15,7 +15,8 @@ public:
     ViStatus sta;
     QString name, scpi_Msg;
 
-    explicit QSCPI(ViRsrc name,QObject *parent = 0);
+    //explicit QSCPI(ViRsrc name,QObject *parent = 0);
+    explicit QSCPI(ViRsrc name);
     ~QSCPI();
 
 signals:

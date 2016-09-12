@@ -35,7 +35,7 @@ public:
     int trgCh, ohm[5], IO[5];
     double xRange[5], xOffset[5];
 
-    Oscilloscope(ViRsrc name, QObject *parent = 0);
+    Oscilloscope(ViRsrc name);
     ~Oscilloscope();
 
     void Initialize(int ch);

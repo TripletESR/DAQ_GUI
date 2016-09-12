@@ -1,6 +1,6 @@
 #include "qscpi.h"
 
-QSCPI::QSCPI(ViRsrc name, QObject *parent) : QObject(parent)
+QSCPI::QSCPI(ViRsrc name)
 {
     qDebug() << "--------------------------------------";
     scpi_Msg.sprintf("======================================\n"

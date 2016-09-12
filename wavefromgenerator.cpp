@@ -1,7 +1,6 @@
 #include "wavefromgenerator.h"
 
-WaveFromGenerator::WaveFromGenerator(ViRsrc name, QObject *parent):
-    QSCPI(name, parent)
+WaveFromGenerator::WaveFromGenerator(ViRsrc name): QSCPI(name)
 {
     this->name = GetName();
 

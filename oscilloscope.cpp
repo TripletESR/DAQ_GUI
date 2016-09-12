@@ -1,7 +1,6 @@
 #include "oscilloscope.h"
 
-Oscilloscope::Oscilloscope(ViRsrc name, QObject *parent):
-    QSCPI(name, parent)
+Oscilloscope::Oscilloscope(ViRsrc name): QSCPI(name)
 {
     if( sta != VI_SUCCESS) {
         qDebug() << "Cannot open " << name;

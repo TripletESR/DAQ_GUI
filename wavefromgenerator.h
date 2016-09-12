@@ -10,7 +10,7 @@ public:
     double amp, offset; // in mV
     int ch, index, IO; //index is the index in WFG_Dialog.h
 
-    WaveFromGenerator(ViRsrc name, QObject *parent = 0);
+    WaveFromGenerator(ViRsrc name);
     ~WaveFromGenerator();
 
     void OpenCh(int ch);

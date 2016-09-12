@@ -145,4 +145,5 @@ void QFileIO::SaveLogData(QString Msg){
 
     myfile->write(Msg.toStdString().c_str());
     myfile->write("\n");
+    myfile->flush();
 }

@@ -23,7 +23,6 @@ SOURCES += main.cpp\
     osc_dialog.cpp \
     qscpi.cpp \
     qfileio.cpp \
-    qanalysis.cpp \
     analysis.cpp \
     matrix.cpp
 
@@ -36,7 +35,6 @@ HEADERS  += mainwindow.h \
     osc_dialog.h \
     qscpi.h \
     qfileio.h \
-    qanalysis.h \
     analysis.h \
     matrix.h
 

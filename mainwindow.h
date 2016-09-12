@@ -6,7 +6,7 @@
 #include "wfg_dialog.h"
 #include "osc_dialog.h"
 #include "qcustomplot.h"
-#include "qanalysis.h"
+#include "analysis.h"
 #include <QFileDialog>
 
 #include <QString>

@@ -6,7 +6,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     wfgui(NULL),
     oscui(NULL),
-    customPlot(NULL),
     logFile(NULL),
     dataFile(NULL)
 {
@@ -47,7 +46,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete customPlot;
 
     delete ui;
     delete wfgui;
@@ -105,17 +103,15 @@ void MainWindow::on_actionOscilloscope_triggered()
 
 void MainWindow::on_pushButton_clicked()
 {
-    customPlot = ui->customPlot;
-
     int ch = ui->spinBox_ch->value();
     int points = ui->spinBox_count->value();
     GetData(ch, points);
-    Plot(customPlot, ch, oscui->osc->xData[ch],
-                         oscui->osc->yData[ch],
-                         oscui->osc->xMin,
-                         oscui->osc->xMax,
-                         oscui->osc->yMin,
-                         oscui->osc->yMin);
+    Plot(ch, oscui->osc->xData[ch],
+             oscui->osc->yData[ch],
+             oscui->osc->xMin,
+             oscui->osc->xMax,
+             oscui->osc->yMin,
+             oscui->osc->yMax);
     SaveData("test",  oscui->osc->xData[ch], oscui->osc->yData[ch]);
 }
 
@@ -125,11 +121,12 @@ void MainWindow::GetData(int ch, int points){
     oscui->osc->GetData(ch, points ,oscui->osc->acqFlag);
 }
 
-void MainWindow::Plot(QCustomPlot *Plot, int ch, QVector<double> x, QVector<double> y, double xMin, double xMax, double yMin, double yMax){
+void MainWindow::Plot(int ch, QVector<double> x, QVector<double> y, double xMin, double xMax, double yMin, double yMax){
 
     logMsg.sprintf("=========== Plot Ch %d", ch);
     Write2Log(logMsg);
 
+    QCustomPlot *Plot = ui->customPlot;
     // initialize
     if( Plot->graphCount() == 0){
         Plot->xAxis->setLabel("time [us]");
@@ -234,6 +231,5 @@ void MainWindow::on_pushButton_openFile_clicked()
         dataFile->FileStructure();
 
     }
-
 
 }

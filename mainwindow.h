@@ -33,12 +33,12 @@ private slots:
     void on_actionOscilloscope_triggered();
     void on_pushButton_clicked();
     void GetData(int ch, int points);
-    void Plot(QCustomPlot *Plot, int ch, QVector<double> x,
-                                         QVector<double> y,
-                                         double xMin = 0,
-                                         double xMax = 0,
-                                         double yMin = 0,
-                                         double yMax = 0);
+    void Plot(int ch, QVector<double> x,
+                      QVector<double> y,
+                      double xMin = 0,
+                      double xMax = 0,
+                      double yMin = 0,
+                      double yMax = 0);
     void SaveData(QString head, QVector<double> x, QVector<double> y);
 
     void on_pushButton_openFile_clicked();
@@ -53,8 +53,6 @@ private:
 
     QFileIO * logFile;
     QFileIO * dataFile;
-
-    QCustomPlot *customPlot;
 
     Analysis *ana;
 

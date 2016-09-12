@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     ui->setupUi(this);
+    this->setGeometry(10,50,this->geometry().width(),this->geometry().height());
 
     // logfile
     MsgCount = 0;
@@ -19,9 +20,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QDate date = QDate::currentDate();
     logFileName.sprintf("Log%s.txt", date.toString("yyyyMMdd").toStdString().c_str());
     logFile = new QFileIO ("C:/Users/Triplet-ESR/Desktop/DAQ_Log", logFileName, 4);
+    logFile->SaveLogData("========================================== new session.");
     Write2Log(logFile->Msg);
     connect(logFile, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
-    Write2Log("========================================== new session.");
+
+    ui->groupBox_log->setTitle(logFileName.insert(0,"Log : C:/Users/Triplet-ESR/Desktop/DAQ_Log/"));
 
     // call wfg and osc dialog, in which the wfg and osc will be created
     wfgui = new WFG_Dialog(this);
@@ -149,6 +152,8 @@ void MainWindow::GetDataAndPlot(QCustomPlot *Plot, int ch){
         logMsg += "test";
         Write2Log(logMsg);
         dataFile->AppendData("test", oscui->osc->xData[ch], oscui->osc->yData[ch]);
+    }else{
+        Write2Log("Save file did not set. Data not saved.");
     }
 }
 
@@ -198,11 +203,6 @@ void MainWindow::on_pushButton_openFile_clicked()
 
     //Display
     ui->lineEdit_FileName->setText(filePath);
-    if( filePath != old_filePath){
-        QString logfilePath = dirName;
-        logfilePath.append("/log.txt").insert(0, "Log : ");
-        ui->groupBox_log->setTitle(logfilePath);
-    }
 
     // refreash data file while changed
     if( old_dirName != dirName || old_fileName != fileName){

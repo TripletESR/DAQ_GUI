@@ -7,6 +7,7 @@
 #include "osc_dialog.h"
 #include "qcustomplot.h"
 #include "analysis.h"
+#include "Matrix.h"
 #include <QFileDialog>
 
 #include <QString>
@@ -45,6 +46,8 @@ private slots:
 
     void Write2Log(QString msg);
 
+    void on_pushButton_Auto_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -55,8 +58,6 @@ private:
     QFileIO * dataFile;
 
     QCustomPlot * plot;
-
-    Analysis *ana;
 
 };
 

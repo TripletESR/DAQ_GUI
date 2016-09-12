@@ -17,7 +17,8 @@ class Matrix : public QObject
     Q_OBJECT
 public:
 
-    explicit Matrix(QObject *parent = 0);
+    //explicit Matrix(QObject *parent = 0);
+    explicit Matrix();
     explicit Matrix(const int row, const int col);
     Matrix(const Matrix& a);
     Matrix(int row, int col,  double v);

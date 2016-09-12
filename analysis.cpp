@@ -1,13 +1,15 @@
 #include "analysis.h"
 
-Analysis::Analysis(QObject *parent) : QObject(parent)
-{
-
-}
-
 Analysis::Analysis(const QVector<double> x, const QVector<double> y)
 {
     SetData(x,y);
+
+    //connect(&par,    SIGNAL(SendMsg(QString)), this, SLOT(Connector(QString)));
+    //connect(&dpar,   SIGNAL(SendMsg(QString)), this, SLOT(Connector(QString)));
+    //connect(&error,  SIGNAL(SendMsg(QString)), this, SLOT(Connector(QString)));
+    //connect(&tDis,   SIGNAL(SendMsg(QString)), this, SLOT(Connector(QString)));
+    //connect(&pValue, SIGNAL(SendMsg(QString)), this, SLOT(Connector(QString)));
+
 }
 
 void Analysis::SetData(const QVector<double> x, const QVector<double> y)
@@ -18,7 +20,7 @@ void Analysis::SetData(const QVector<double> x, const QVector<double> y)
 
     this->n = this->xdata.size();
     Msg.sprintf("Input Data, size = %d", this->n);
-    emit SendMsg(Msg);
+    //SendMsg(Msg);
 
     this->startFitIndex = 0;
 }
@@ -71,23 +73,23 @@ double Analysis::Variance(int index_1, int index_2)
 
 }
 
-void Analysis::Regression(bool fitType, QVector<double> par)
+void Analysis::Regression(const bool fitType, QVector<double> par)
 {
     errFlag = 0;
     int xStart = this->startFitIndex;
     int xEnd = this->n-1;
-    int fitSize = xStart - xEnd + 1;
+    int fitSize = xEnd - xStart + 1;
 
     this->p = 2;//default is 2 parameters fit
     if (fitType) this->p = 4;
 
     this->DF = fitSize - this->p;
-    this->par = QVector2ColVector(par);
+    //this->par = QVector2ColVector(par).Transpose();
 
     //============================Start regression
     Matrix Y(fitSize,1);
     for(int i = 1; i <= fitSize ; i++) {
-        Y(i,1) = ydata[i + xStart - 1];
+        Y(i,1) = this->ydata[i + xStart - 1];
     }
 
     Matrix f(fitSize,1);
@@ -96,21 +98,34 @@ void Analysis::Regression(bool fitType, QVector<double> par)
         f(i,1) = fitFunction(fitType, x, par);
     }
 
-    Matrix F(n,p); // F = grad(f)
-    for(int i = 1; i <= n ; i++) {
-        double x = xdata[i - 1 + xStart];
-        F(i,1) = exp(-x/par[1]);
-        F(i,2) = par[0] * x * exp(-x/par[1])/par[1]/par[1];
-        if( fitType ) F(i,3) = exp(-x/par[3]);
-        if( fitType ) F(i,4) = par[2] * x * exp(-x/par[3])/par[3]/par[3];
-    }
+    qDebug("f : %d, %d" , f.GetRows(), f.GetCols());
 
-    Matrix Ft = F.Transpose(); //printf("    Ft(%d,%d)\n", Ft.GetRows(), Ft.GetCols());
-    Matrix FtF = Ft*F;        //printf("   FtF(%d,%d)\n", FtF.GetRows(), FtF.GetCols());
+    Matrix gradf(fitSize,p); // F = grad(f)
+    qDebug("F : %d, %d" , gradf.GetRows(), gradf.GetCols());
 
+    //for(int i = 1; i <= fitSize ; i++) {
+    //    double x = xdata[i - 1 + xStart];
+    //    gradf(i,1) = exp(-x/par[1]);
+    //    gradf(i,2) = par[0] * x * exp(-x/par[1])/par[1]/par[1];
+    //    if( fitType ) gradf(i,3) = exp(-x/par[3]);
+    //    if( fitType ) gradf(i,4) = par[2] * x * exp(-x/par[3])/par[3]/par[3];
+    //    //qDebug("F : %d %f (%f, %f)", i, x, F(i,1), F(i,2));
+    //}
+
+    //Matrix Ft = F.Transpose();
+    //qDebug("Ft : %d, %d" , Ft.GetRows(), Ft.GetCols());
+    //
+    //Matrix FtF = Ft * F;
+    //FtF.PrintM("FtF");
+    //
+    //qDebug() << FtF.Det();
+
+    //return;
+    /// a break for debug
+/*
     Matrix CoVar;
     try{
-        CoVar = FtF.Inverse();  //printf(" CoVar(%d,%d)\n", CoVar.GetRows(), CoVar.GetCols());
+        CoVar = FtF.Inverse();
     }catch( Exception err){
         errFlag = 1;
         return;
@@ -121,21 +136,26 @@ void Analysis::Regression(bool fitType, QVector<double> par)
     Matrix dY = Y - f;    //printf("    dY(%d,%d)\n", dY.GetRows(), dY.GetCols());
     Matrix FtdY = Ft*dY;  //printf("  FtdY(%d,%d)\n", FtdY.GetRows(), FtdY.GetCols());
 
-    Matrix par_old(p,1);
+    Matrix par_old(1,p);
     par_old(1,1) = par[0];
-    par_old(2,1) = par[1];
-    if( fitType ) par_old(3,1) = par[2];
-    if( fitType ) par_old(4,1) = par[3];
+    par_old(1,2) = par[1];
+    if( fitType ) par_old(1,3) = par[2];
+    if( fitType ) par_old(1,4) = par[3];
 
-    this->dpar = CoVar * FtdY;  //printf("  dpar(%d,%d)\n", dpar.GetRows(), dpar.GetCols());
+    this->dpar = (CoVar * FtdY).Transpose();  //printf("  dpar(%d,%d)\n", dpar.GetRows(), dpar.GetCols());
     this->par = par_old + dpar;
     this->SSR = (dY.Transpose() * dY)(1,1);
     this->sigma = this->SSR / this->DF;
 
-    this->error  = Matrix(p,1); for( int i = 1; i <= p ; i++){ (this->error)(i,1)  = sqrt(this->sigma * CoVar(i,i)); }
-    this->tDis   = Matrix(p,1); for( int i = 1; i <= p ; i++){ (this->tDis)(i,1)   = (this->par)(i,1)/(this->error)(i,1); }
-    this->pValue = Matrix(p,1); for( int i = 1; i <= p ; i++){ (this->pValue)(i,1) = cum_tDis30(- std::abs(tDis(i,1)));}
+    this->error  = Matrix(1,p); for( int i = 1; i <= p ; i++){  (this->error)(1,i) = sqrt(this->sigma * CoVar(i,i)); }
+    this->tDis   = Matrix(1,p); for( int i = 1; i <= p ; i++){   (this->tDis)(1,i) = (this->par)(1,i)/(this->error)(1,i); }
+    this->pValue = Matrix(1,p); for( int i = 1; i <= p ; i++){ (this->pValue)(1,i) = cum_tDis30(- std::abs(tDis(1,i)));}
 
+    this->par.PrintM("sol");
+    this->error.PrintM("error");
+    this->pValue.PrintM("pValue");
+
+    */
 }
 
 void Analysis::NonLinearFit(QVector<double> par)
@@ -151,9 +171,9 @@ void Analysis::NonLinearFit(QVector<double> par)
         Msg.append(tmp);
     }while( errFlag == 0 &&
             std::abs(dpar(1,1)) > 0.01 &&
-            std::abs(dpar(2,1)) > 0.01 &&
-            std::abs(dpar(3,1)) > 0.01 &&
-            std::abs(dpar(4,1)) > 0.01 );
+            std::abs(dpar(1,2)) > 0.01 &&
+            std::abs(dpar(1,3)) > 0.01 &&
+            std::abs(dpar(1,4)) > 0.01 );
 
     if(errFlag){
         Msg.append("| Unable to calculated Covariance, terminated.");
@@ -164,18 +184,18 @@ void Analysis::NonLinearFit(QVector<double> par)
         SendMsg(Msg);
     }
     if( errFlag == 0){
-        this->par.Transpose().PrintM("sol");
-        this->error.Transpose().PrintM("error");
-        this->pValue.Transpose().PrintM("pValue");
+        this->par.PrintM("sol");
+        this->error.PrintM("error");
+        this->pValue.PrintM("pValue");
     }
 
     //Check should it go to 2-parameters fit
     bool try2parFit = 0;
     if( errFlag ||
         (this->pValue)(1,1) > 0.05 ||
-        (this->pValue)(2,1) > 0.05 ||
-        (this->pValue)(3,1) > 0.05 ||
-        (this->pValue)(4,1) > 0.05 ){
+        (this->pValue)(1,2) > 0.05 ||
+        (this->pValue)(1,3) > 0.05 ||
+        (this->pValue)(1,4) > 0.05 ){
         Msg = " +++++++++++++  Result rejected.";
         try2parFit = 1;
         count = 0;
@@ -192,9 +212,9 @@ void Analysis::NonLinearFit(QVector<double> par)
         Msg.append(tmp);
     }while( errFlag == 0 &&
             std::abs(dpar(1,1)) > 0.01 &&
-            std::abs(dpar(2,1)) > 0.01 &&
-            std::abs(dpar(3,1)) > 0.01 &&
-            std::abs(dpar(4,1)) > 0.01 );
+            std::abs(dpar(1,2)) > 0.01 &&
+            std::abs(dpar(1,3)) > 0.01 &&
+            std::abs(dpar(1,4)) > 0.01 );
 
     if(errFlag){
         Msg.append("| Unable to calculated Covariance, terminated.");
@@ -206,9 +226,9 @@ void Analysis::NonLinearFit(QVector<double> par)
     }
 
     if( errFlag == 0){
-        this->par.Transpose().PrintM("sol");
-        this->error.Transpose().PrintM("error");
-        this->pValue.Transpose().PrintM("pValue");
+        this->par.PrintM("sol");
+        this->error.PrintM("error");
+        this->pValue.PrintM("pValue");
     }
 
 }

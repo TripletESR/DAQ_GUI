@@ -14,8 +14,8 @@ class Analysis : public QObject
 public:
     QString Msg;
 
-    explicit Analysis(QObject *parent = 0);
-    Analysis(const QVector<double> x, const QVector<double> y);
+    //explicit Analysis(QObject *parent = 0);
+    explicit Analysis(const QVector<double> x, const QVector<double> y);
 
     void SetData(const QVector<double> x, const QVector<double> y);
     void SetStartFitIndex(int index);
@@ -23,7 +23,7 @@ public:
     double Mean(int index_1, int index_2);
     double Variance(int index_1, int index_2);
 
-    void Regression(bool fitType, QVector<double> par);
+    void Regression(const bool fitType, QVector<double> par);
     void NonLinearFit(QVector<double> par);
 
 signals:
@@ -41,6 +41,9 @@ public slots:
     Matrix GetParPValue() {return pValue;}
     double GetSSR() {return SSR;}
     double GetFitSigma() {return sigma;}
+    void Connector(QString msg){
+        emit SendMsg(msg);
+    }
 
 private:
     QVector<double> xdata, ydata;
@@ -76,8 +79,9 @@ private:
     }
 
     Matrix QVector2ColVector(QVector<double> vec){
-        Matrix res(vec.size(),1);
-        for(int i = 0; i < vec.size(); i++){
+        int n = vec.size();
+        Matrix res(n,1);
+        for(int i = 0; i < n; i++){
             res(i+1, 1) = vec[i];
         }
         return res;

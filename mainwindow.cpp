@@ -8,8 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     oscui(NULL),
     logFile(NULL),
     dataFile(NULL),
-    plot(NULL),
-    ana(NULL)
+    plot(NULL)
 {
 
     ui->setupUi(this);
@@ -57,8 +56,6 @@ MainWindow::~MainWindow()
     delete dataFile;
 
     delete plot;
-
-    delete ana;
 
     Write2Log("========================= Program ended.");
 
@@ -237,5 +234,20 @@ void MainWindow::on_pushButton_openFile_clicked()
         dataFile->FileStructure();
 
     }
+
+}
+
+void MainWindow::on_pushButton_Auto_clicked()
+{
+    Analysis * ana = new Analysis(oscui->osc->xData[1], oscui->osc->yData[1]);
+    Write2Log(ana->Msg);
+    connect(ana, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
+
+    QVector<double> par = {0.10, 100, 0, 100};
+    qDebug()<< par;
+
+    ana->Regression(0, par);
+
+    delete ana;
 
 }

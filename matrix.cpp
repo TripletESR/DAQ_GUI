@@ -1,10 +1,9 @@
 #include "matrix.h"
 
-Matrix::Matrix(QObject *parent) : QObject(parent)
-{
-    p = NULL;
-    rows = 0;
-    cols = 0;
+Matrix::Matrix(){
+      p = NULL;
+      rows = 0;
+      cols = 0;
 }
 
 Matrix::Matrix(const int row, const int col)
@@ -142,13 +141,17 @@ Matrix Matrix::operator - (const Matrix &a)
 Matrix Matrix::operator * (const Matrix &a)
 {
     // check if the dimensions match
-    if (a.cols == rows){
-        Matrix res(a.rows, cols);
+    int R = rows;
+    int C = cols;
+    int r = a.rows;
+    int c = a.cols;
 
-        for (int r = 0; r < a.rows; r++){
-            for (int c_res = 0; c_res < cols; c_res++){
-                for (int c = 0; c < a.cols; c++){
-                    res.p[r][c_res] += a.p[r][c] * p[c][c_res];
+    if ( C == r){
+        Matrix res(R, c);
+        for (int i = 0; i < R; i++){
+            for (int j = 0; j < r; j++){
+                for (int k = 0; k < c; k++){
+                    res.p[i][j] += p[i][k] * a.p[k][j];
                 }
             }
         }
@@ -224,9 +227,10 @@ Matrix Matrix::Transpose(){
     Matrix res(this->cols, this->rows);
     for (int i = 0 ; i < this->rows; i ++){
         for (int j = 0 ; j < this->cols; j ++){
-            res.p[j][i]= this->p[i][j];
+            res.p[j][i]= p[i][j];
         }
     }
+
     return res;
 }
 
@@ -335,24 +339,23 @@ void Matrix::PrintM()
     QString tmp, msg;
     if( p != NULL){
         msg = "[" ;
-        for (int i = 0 ; i < this->rows ; i++){
+        for (int i = 0 ; i < rows ; i++){
             if ( i > 0) msg += " " ;
-            for (int j = 0 ; j < this->cols-1; j++){
+            for (int j = 0 ; j < cols-1; j++){
                 tmp.sprintf("%7.3f, ",p[i][j]);
                 msg += tmp;
             }
-            if( i < this->rows -1) {
-                tmp.sprintf("%7.3f;", p[i][this->cols-1]);
+            if( i < rows -1) {
+                tmp.sprintf("%7.3f;", p[i][cols-1]);
             }else{
-                tmp.sprintf("%7.3f]", p[i][this->cols-1]);
+                tmp.sprintf("%7.3f]", p[i][cols-1]);
             }
             msg += tmp;
-            qDebug().noquote() << msg;
             SendMsg(msg);
-            msg.clear();
+            qDebug() << msg;
+            msg = "";
         }
     }else{
-        qDebug("[]");
         SendMsg("[]");
     }
 }
@@ -360,8 +363,9 @@ void Matrix::PrintM()
 void Matrix::PrintM(QString str)
 {
     QString msg;
-    msg.sprintf("%s(%d,%d) = ", str.toStdString().c_str(), this->rows, this->cols);
+    msg.sprintf("%s(%d,%d) = ", str.toStdString().c_str(), rows, cols);
     SendMsg(msg);
+    qDebug() << msg;
     PrintM();
 }
 

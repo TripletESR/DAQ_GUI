@@ -16,8 +16,8 @@ QFileIO::QFileIO(QString dir, QString name, int mode, QObject *parent) : QObject
     }
 
     if( isOpen ){
-        Msg = filePath;
-        Msg.append(" opened.");
+        Msg = "Opened : ";
+        Msg += filePath;
     }else{
         Msg = "Fail to open";
         Msg += filePath;

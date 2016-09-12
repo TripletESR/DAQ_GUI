@@ -36,7 +36,7 @@ private slots:
 
     void on_pushButton_openFile_clicked();
 
-    void Log(QString msg);
+    void Write2Log(QString msg);
 
 private:
     Ui::MainWindow *ui;

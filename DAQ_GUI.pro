@@ -34,8 +34,7 @@ HEADERS  += mainwindow.h \
     osc_dialog.h \
     qscpi.h \
     qfileio.h \
-    qanalysis.h \
-    Matrix.h
+    qanalysis.h
 
 FORMS    += mainwindow.ui \
     wfg_dialog.ui \

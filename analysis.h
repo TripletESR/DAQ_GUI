@@ -6,6 +6,7 @@
 #include <QString>
 #include <cmath>
 #include <math.h>
+#include "exception.h"
 #include "matrix.h"
 
 class Analysis : public QObject
@@ -14,9 +15,10 @@ class Analysis : public QObject
 public:
     QString Msg;
 
-    //explicit Analysis(QObject *parent = 0);
+    explicit Analysis();
     explicit Analysis(const QVector<double> x, const QVector<double> y);
 
+    void Initialization();
     void SetData(const QVector<double> x, const QVector<double> y);
     void SetStartFitIndex(int index);
 
@@ -41,7 +43,7 @@ public slots:
     Matrix GetParPValue() {return pValue;}
     double GetSSR() {return SSR;}
     double GetFitSigma() {return sigma;}
-    void Connector(QString msg){
+    void MsgConnector(QString msg){
         emit SendMsg(msg);
     }
 

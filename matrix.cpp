@@ -16,7 +16,7 @@ Matrix::Matrix(const int row, const int col)
 
     p = new double *[row];
     for ( int i =0 ; i < row ; i++){
-        p[i] = new double (col);
+        p[i] = new double [col];
     }
     for ( int i = 0; i < row ; i++ ){
         for (int j = 0; j < col; j++ ) {
@@ -141,16 +141,11 @@ Matrix Matrix::operator - (const Matrix &a)
 Matrix Matrix::operator * (const Matrix &a)
 {
     // check if the dimensions match
-    int R = rows;
-    int C = cols;
-    int r = a.rows;
-    int c = a.cols;
-
-    if ( C == r){
-        Matrix res(R, c);
-        for (int i = 0; i < R; i++){
-            for (int j = 0; j < r; j++){
-                for (int k = 0; k < c; k++){
+    if ( cols == a.rows){
+        Matrix res(rows, a.cols);
+        for (int i = 0; i < rows; i++){
+            for (int j = 0; j < a.cols; j++){
+                for (int k = 0; k < cols; k++){
                     res.p[i][j] += p[i][k] * a.p[k][j];
                 }
             }

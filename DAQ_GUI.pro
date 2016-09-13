@@ -36,7 +36,8 @@ HEADERS  += mainwindow.h \
     qscpi.h \
     qfileio.h \
     analysis.h \
-    matrix.h
+    matrix.h \
+    exception.h
 
 
 FORMS    += mainwindow.ui \

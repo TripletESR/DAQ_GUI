@@ -4,13 +4,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QVector>
-
-class Exception
-{
-public:
-  const QString msg;
-  Exception(const QString arg): msg(arg){}
-};
+#include "exception.h"
 
 class Matrix : public QObject
 {

@@ -1,14 +1,32 @@
 #include "analysis.h"
 
+Analysis::Analysis()
+{
+    Initialization();
+}
+
 Analysis::Analysis(const QVector<double> x, const QVector<double> y)
 {
+    Initialization();
     SetData(x,y);
 
-    //connect(&par,    SIGNAL(SendMsg(QString)), this, SLOT(Connector(QString)));
-    //connect(&dpar,   SIGNAL(SendMsg(QString)), this, SLOT(Connector(QString)));
-    //connect(&error,  SIGNAL(SendMsg(QString)), this, SLOT(Connector(QString)));
-    //connect(&tDis,   SIGNAL(SendMsg(QString)), this, SLOT(Connector(QString)));
-    //connect(&pValue, SIGNAL(SendMsg(QString)), this, SLOT(Connector(QString)));
+}
+
+void Analysis::Initialization()
+{
+    this->SSR = 999;
+    this->sigma = 999;
+    this->n = 0;
+    this->p = 0;
+    this->DF = 0;
+    this->startFitIndex = 0;
+    this->errFlag = 0;
+
+    connect(&par,    SIGNAL(SendMsg(QString)), this, SLOT(MsgConnector(QString)));
+    connect(&dpar,   SIGNAL(SendMsg(QString)), this, SLOT(MsgConnector(QString)));
+    connect(&error,  SIGNAL(SendMsg(QString)), this, SLOT(MsgConnector(QString)));
+    connect(&tDis,   SIGNAL(SendMsg(QString)), this, SLOT(MsgConnector(QString)));
+    connect(&pValue, SIGNAL(SendMsg(QString)), this, SLOT(MsgConnector(QString)));
 
 }
 
@@ -22,7 +40,6 @@ void Analysis::SetData(const QVector<double> x, const QVector<double> y)
     Msg.sprintf("Input Data, size = %d", this->n);
     //SendMsg(Msg);
 
-    this->startFitIndex = 0;
 }
 
 void Analysis::SetStartFitIndex(int index){
@@ -100,29 +117,27 @@ void Analysis::Regression(const bool fitType, QVector<double> par)
 
     qDebug("f : %d, %d" , f.GetRows(), f.GetCols());
 
-    Matrix gradf(fitSize,p); // F = grad(f)
-    qDebug("F : %d, %d" , gradf.GetRows(), gradf.GetCols());
+    Matrix F(fitSize,p); // F = grad(f)
+    qDebug("F : %d, %d" , F.GetRows(), F.GetCols());
 
-    //for(int i = 1; i <= fitSize ; i++) {
-    //    double x = xdata[i - 1 + xStart];
-    //    gradf(i,1) = exp(-x/par[1]);
-    //    gradf(i,2) = par[0] * x * exp(-x/par[1])/par[1]/par[1];
-    //    if( fitType ) gradf(i,3) = exp(-x/par[3]);
-    //    if( fitType ) gradf(i,4) = par[2] * x * exp(-x/par[3])/par[3]/par[3];
-    //    //qDebug("F : %d %f (%f, %f)", i, x, F(i,1), F(i,2));
-    //}
+    for(int i = 1; i <= fitSize ; i++) {
+        double x = xdata[i - 1 + xStart];
+        F(i,1) = exp(-x/par[1]);
+        F(i,2) = par[0] * x * exp(-x/par[1])/par[1]/par[1];
+        if( fitType ) F(i,3) = exp(-x/par[3]);
+        if( fitType ) F(i,4) = par[2] * x * exp(-x/par[3])/par[3]/par[3];
+        //qDebug("F : %d %f (%f, %f)", i, x, F(i,1), F(i,2));
+    }
 
-    //Matrix Ft = F.Transpose();
-    //qDebug("Ft : %d, %d" , Ft.GetRows(), Ft.GetCols());
-    //
-    //Matrix FtF = Ft * F;
-    //FtF.PrintM("FtF");
-    //
-    //qDebug() << FtF.Det();
+    Matrix Ft = F.Transpose();
+    qDebug("Ft : %d, %d" , Ft.GetRows(), Ft.GetCols());
 
-    //return;
-    /// a break for debug
-/*
+    Matrix FtF = Ft * F;
+    FtF.PrintM("FtF");
+
+    qDebug() << FtF.Det();
+
+
     Matrix CoVar;
     try{
         CoVar = FtF.Inverse();
@@ -131,7 +146,7 @@ void Analysis::Regression(const bool fitType, QVector<double> par)
         return;
     }
 
-    //CoVar.Print();
+    CoVar.PrintM("CoVar");
 
     Matrix dY = Y - f;    //printf("    dY(%d,%d)\n", dY.GetRows(), dY.GetCols());
     Matrix FtdY = Ft*dY;  //printf("  FtdY(%d,%d)\n", FtdY.GetRows(), FtdY.GetCols());
@@ -155,7 +170,6 @@ void Analysis::Regression(const bool fitType, QVector<double> par)
     this->error.PrintM("error");
     this->pValue.PrintM("pValue");
 
-    */
 }
 
 void Analysis::NonLinearFit(QVector<double> par)

@@ -109,6 +109,10 @@ void MainWindow::on_pushButton_clicked()
     int ch = ui->spinBox_ch->value();
     int points = ui->spinBox_count->value();
     GetData(ch, points);
+
+    oscui->osc->SetDVM(1,2, 1); // ch2, DC
+    qDebug() << "+++++++++++ DVM ?" << oscui->osc->GetDVM();
+
     PlotGraph(ch, oscui->osc->xData[ch],
              oscui->osc->yData[ch],
              oscui->osc->xMin,
@@ -121,7 +125,14 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::GetData(int ch, int points){
     logMsg.sprintf("=========== Get Data == Ch %d, #pt %d", ch, ui->spinBox_count->value());
     Write2Log(logMsg);
-    oscui->osc->GetData(ch, points ,oscui->osc->acqFlag);
+    oscui->osc->GetData(ch, points ,0);
+}
+
+void MainWindow::GetBGData(int ch, int points)
+{
+    logMsg.sprintf("=========== Get BG Data == Ch %d, #pt %d", ch, ui->spinBox_count->value());
+    Write2Log(logMsg);
+    oscui->osc->GetData(ch, points, 1);
 }
 
 void MainWindow::PlotGraph(int ch, QVector<double> x, QVector<double> y, double xMin, double xMax, double yMin, double yMax){
@@ -239,17 +250,45 @@ void MainWindow::on_pushButton_openFile_clicked()
 
 void MainWindow::on_pushButton_Auto_clicked()
 {
-    Analysis * ana = new Analysis(oscui->osc->xData[1], oscui->osc->yData[1]);
-    Write2Log(ana->Msg);
-    connect(ana, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
+    const int ch = ui->spinBox_ch->value();
+    const int points = ui->spinBox_count->value();
+    //Get BG Data;
+    oscui->osc->GetData(ch, points, 1);
 
-    QVector<double> par = {1, 100, -0.5, 80};
-    //qDebug()<< par;
+    QVector<double> Y(points);
 
-    //ana->Regression(0, par);
+    const int wfgch = 1;
+    const double bStart = ui->lineEdit_start->text().toDouble();
+    const double bEnd   = ui->lineEdit_end->text().toDouble();
+    const double bInc   = ui->lineEdit_step->text().toDouble();
+    //Get the WFG to be DC mode
+    wfgui->wfg->SetWaveForm(wfgch, 8); //DC
+    //Set WFG Voltage to be max of magnetic field
+    wfgui->wfg->SetOffset(wfgch, bStart); // 1V
+    // wait for few min for B-field to stablized.
+    Sleep(6*1000); // change to progress bar.
 
-    ana->NonLinearFit(par);
+    //open file
+    if(dataFile == NULL){
+        Write2Log("============== Please open a file to save data. Abort.");
+        return;
+    }
 
-    delete ana;
+    //Start measurement loop;
+    int count = 0;
+    QString name1 = ui->lineEdit_DataName->text();
+    QString name;
+    for( double b = bStart; b > bEnd ; b -= bInc){
+        count ++;
+        oscui->osc->GetData(ch, points, 0);
+        // cover b to Magnetic field
+        name.sprintf("%s_%06.4f", name1.toStdString().c_str(), b);
+
+        for( int i = 0; i < points; i++){
+            Y[0] = oscui->osc->yData[ch][0] - oscui->osc->BGData[0];
+        }
+
+        dataFile->AppendData(name, oscui->osc->xData[ch], Y);
+    }
 
 }

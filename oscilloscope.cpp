@@ -10,10 +10,10 @@ Oscilloscope::Oscilloscope(ViRsrc name): QSCPI(name)
     int SBR = StatusByteRegister();
     qDebug("%#x, %#x, %s", SBR, EventStatusRegister() ,GetErrorMsg().toStdString().c_str());
 
-    if( !(SBR == 161 || SBR == 129 || SBR == 1) ) {
-        sta = VI_ERROR_ABORT;
-        qDebug() << "Try to change trigger level & try again. Exact reason unknown.";
-    }
+    //if( !(SBR == 161 || SBR == 129 || SBR == 1) ) {
+    //    sta = VI_ERROR_ABORT;
+    //    qDebug() << "Try to change trigger level & try again. Exact reason unknown.";
+    //}
 
     if( sta == VI_SUCCESS){
         this->name = GetName();
@@ -91,7 +91,7 @@ void Oscilloscope::OpenCh(int ch, bool display){
     sprintf(cmd,":channel%d:display %d\n", ch, display);SendCmd(cmd);
 }
 
-void Oscilloscope::SetVoltage(int ch, double range, double offset, bool ohm50){
+void Oscilloscope::SetVoltage(int ch, double range, double offset, bool ohm1M){
 
     //:CHANnel<n>:OFFSet?
     //:CHANnel<n>:IMPedance? ONEMeg | FIFTy
@@ -102,10 +102,10 @@ void Oscilloscope::SetVoltage(int ch, double range, double offset, bool ohm50){
     sprintf(cmd,":channel%d:range %f\n", ch, range);SendCmd(cmd); // range for 8 div
     sprintf(cmd,":channel%d:offset %f\n", ch, offset);SendCmd(cmd);
 
-    if( ohm50 ) {
-        sprintf(cmd,":channel%d:impedance FIFTY\n", ch);SendCmd(cmd);
-    }else{
+    if( ohm1M ) {
         sprintf(cmd,":channel%d:impedance ONEMEG\n", ch);SendCmd(cmd);
+    }else{
+        sprintf(cmd,":channel%d:impedance FIFTY\n", ch);SendCmd(cmd);
     }
 }
 
@@ -145,15 +145,25 @@ void Oscilloscope::SetAverage(int count)
 
 void Oscilloscope::SetDVM(bool IO, int ch, int mode)
 {
+    SendMsg(" ============== Set DVM. ");
     if( sta != VI_SUCCESS) return;
     sprintf(cmd,":DVM:enable %d\n", IO); SendCmd(cmd);
     sprintf(cmd,":DVM:source channel%d\n", ch); SendCmd(cmd);
+    DVMIO = IO;
+    DVMCh = ch;
+    DVMMode = mode;
+
+    sprintf(cmd, ":dvm:arange 1\n"); // set auto range
+    SendCmd(cmd);
 
     switch(mode){
         case 0 : sprintf(cmd,":DVM:mode DC\n"); SendCmd(cmd); break;
         case 1 : sprintf(cmd,":DVM:mode DCRMS\n"); SendCmd(cmd); break;
         case 2 : sprintf(cmd,":DVM:mode ACRMS\n"); SendCmd(cmd); break;
     }
+
+    SetVoltage(ch, vRange[ch], vOffset[ch], 1); // set resistanc eot be 1M.
+    ohm[ch] = 1;
 }
 
 void Oscilloscope::GetChannelData(int ch)
@@ -170,20 +180,26 @@ void Oscilloscope::GetChannelData(int ch)
     trgLevel[ch] = Ask(cmd).toDouble();
 
     sprintf(cmd,":channel%d:range?\n", ch);
-    xRange[ch] = Ask(cmd).toDouble();
+    vRange[ch] = Ask(cmd).toDouble();
 
     sprintf(cmd,":channel%d:offset?\n", ch);
-    xOffset[ch] = Ask(cmd).toDouble();
+    vOffset[ch] = Ask(cmd).toDouble();
 
     sprintf(cmd,":channel%d:impedance?\n", ch);
     QString ans = Ask(cmd);
-    if( ans == "FITT") ohm[ch] = 0; //need to match the checkbox index
+    if( ans == "FIFT") ohm[ch] = 0; //need to match the checkbox index
     if( ans == "ONEM") ohm[ch] = 1;
 
     //sprintf(cmd,":trigger:source?\n", ch);
     //trgCh = Ask(cmd).right(1).toInt();
     //qDebug() << "Trg Channel : " <<trgCh;
 
+}
+
+double Oscilloscope::GetDVM()
+{
+    sprintf(cmd,":dvm:current?\n");
+    return Ask(cmd).toDouble();
 }
 
 void Oscilloscope::GetTime()
@@ -229,9 +245,21 @@ void Oscilloscope::GetSystemStatus(){
     sprintf(cmd,":system:rlogger:state?\n");
     logFlag = Ask(cmd).toInt();
 
+    sprintf(cmd,":dvm:enable?\n");
+    DVMIO = Ask(cmd).toInt();
+
+    sprintf(cmd,":dvm:source?\n");
+    DVMCh = Ask(cmd).right(1).toInt();
+
+    sprintf(cmd,":dvm:mode?\n");
+    mode = Ask(cmd);
+    if( mode == "DC") DVMMode = 0;
+    if( mode == "DCRM") DVMMode = 1;
+    if( mode == "ACRM") DVMMode = 2;
+
 }
 
-void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
+void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
 {
     if( sta != VI_SUCCESS) return;
     xData[ch].clear();
@@ -243,8 +271,11 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
 
     xData[ch] = QVector<double>(points);
     yData[ch] = QVector<double>(points);
+    if(Save2BG) BGData = QVector<double>(points);
 
-    if( GetMethod == 0){
+    if(Save2BG) SendMsg("Getting Background signals.");
+
+    if( this->acqFlag == 0){
         //======= block method
         //sprintf(cmd,":digitize channel%d\n", ch); SendCmd(cmd);
 
@@ -298,6 +329,7 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
                 //qDebug() << (data[i]).toDouble();
                 xData[ch][i] = xOrigin + i * xStep;
                 yData[ch][i] = (data[i]).toDouble();
+                if( Save2BG ) BGData[i] = yData[ch][i];
                 //qDebug() << i << "," << xData[i] << "," << yData[i];
             }
         }else{
@@ -306,7 +338,7 @@ void Oscilloscope::GetData(int ch, const int points, int GetMethod = 0)
 
     }
 
-    if( GetMethod == 1){
+    if( this->acqFlag == 1){
         SendMsg("===== Synchronizing in averaging acquisition mode.");
         sprintf(cmd,":STOP\n"); SendCmd(cmd);
         sprintf(cmd,"*OPC?\n");

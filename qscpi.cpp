@@ -9,6 +9,7 @@ QSCPI::QSCPI(ViRsrc name)
     //emit SendMsg(scpi_Msg);
     viOpenDefaultRM(&defaultRM);
     sta = viOpen(defaultRM, name, VI_NULL, VI_NULL, &device);
+    Clear();
 }
 QSCPI::~QSCPI(){
     viClose(device);

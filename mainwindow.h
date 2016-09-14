@@ -34,6 +34,7 @@ private slots:
     void on_actionOscilloscope_triggered();
     void on_pushButton_clicked();
     void GetData(int ch, int points);
+    void GetBGData(int ch, int points);
     void PlotGraph(int ch, QVector<double> x,
                       QVector<double> y,
                       double xMin = 0,

@@ -76,8 +76,8 @@ void osc_Dialog::DisplayChannel(int ch)
     }
 
     if( ch == 1){
-        ui->lineEdit_1_offset->setText(QString::number(osc->xOffset[ch]));
-        ui->lineEdit_1_range->setText(QString::number(osc->xRange[ch]));
+        ui->lineEdit_1_offset->setText(QString::number(osc->vOffset[ch]));
+        ui->lineEdit_1_range->setText(QString::number(osc->vRange[ch]));
         ui->lineEdit_1_TL->setText(QString::number(osc->trgLevel[ch]));
         ui->comboBox_1_ohm->setCurrentIndex(osc->ohm[ch]);
 
@@ -89,8 +89,8 @@ void osc_Dialog::DisplayChannel(int ch)
 
     }
     if( ch == 2){
-        ui->lineEdit_2_offset->setText(QString::number(osc->xOffset[ch]));
-        ui->lineEdit_2_range->setText(QString::number(osc->xRange[ch]));
+        ui->lineEdit_2_offset->setText(QString::number(osc->vOffset[ch]));
+        ui->lineEdit_2_range->setText(QString::number(osc->vRange[ch]));
         ui->lineEdit_2_TL->setText(QString::number(osc->trgLevel[ch]));
         ui->comboBox_2_ohm->setCurrentIndex(osc->ohm[ch]);
 
@@ -101,8 +101,8 @@ void osc_Dialog::DisplayChannel(int ch)
         ui->comboBox_2_ohm->setEnabled(osc->IO[ch]);
     }
     if( ch == 3){
-        ui->lineEdit_3_offset->setText(QString::number(osc->xOffset[ch]));
-        ui->lineEdit_3_range->setText(QString::number(osc->xRange[ch]));
+        ui->lineEdit_3_offset->setText(QString::number(osc->vOffset[ch]));
+        ui->lineEdit_3_range->setText(QString::number(osc->vRange[ch]));
         ui->lineEdit_3_TL->setText(QString::number(osc->trgLevel[ch]));
         ui->comboBox_3_ohm->setCurrentIndex(osc->ohm[ch]);
 
@@ -113,8 +113,8 @@ void osc_Dialog::DisplayChannel(int ch)
         ui->comboBox_3_ohm->setEnabled(osc->IO[ch]);
     }
     if( ch == 4){
-        ui->lineEdit_4_offset->setText(QString::number(osc->xOffset[ch]));
-        ui->lineEdit_4_range->setText(QString::number(osc->xRange[ch]));
+        ui->lineEdit_4_offset->setText(QString::number(osc->vOffset[ch]));
+        ui->lineEdit_4_range->setText(QString::number(osc->vRange[ch]));
         ui->lineEdit_4_TL->setText(QString::number(osc->trgLevel[ch]));
         ui->comboBox_4_ohm->setCurrentIndex(osc->ohm[ch]);
 
@@ -202,6 +202,10 @@ void osc_Dialog::on_checkBox_Lock_clicked(bool checked) // like getting System S
     }else{
         on_comboBox_currentIndexChanged(0);
     }
+
+    ui->checkBox_DVM->setChecked(osc->DVMIO);
+    ui->comboBox_DVM_ch->setCurrentIndex(osc->DVMCh-1);
+    ui->comboBox_DVM_Mode->setCurrentIndex(osc->DVMMode);
 }
 
 void osc_Dialog::on_pushButton_Clear_clicked()
@@ -314,7 +318,7 @@ void osc_Dialog::on_lineEdit_1_range_returnPressed()
     double range  = ui->lineEdit_1_range->text().toDouble();
     double offset = ui->lineEdit_1_offset->text().toDouble();
     bool      ohm = ui->comboBox_1_ohm->currentIndex(); //index 0 = 50, 1 = 1M
-    osc->SetVoltage(1, range, offset, !ohm);
+    osc->SetVoltage(1, range, offset, ohm);
 }
 
 void osc_Dialog::on_lineEdit_1_offset_returnPressed()
@@ -332,7 +336,7 @@ void osc_Dialog::on_lineEdit_2_range_returnPressed()
     double range = ui->lineEdit_2_range->text().toDouble();
     double offset= ui->lineEdit_2_offset->text().toDouble();
     bool      ohm= ui->comboBox_2_ohm->currentIndex(); //index 0 = 50, 1 = 1M
-    osc->SetVoltage(2, range, offset, !ohm);
+    osc->SetVoltage(2, range, offset, ohm);
 }
 
 void osc_Dialog::on_lineEdit_2_offset_returnPressed()
@@ -350,7 +354,7 @@ void osc_Dialog::on_lineEdit_3_range_returnPressed()
     double range = ui->lineEdit_3_range->text().toDouble();
     double offset= ui->lineEdit_3_offset->text().toDouble();
     bool      ohm= ui->comboBox_3_ohm->currentIndex(); //index 0 = 50, 1 = 1M
-    osc->SetVoltage(3, range, offset, !ohm);
+    osc->SetVoltage(3, range, offset, ohm);
 }
 
 void osc_Dialog::on_lineEdit_3_offset_returnPressed()
@@ -368,7 +372,7 @@ void osc_Dialog::on_lineEdit_4_range_returnPressed()
     double range = ui->lineEdit_4_range->text().toDouble();
     double offset= ui->lineEdit_4_offset->text().toDouble();
     bool      ohm= ui->comboBox_4_ohm->currentIndex(); //index 0 = 50, 1 = 1M
-    osc->SetVoltage(4, range, offset, !ohm);
+    osc->SetVoltage(4, range, offset, ohm);
 }
 
 void osc_Dialog::on_lineEdit_4_offset_returnPressed()
@@ -380,4 +384,51 @@ void osc_Dialog::on_lineEdit_4_offset_returnPressed()
 void osc_Dialog::on_comboBox_4_ohm_currentIndexChanged(int index)
 {
     on_lineEdit_4_range_returnPressed();
+}
+
+void osc_Dialog::on_checkBox_DVM_clicked(bool checked)
+{
+    int indexCh = ui->comboBox_DVM_ch->currentIndex();
+    int indexMode = ui->comboBox_DVM_Mode->currentIndex();
+
+    osc->SetDVM(checked, indexCh+1, indexMode);
+
+    switch (indexCh+1) {
+    case 1:ui->comboBox_1_ohm->setCurrentIndex(1); break;
+    case 2:ui->comboBox_2_ohm->setCurrentIndex(1); break;
+    case 3:ui->comboBox_3_ohm->setCurrentIndex(1); break;
+    case 4:ui->comboBox_4_ohm->setCurrentIndex(1); break;
+    }
+
+}
+
+void osc_Dialog::on_pushButton_2_clicked()
+{
+    if( !ui->checkBox_DVM->isChecked() ){
+        Msg.sprintf("Please turn on DVM.");
+        SendLogMsg(Msg);
+        return;
+    }
+    double DVM = osc->GetDVM() * 1000; //mV
+    ui->lineEdit_DVM->setText(QString::number(DVM));
+
+    Msg.sprintf("DVM: %f mV", DVM);
+    SendLogMsg(Msg);
+}
+
+void osc_Dialog::on_comboBox_DVM_Mode_currentIndexChanged(int index)
+{
+    bool checked = ui->checkBox_DVM->isChecked();
+    int indexCh = ui->comboBox_DVM_ch->currentIndex();
+
+
+    osc->SetDVM(checked, indexCh+1, index);
+}
+
+void osc_Dialog::on_comboBox_DVM_ch_currentIndexChanged(int index)
+{
+    bool checked = ui->checkBox_DVM->isChecked();
+    int indexMode = ui->comboBox_DVM_Mode->currentIndex();
+
+    osc->SetDVM(checked, index+1, indexMode);
 }

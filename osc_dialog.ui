@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>423</width>
+    <width>520</width>
     <height>333</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>401</width>
+     <width>501</width>
      <height>20</height>
     </rect>
    </property>
@@ -113,7 +113,7 @@
     <item row="5" column="2">
      <widget class="QComboBox" name="comboBox_2_ohm">
       <property name="currentIndex">
-       <number>1</number>
+       <number>-1</number>
       </property>
       <item>
        <property name="text">
@@ -175,7 +175,7 @@
     <item row="5" column="1">
      <widget class="QComboBox" name="comboBox_1_ohm">
       <property name="currentIndex">
-       <number>1</number>
+       <number>-1</number>
       </property>
       <item>
        <property name="text">
@@ -195,7 +195,7 @@
     <item row="5" column="4">
      <widget class="QComboBox" name="comboBox_4_ohm">
       <property name="currentIndex">
-       <number>1</number>
+       <number>-1</number>
       </property>
       <item>
        <property name="text">
@@ -245,7 +245,7 @@
     <item row="5" column="3">
      <widget class="QComboBox" name="comboBox_3_ohm">
       <property name="currentIndex">
-       <number>1</number>
+       <number>-1</number>
       </property>
       <item>
        <property name="text">
@@ -435,6 +435,129 @@
    <property name="text">
     <string>Clear</string>
    </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>410</x>
+     <y>50</y>
+     <width>101</width>
+     <height>171</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>DVM</string>
+   </property>
+   <widget class="QComboBox" name="comboBox_DVM_ch">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Channel 1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Channel 2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Channel 3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Channel 4</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="comboBox_DVM_Mode">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <item>
+     <property name="text">
+      <string>DC</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>DC RMS</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>AC RMS</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_DVM">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>On/Off</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>110</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Get DVM</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_DVM">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>140</y>
+      <width>21</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>mV</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

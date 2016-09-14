@@ -364,3 +364,25 @@ void Matrix::PrintM(QString str)
     PrintM();
 }
 
+void Matrix::PrintVector(QString str){
+    QString tmp, msg;
+    int n ;
+    if( rows == 1) n = cols;
+    if( cols == 1) n = rows;
+    msg.sprintf("%10s(%d) = ", str.toStdString().c_str(), n);
+
+    if(p = NULL){
+        msg.append("[]");
+    }else{
+        msg.append("[");
+        for( int i = 1; i <n ; i++){
+            if( rows == 1); tmp.sprintf("%7.3f, ", p[1][i]);
+            if( cols == 1); tmp.sprintf("%7.3f, ", p[i][1]);
+            msg.append(tmp);
+        }
+        msg.append("]");
+    }
+    qDebug() << msg;
+    SendMsg(msg);
+
+}

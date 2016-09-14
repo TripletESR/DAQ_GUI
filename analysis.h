@@ -17,6 +17,7 @@ public:
 
     explicit Analysis();
     explicit Analysis(const QVector<double> x, const QVector<double> y);
+    ~Analysis();
 
     void Initialization();
     void SetData(const QVector<double> x, const QVector<double> y);
@@ -38,7 +39,7 @@ public slots:
     int GetDegreeOfFreedom() {return DF;}
     QVector<double> GetData_x() {return xdata;}
     QVector<double> GetData_y() {return ydata;}
-    Matrix GetParameters() {return par;}
+    Matrix GetParameters() {return sol;}
     Matrix GetParError() {return error;}
     Matrix GetParPValue() {return pValue;}
     double GetSSR() {return SSR;}
@@ -49,7 +50,7 @@ public slots:
 
 private:
     QVector<double> xdata, ydata;
-    Matrix par;
+    Matrix sol;
     Matrix dpar;
     Matrix error;
     Matrix tDis;
@@ -59,7 +60,7 @@ private:
     int n, p, DF;
     int startFitIndex;
 
-    bool errFlag;
+    int errFlag;
 
     double cum_tDis30(double x){
         return 1/(1+exp(-x/0.6));

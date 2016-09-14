@@ -243,10 +243,12 @@ void MainWindow::on_pushButton_Auto_clicked()
     Write2Log(ana->Msg);
     connect(ana, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
 
-    QVector<double> par = {0.10, 100, 0, 100};
-    qDebug()<< par;
+    QVector<double> par = {1, 100, -0.5, 80};
+    //qDebug()<< par;
 
-    ana->Regression(0, par);
+    //ana->Regression(0, par);
+
+    ana->NonLinearFit(par);
 
     delete ana;
 

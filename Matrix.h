@@ -74,6 +74,7 @@ public slots:
 
     void PrintM();
     void PrintM(QString str);
+    void PrintVector(QString str);
 
 private:
     double **p;

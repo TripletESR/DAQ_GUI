@@ -60,6 +60,8 @@ private:
 
     QCustomPlot * plot;
 
+    Analysis *ana;
+
 };
 
 #endif // MAINWINDOW_H

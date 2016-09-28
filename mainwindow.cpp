@@ -8,7 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     oscui(NULL),
     logFile(NULL),
     dataFile(NULL),
-    plot(NULL)
+    plot(NULL),
+    ana(NULL)
 {
 
     ui->setupUi(this);
@@ -42,6 +43,9 @@ MainWindow::MainWindow(QWidget *parent) :
     //Get Setting
     wfgui->on_comboBox_ch_activated(0);
     oscui->on_checkBox_Lock_clicked(1); //get osc status
+    //oscui->osc->Clear(); //TODO somehow, the OSC has error msg that setting conflict.
+
+    ana = new Analysis();
 
 }
 
@@ -56,6 +60,7 @@ MainWindow::~MainWindow()
     delete dataFile;
 
     delete plot;
+    delete ana;
 
     Write2Log("========================= Program ended.");
 
@@ -110,8 +115,8 @@ void MainWindow::on_pushButton_clicked()
     int points = ui->spinBox_count->value();
     GetData(ch, points);
 
-    oscui->osc->SetDVM(1,2, 1); // ch2, DC
-    qDebug() << "+++++++++++ DVM ?" << oscui->osc->GetDVM();
+    //oscui->osc->SetDVM(1,2, 1); // ch2, DC
+    //qDebug() << "+++++++++++ DVM ?" << oscui->osc->GetDVM();
 
     PlotGraph(ch, oscui->osc->xData[ch],
              oscui->osc->yData[ch],
@@ -120,6 +125,18 @@ void MainWindow::on_pushButton_clicked()
              oscui->osc->yMin,
              oscui->osc->yMax);
     SaveData("test",  oscui->osc->xData[ch], oscui->osc->yData[ch]);
+
+
+    QVector<double> par = {0.5, 50, 0, 100};
+    ana->SetData(oscui->osc->xData[ch], oscui->osc->yData[ch]);
+    ana->SetStartFitIndex(300);
+    ana->NonLinearFit(par);
+
+    if( ana->IsWellFitted()){
+        PlotGraph(5, ana->GetData_x(), ana->GetData_fy(),
+                 -50, 150, -0.2, 1);
+
+    }
 }
 
 void MainWindow::GetData(int ch, int points){

@@ -22,6 +22,8 @@ Oscilloscope::Oscilloscope(ViRsrc name): QSCPI(name)
         qDebug() << "Cannot open " << name;
     }
 
+    trgCh = 5;
+
     SetRemoteLog(1);
 }
 
@@ -112,7 +114,11 @@ void Oscilloscope::SetVoltage(int ch, double range, double offset, bool ohm1M){
 void Oscilloscope::SetTrigger(int ch)
 {
     if( sta != VI_SUCCESS) return;
-    sprintf(cmd,":trigger:source channel%d\n", ch); SendCmd(cmd);
+    if( ch <= 4 && ch >=1 ){
+        sprintf(cmd,":trigger:source channel%d\n", ch); SendCmd(cmd);
+    }else if(ch == 0){
+        sprintf(cmd,":trigger:source external\n"); SendCmd(cmd);
+    }
 }
 
 void Oscilloscope::SetAcqMode(int mode){

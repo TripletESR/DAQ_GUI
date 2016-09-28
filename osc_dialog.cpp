@@ -129,6 +129,7 @@ void osc_Dialog::DisplayChannel(int ch)
 void osc_Dialog::DisplayTrigger()
 {
     switch (osc->trgCh){
+        case 0: ui->radioButton_ext->setChecked(1); break;
         case 1: ui->radioButton_1->setChecked(1); break;
         case 2: ui->radioButton_2->setChecked(1); break;
         case 3: ui->radioButton_3->setChecked(1); break;
@@ -312,6 +313,12 @@ void osc_Dialog::on_radioButton_4_clicked()
 {
     osc->SetTrigger(4);
 }
+
+void osc_Dialog::on_radioButton_ext_clicked()
+{
+    osc->SetTrigger(0); // external
+}
+
 
 void osc_Dialog::on_lineEdit_1_range_returnPressed()
 {

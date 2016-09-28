@@ -559,6 +559,22 @@
     </property>
    </widget>
   </widget>
+  <widget class="QRadioButton" name="radioButton_ext">
+   <property name="geometry">
+    <rect>
+     <x>410</x>
+     <y>240</y>
+     <width>75</width>
+     <height>13</height>
+    </rect>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="text">
+    <string>External</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

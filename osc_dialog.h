@@ -78,6 +78,8 @@ private slots:
 
     void on_comboBox_DVM_ch_currentIndexChanged(int index);
 
+    void on_radioButton_ext_clicked();
+
 private:
     Ui::osc_Dialog *ui;
 

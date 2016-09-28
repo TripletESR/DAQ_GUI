@@ -116,7 +116,12 @@ void MainWindow::on_pushButton_clicked()
 
     //oscui->osc->SetDVM(1,2, 1); // ch2, DC
     //qDebug() << "+++++++++++ DVM ?" << oscui->osc->GetDVM();
-
+    PlotGraph(ch, oscui->osc->xData[ch],
+             oscui->osc->yData[ch],
+             oscui->osc->xMin,
+             oscui->osc->xMax,
+             oscui->osc->yMin,
+             oscui->osc->yMax);
 
     SaveData("test",  oscui->osc->xData[ch], oscui->osc->yData[ch]);
 
@@ -259,18 +264,29 @@ void MainWindow::on_pushButton_Auto_clicked()
     if( ui->lineEdit_end->text()=="") return;
     if( ui->lineEdit_step->text()=="") return;
 
+    //open file
+    if(dataFile == NULL){
+        Write2Log("============== Please open a file to save data. Abort.");
+        return;
+    }
+
     const int ch = ui->spinBox_ch->value();
     const int points = ui->spinBox_count->value();
 
     //Get BG Data;
     oscui->osc->GetData(ch, points, 1);
 
+    double bgmin = oscui->osc->GetMin(oscui->osc->BGData);
+    double bgmax = oscui->osc->GetMax(oscui->osc->BGData);
+
+    qDebug() << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << bgmin << "," << bgmax;
+
     PlotGraph(ch, oscui->osc->xData[ch],
              oscui->osc->BGData,
              oscui->osc->xMin,
              oscui->osc->xMax,
-             oscui->osc->GetMin(oscui->osc->BGData),
-             oscui->osc->GetMax(oscui->osc->BGData));
+              oscui->osc->yMin,
+              oscui->osc->yMax);
 
     QVector<double> Y(points);
 
@@ -285,30 +301,26 @@ void MainWindow::on_pushButton_Auto_clicked()
     //wfgui->wfg->SetOffset(wfgch, bStart);
     wfgui->wfg->SetFreq(wfgch, bStart*1000);
     // wait for few min for B-field to stablized.
-    Sleep(6*1000);
     Write2Log("------------------------------------- wait for 6 sec.");
+    Sleep(6*1000);
 
-    //open file
-    if(dataFile == NULL){
-        Write2Log("============== Please open a file to save data. Abort.");
-        return;
-    }
 
     //Start measurement loop;
     int count = 0;
-    int n = ((int)bStart-bEnd)/(int)bInc + 1;
-    QString str;
-    QProgressDialog progress("Getting Data ....", "Abort", 0, n, this);
-    progress.setWindowModality(Qt::WindowModal);
+    int n = ((int)bStart-(int)bEnd)/(int)bInc + 1;
+    //QString str;
+    //QProgressDialog progress("Getting Data ....", "Abort", 0, n, this);
+    //progress.setWindowModality(Qt::WindowModal);
 
     QString name1 = ui->lineEdit_DataName->text();
     QString name;
     for( double b = bStart; b >= bEnd ; b -= bInc){
+
+       // str.sprintf("Getting Data from %f to %f, size %f | Current : %f", bStart, bEnd, -bInc, b);
+       // progress.setLabelText(str);
+       // progress.setValue(count);
+       // if(progress.wasCanceled()) break;
         count ++;
-        str.sprintf("Getting Data from %f to %f, size %f | Current : %f", bStart, bEnd, -bInc, b);
-        progress.setLabelText(str);
-        progress.setValue(count);
-        if(progress.wasCanceled()) break;
 
         oscui->osc->GetData(ch, points, 0);
 

@@ -332,6 +332,7 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
                 if( Save2BG ) BGData[i] = yData[ch][i];
                 //qDebug() << i << "," << xData[i] << "," << yData[i];
             }
+
         }else{
             SendMsg("===== 10 sec timeout for single-shot trigger.");
         }
@@ -403,6 +404,7 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
             //qDebug() << (data[i]).toDouble();
             xData[ch][i] = xOrigin + i * xStep;
             yData[ch][i] = (data[i]).toDouble();
+            if( Save2BG ) BGData[i] = yData[ch][i];
             //qDebug() << i << "," << xData[i] << "," << yData[i];
         }
 

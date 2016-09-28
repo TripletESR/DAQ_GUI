@@ -373,10 +373,15 @@
  </customwidgets>
  <tabstops>
   <tabstop>pushButton_openFile</tabstop>
-  <tabstop>lineEdit_FileName</tabstop>
+  <tabstop>lineEdit_DataName</tabstop>
   <tabstop>spinBox_ch</tabstop>
   <tabstop>spinBox_count</tabstop>
+  <tabstop>lineEdit_start</tabstop>
+  <tabstop>lineEdit_end</tabstop>
+  <tabstop>lineEdit_step</tabstop>
   <tabstop>pushButton</tabstop>
+  <tabstop>pushButton_Auto</tabstop>
+  <tabstop>lineEdit_FileName</tabstop>
   <tabstop>plainTextEdit</tabstop>
  </tabstops>
  <resources/>

@@ -8,8 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     oscui(NULL),
     logFile(NULL),
     dataFile(NULL),
-    plot(NULL),
-    ana(NULL)
+    plot(NULL)
 {
 
     ui->setupUi(this);
@@ -45,8 +44,9 @@ MainWindow::MainWindow(QWidget *parent) :
     oscui->on_checkBox_Lock_clicked(1); //get osc status
     //oscui->osc->Clear(); //TODO somehow, the OSC has error msg that setting conflict.
 
-    ana = new Analysis();
+    ui->pushButton_Auto->setEnabled(0);
 
+    Write2Log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Ready.");
 }
 
 MainWindow::~MainWindow()
@@ -60,7 +60,6 @@ MainWindow::~MainWindow()
     delete dataFile;
 
     delete plot;
-    delete ana;
 
     Write2Log("========================= Program ended.");
 
@@ -118,25 +117,9 @@ void MainWindow::on_pushButton_clicked()
     //oscui->osc->SetDVM(1,2, 1); // ch2, DC
     //qDebug() << "+++++++++++ DVM ?" << oscui->osc->GetDVM();
 
-    PlotGraph(ch, oscui->osc->xData[ch],
-             oscui->osc->yData[ch],
-             oscui->osc->xMin,
-             oscui->osc->xMax,
-             oscui->osc->yMin,
-             oscui->osc->yMax);
+
     SaveData("test",  oscui->osc->xData[ch], oscui->osc->yData[ch]);
 
-
-    QVector<double> par = {0.5, 50, 0, 100};
-    ana->SetData(oscui->osc->xData[ch], oscui->osc->yData[ch]);
-    ana->SetStartFitIndex(300);
-    ana->NonLinearFit(par);
-
-    if( ana->IsWellFitted()){
-        PlotGraph(5, ana->GetData_x(), ana->GetData_fy(),
-                 -50, 150, -0.2, 1);
-
-    }
 }
 
 void MainWindow::GetData(int ch, int points){
@@ -263,27 +246,47 @@ void MainWindow::on_pushButton_openFile_clicked()
 
     }
 
+    if(dataFile != NULL){
+        ui->pushButton_Auto->setEnabled(1);
+    }
+
 }
 
 void MainWindow::on_pushButton_Auto_clicked()
 {
+
+    if( ui->lineEdit_start->text()=="") return;
+    if( ui->lineEdit_end->text()=="") return;
+    if( ui->lineEdit_step->text()=="") return;
+
     const int ch = ui->spinBox_ch->value();
     const int points = ui->spinBox_count->value();
+
     //Get BG Data;
     oscui->osc->GetData(ch, points, 1);
 
+    PlotGraph(ch, oscui->osc->xData[ch],
+             oscui->osc->BGData,
+             oscui->osc->xMin,
+             oscui->osc->xMax,
+             oscui->osc->GetMin(oscui->osc->BGData),
+             oscui->osc->GetMax(oscui->osc->BGData));
+
     QVector<double> Y(points);
+
 
     const int wfgch = 1;
     const double bStart = ui->lineEdit_start->text().toDouble();
     const double bEnd   = ui->lineEdit_end->text().toDouble();
     const double bInc   = ui->lineEdit_step->text().toDouble();
     //Get the WFG to be DC mode
-    wfgui->wfg->SetWaveForm(wfgch, 8); //DC
+    wfgui->wfg->SetWaveForm(wfgch, 1); // 1= sin,  8 = DC
     //Set WFG Voltage to be max of magnetic field
-    wfgui->wfg->SetOffset(wfgch, bStart); // 1V
+    //wfgui->wfg->SetOffset(wfgch, bStart);
+    wfgui->wfg->SetFreq(wfgch, bStart*1000);
     // wait for few min for B-field to stablized.
-    Sleep(6*1000); // change to progress bar.
+    Sleep(6*1000);
+    Write2Log("------------------------------------- wait for 6 sec.");
 
     //open file
     if(dataFile == NULL){
@@ -293,19 +296,39 @@ void MainWindow::on_pushButton_Auto_clicked()
 
     //Start measurement loop;
     int count = 0;
+    int n = ((int)bStart-bEnd)/(int)bInc + 1;
+    QString str;
+    QProgressDialog progress("Getting Data ....", "Abort", 0, n, this);
+    progress.setWindowModality(Qt::WindowModal);
+
     QString name1 = ui->lineEdit_DataName->text();
     QString name;
-    for( double b = bStart; b > bEnd ; b -= bInc){
+    for( double b = bStart; b >= bEnd ; b -= bInc){
         count ++;
+        str.sprintf("Getting Data from %f to %f, size %f | Current : %f", bStart, bEnd, -bInc, b);
+        progress.setLabelText(str);
+        progress.setValue(count);
+        if(progress.wasCanceled()) break;
+
         oscui->osc->GetData(ch, points, 0);
+
+        PlotGraph(ch, oscui->osc->xData[ch],
+                 oscui->osc->yData[ch],
+                 oscui->osc->xMin,
+                 oscui->osc->xMax,
+                 oscui->osc->yMin,
+                 oscui->osc->yMax);
         // cover b to Magnetic field
         name.sprintf("%s_%06.4f", name1.toStdString().c_str(), b);
 
         for( int i = 0; i < points; i++){
-            Y[0] = oscui->osc->yData[ch][0] - oscui->osc->BGData[0];
+            //Y[i] = oscui->osc->yData[ch][i] - oscui->osc->BGData[i];
+            Y[i] = oscui->osc->yData[ch][i];
         }
 
         dataFile->AppendData(name, oscui->osc->xData[ch], Y);
+        wfgui->wfg->SetFreq(wfgch, b*1000);
+
     }
 
 }

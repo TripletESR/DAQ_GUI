@@ -82,7 +82,7 @@ void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zd
     if( endPos == 0 ){
         this->xdata = xdata;
         col = this->xdata.size();
-        outStr = "time [us]";
+        outStr.sprintf("%20s","time [us]");
         for(int i = 0; i < col ; i++){
             temp.sprintf(",%12.3e", (this->xdata)[i]);
             outStr.append(temp);
@@ -122,7 +122,7 @@ void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zd
     }
 
     //save ydata
-    outStr = head;
+    outStr.sprintf("%20s", head.toStdString().c_str());
     for(int i = 0; i < col ; i++){
         temp.sprintf(",%12.3e", zdata[i]);
         outStr.append(temp);

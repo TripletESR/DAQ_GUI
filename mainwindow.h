@@ -6,8 +6,6 @@
 #include "wfg_dialog.h"
 #include "osc_dialog.h"
 #include "qcustomplot.h"
-#include "analysis.h"
-#include "Matrix.h"
 #include <QFileDialog>
 
 #include <QString>
@@ -59,8 +57,6 @@ private:
     QFileIO * dataFile;
 
     QCustomPlot * plot;
-
-    Analysis *ana;
 
 };
 

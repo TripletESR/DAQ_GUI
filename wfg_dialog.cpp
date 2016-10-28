@@ -20,6 +20,25 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
 
     //on_comboBox_ch_activated(1); //get setting of ch2
     //on_comboBox_ch_activated(0); //get setting of ch1
+
+    plot = ui->HallPlot;
+    plot->addGraph();
+    plot->xAxis->setLabel("DC Vol. [V]");
+    plot->yAxis->setLabel("Hall Vol. [mV]");
+    plot->graph(0)->setPen(QPen(Qt::blue));
+    plot->xAxis->setRange(-0.5, 5);
+    plot->yAxis->setRange(-10, 75);
+    plot->addGraph(plot->xAxis, plot->yAxis2);
+    plot->graph(1)->setPen(QPen(Qt::red));
+    plot->yAxis2->setVisible(1);
+    plot->yAxis2->setLabel("B-Field [mT]");
+    plot->yAxis2->setRange(-10,800);
+    plot->setInteraction(QCP::iRangeDrag,true);
+    plot->setInteraction(QCP::iRangeZoom,true);
+    plot->axisRect()->setRangeDrag(Qt::Vertical);
+    plot->axisRect()->setRangeZoom(Qt::Vertical);
+
+    ClearData();
 }
 
 WFG_Dialog::~WFG_Dialog()
@@ -27,12 +46,16 @@ WFG_Dialog::~WFG_Dialog()
     delete ui;
     delete wfg;
     delete hallProbe;
+    delete plot;
+}
+
+void WFG_Dialog::SAVEOSCDMM(double dvm){
+    bField.push_back(fabs(dvm));
 }
 
 void WFG_Dialog::OpenHallProbe(){
     hallProbe = new DMM(KEITHLEY2000);
     SendLogMsg(hallProbe->Msg);
-
     hallProbe->SetMeasureDCV();
 }
 
@@ -106,9 +129,22 @@ void WFG_Dialog::on_doubleSpinBox_Amp_valueChanged(double arg1)
 
 void WFG_Dialog::on_doubleSpinBox_Offset_valueChanged(double arg1)
 {
-    wfg->SetOffset(wfg->ch, arg1/1000);
+    wfg->SetOffset(wfg->ch, arg1/1000); // V
+
     double HPV = hallProbe->GetReading() *1000; //mV
     ui->lineEdit_HPV->setText(QString::number(HPV));
+
+    dcV.push_back(arg1/1000);
+    hallV.push_back(HPV);
+
+    ReadOSCDMM();
+
+    plot->graph(0)->clearData();
+    plot->graph(0)->setData(dcV, hallV);
+    plot->graph(1)->clearData();
+    plot->graph(1)->setData(dcV, bField);
+    plot->replot();
+
 }
 
 void WFG_Dialog::on_doubleSpinBox_Phase_valueChanged(double arg1)
@@ -124,4 +160,48 @@ void WFG_Dialog::DisplaySetting()
     ui->doubleSpinBox_Offset->setValue(wfg->offset);
     ui->doubleSpinBox_Phase->setValue(wfg->phase);
     ui->comboBox_WFG->setCurrentIndex(wfg->index);
+}
+
+void WFG_Dialog::on_pushButton_Save_clicked()
+{
+    QFile saveFile("C:/Users/Triplet-ESR/Desktop/hall_measure.txt");
+    saveFile.open(QIODevice::WriteOnly);
+
+    QString line;
+    QTextStream stream(&saveFile);
+
+    //Set header
+    line.sprintf("%10s, %10s, %10s \n", "DC [V]", "Hall V [mV]", "B-Field [mT]");
+    stream << line;
+
+    //Save Data;
+    int n = dcV.length();
+
+    if( n != bField.length()){
+        for(int i = 0; i < n-1 ; i++){
+            line.sprintf("%10f, %10f, %10f \n", dcV[i+1], hallV[i+1], bField[i]);
+            stream << line;
+        }
+    }else{
+        for(int i = 0; i < n-1 ; i++){
+            line.sprintf("%10f, %10f, %10f \n", dcV[i], hallV[i], bField[i]);
+            stream << line;
+        }
+    }
+
+    saveFile.close();
+    SendLogMsg("Data saved. C:/Users/Triplet-ESR/Desktop/hall_measure.txt");
+}
+
+void WFG_Dialog::ClearData()
+{
+    dcV.clear();
+    hallV.clear();
+    bField.clear();
+}
+
+void WFG_Dialog::on_pushButton_Clear_clicked()
+{
+    ClearData();
+    plot->replot();
 }

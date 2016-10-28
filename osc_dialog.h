@@ -26,6 +26,7 @@ public:
 signals:
 
     void SendLogMsg(QString msg);
+    void SendDMM(double dmm);
 
 public slots:
     void on_comboBox_currentIndexChanged(int index);
@@ -69,16 +70,16 @@ public slots:
     void on_lineEdit_4_offset_returnPressed();
     void on_comboBox_4_ohm_currentIndexChanged(int index);
 
-private slots:
     void on_checkBox_DVM_clicked(bool checked);
-
     void on_pushButton_2_clicked();
 
     void on_comboBox_DVM_Mode_currentIndexChanged(int index);
-
     void on_comboBox_DVM_ch_currentIndexChanged(int index);
 
     void on_radioButton_ext_clicked();
+
+private slots:
+
 
 private:
     Ui::osc_Dialog *ui;

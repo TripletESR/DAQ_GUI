@@ -421,6 +421,7 @@ void osc_Dialog::on_pushButton_2_clicked()
 
     Msg.sprintf("DVM: %f mV", DVM);
     SendLogMsg(Msg);
+    SendDMM(DVM);
 }
 
 void osc_Dialog::on_comboBox_DVM_Mode_currentIndexChanged(int index)

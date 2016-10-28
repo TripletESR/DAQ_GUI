@@ -41,7 +41,6 @@ public:
     ~Oscilloscope();
 
     void Initialize(int ch);
-
     void SetRemoteLog(bool log);
     void SetTouch(bool touch);
     void SetPreset();

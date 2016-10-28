@@ -40,6 +40,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(wfgui->hallProbe, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
 
+    connect(wfgui, SIGNAL(ReadOSCDMM()), oscui, SLOT(on_pushButton_2_clicked()));
+    connect(oscui, SIGNAL(SendDMM(double)), wfgui, SLOT(SAVEOSCDMM(double)));
+
     //Get Setting
     wfgui->on_comboBox_ch_activated(0);
     oscui->on_checkBox_Lock_clicked(1); //get osc status

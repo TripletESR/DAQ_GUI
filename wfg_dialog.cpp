@@ -4,7 +4,7 @@
 WFG_Dialog::WFG_Dialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::WFG_Dialog),
-    wfg(NULL)
+    hallProbe(NULL)
 {
     ui->setupUi(this);
 
@@ -26,8 +26,15 @@ WFG_Dialog::~WFG_Dialog()
 {
     delete ui;
     delete wfg;
+    delete hallProbe;
 }
 
+void WFG_Dialog::OpenHallProbe(){
+    hallProbe = new DMM(KEITHLEY2000);
+    SendLogMsg(hallProbe->Msg);
+
+    hallProbe->SetMeasureDCV();
+}
 
 void WFG_Dialog::on_comboBox_ch_activated(int index)
 {
@@ -38,6 +45,7 @@ void WFG_Dialog::on_comboBox_ch_activated(int index)
 
     wfg->GetSetting(wfg->ch);
     ui->comboBox_WFG->setCurrentIndex(wfg->index);
+    on_comboBox_WFG_activated(wfg->index);
     DisplaySetting();
 }
 
@@ -99,6 +107,8 @@ void WFG_Dialog::on_doubleSpinBox_Amp_valueChanged(double arg1)
 void WFG_Dialog::on_doubleSpinBox_Offset_valueChanged(double arg1)
 {
     wfg->SetOffset(wfg->ch, arg1/1000);
+    double HPV = hallProbe->GetReading() *1000; //mV
+    ui->lineEdit_HPV->setText(QString::number(HPV));
 }
 
 void WFG_Dialog::on_doubleSpinBox_Phase_valueChanged(double arg1)

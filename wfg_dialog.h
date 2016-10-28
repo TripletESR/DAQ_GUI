@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "qscpi.h"
 #include "wavefromgenerator.h"
+#include "dmm.h"
 #include "constant.h"
 
 namespace Ui {
@@ -21,10 +22,12 @@ public:
     QString Msg;
 
     WaveFromGenerator *wfg;
+    DMM *hallProbe;
 
     explicit WFG_Dialog(QWidget *parent = 0);
     ~WFG_Dialog();
 
+    void OpenHallProbe();
 signals:
 
     void SendLogMsg(QString msg);

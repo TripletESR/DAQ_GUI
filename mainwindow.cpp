@@ -29,15 +29,16 @@ MainWindow::MainWindow(QWidget *parent) :
     // call wfg and osc dialog, in which the wfg and osc will be created
     wfgui = new WFG_Dialog(this);
     Write2Log(wfgui->Msg);
+    wfgui->OpenHallProbe();
     oscui = new osc_Dialog(this);
     Write2Log(oscui->Msg);
-
 
     //Setting up connectting
     connect(oscui, SIGNAL(SendLogMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(wfgui, SIGNAL(SendLogMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(wfgui->wfg, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
+    connect(wfgui->hallProbe, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
 
     //Get Setting
     wfgui->on_comboBox_ch_activated(0);

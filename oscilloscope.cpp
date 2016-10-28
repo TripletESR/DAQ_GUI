@@ -151,8 +151,9 @@ void Oscilloscope::SetAverage(int count)
 
 void Oscilloscope::SetDVM(bool IO, int ch, int mode)
 {
-    SendMsg(" ============== Set DVM. ");
     if( sta != VI_SUCCESS) return;
+    scpi_Msg.sprintf(" ============== Setting DVM. ch:%d, IO:%d", ch, IO);
+    SendMsg(scpi_Msg);
     sprintf(cmd,":DVM:enable %d\n", IO); SendCmd(cmd);
     sprintf(cmd,":DVM:source channel%d\n", ch); SendCmd(cmd);
     DVMIO = IO;

@@ -8,7 +8,7 @@
 
 // B-Field [mT] = HALLSLOPE * HV + HALLOFFSET
 // Fit on 2016/10/28
-#define HALLOFFSET -4.6 // +- 0.18
+#define HALLOFFSET -4.82 // +- 0.18
 #define HALLSLOPT 9.449 // +- 0.004
 
 #endif // CONSTANT_H

@@ -26,13 +26,17 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
     plot->xAxis->setLabel("DC Vol. [V]");
     plot->yAxis->setLabel("Hall Vol. [mV]");
     plot->graph(0)->setPen(QPen(Qt::blue));
+    plot->graph(0)->setLineStyle(QCPGraph::lsNone);
+    plot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle , 1));
     plot->xAxis->setRange(-0.5, 5);
     plot->yAxis->setRange(-10, 75);
     plot->addGraph(plot->xAxis, plot->yAxis2);
     plot->graph(1)->setPen(QPen(Qt::red));
+    plot->graph(1)->setLineStyle(QCPGraph::lsNone);
+    plot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle , 1));
     plot->yAxis2->setVisible(1);
     plot->yAxis2->setLabel("B-Field [mT]");
-    plot->yAxis2->setRange(-10,800);
+    plot->yAxis2->setRange(-100,750);
     plot->setInteraction(QCP::iRangeDrag,true);
     plot->setInteraction(QCP::iRangeZoom,true);
     plot->axisRect()->setRangeDrag(Qt::Vertical);
@@ -50,7 +54,7 @@ WFG_Dialog::~WFG_Dialog()
 }
 
 void WFG_Dialog::SAVEOSCDMM(double dvm){
-    bField.push_back(fabs(dvm));
+    bField.push_back(-dvm);
 }
 
 void WFG_Dialog::OpenHallProbe(){
@@ -132,7 +136,11 @@ void WFG_Dialog::on_doubleSpinBox_Offset_valueChanged(double arg1)
     wfg->SetOffset(wfg->ch, arg1/1000); // V
 
     double HPV = hallProbe->GetReading() *1000; //mV
+
+    double BField = HALLSLOPT * HPV + HALLOFFSET;
+
     ui->lineEdit_HPV->setText(QString::number(HPV));
+    ui->lineEdit_B->setText(QString::number(BField));
 
     dcV.push_back(arg1/1000);
     hallV.push_back(HPV);
@@ -204,4 +212,20 @@ void WFG_Dialog::on_pushButton_Clear_clicked()
 {
     ClearData();
     plot->replot();
+}
+
+void WFG_Dialog::on_pushButton_Auto_clicked()
+{
+    ClearData();
+    QProgressDialog progBox("Measuring Data....", "Abort.", 0, 450);
+    progBox.setWindowModality(Qt::WindowModal);
+    int waitcount = 0;
+    for(int i = -10; i <= 4500; i+=10){
+        //on_doubleSpinBox_Offset_valueChanged(i);
+        ui->doubleSpinBox_Offset->setValue(i);
+        Sleep(1200);
+        waitcount ++;
+        progBox.setValue(waitcount);
+        if( progBox.wasCanceled() ) break;
+    }
 }

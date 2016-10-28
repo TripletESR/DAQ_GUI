@@ -6,4 +6,9 @@
 #define KEITHLEY2000 "GPIB0::4::INSTR"
 #define AGILENTINFINIIVISION "TCPIP0::a-dx3024a-50186.rarfadv.riken.go.jp::inst0::INSTR"
 
+// B-Field [mT] = HALLSLOPE * HV + HALLOFFSET
+// Fit on 2016/10/28
+#define HALLOFFSET -4.6 // +- 0.18
+#define HALLSLOPT 9.449 // +- 0.004
+
 #endif // CONSTANT_H

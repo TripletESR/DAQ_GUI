@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QVector>
 #include <QFile>
+#include <QProgressDialog>
 #include "qcustomplot.h"
 #include "qscpi.h"
 #include "wavefromgenerator.h"
@@ -56,6 +57,8 @@ private slots:
     void on_pushButton_Save_clicked();
 
     void on_pushButton_Clear_clicked();
+
+    void on_pushButton_Auto_clicked();
 
 private:
     Ui::WFG_Dialog *ui;

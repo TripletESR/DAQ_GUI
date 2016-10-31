@@ -50,14 +50,17 @@ public slots:
 
     void DisplaySetting();
 
-    void SAVEOSCDMM(double dvm);
+    void SetMagField(int ch, double mag);
+    double GetMagField();
+    double Mag2DC(double mag);
+
+    void SaveOscDMM(double dvm);
     void ClearData();
 
 private slots:
+
     void on_pushButton_Save_clicked();
-
     void on_pushButton_Clear_clicked();
-
     void on_pushButton_Auto_clicked();
 
 private:
@@ -68,6 +71,8 @@ private:
     QVector<double> dcV;
     QVector<double> hallV;
     QVector<double> bField;
+
+    double hallVoltage, magField;
 
 };
 

@@ -33,7 +33,7 @@ Oscilloscope::~Oscilloscope(){
     Clear();
 }
 
-void Oscilloscope::Initialize(int ch)
+void Oscilloscope::Initialize()
 {
     if( sta != VI_SUCCESS) return;
 

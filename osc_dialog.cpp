@@ -15,7 +15,7 @@ osc_Dialog::osc_Dialog(QWidget *parent) :
         Msg.sprintf("Opened : %s", osc->name.toStdString().c_str());
     }else{
         ui->lineEdit->setText("Cannot Open Oscillopscope.");
-        Msg = "Cannot Open Oscillopscope.";
+        Msg = "Cannot open : Oscillopscope.";
     }
 
     //osc->Initialize(1);

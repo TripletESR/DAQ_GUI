@@ -2,6 +2,7 @@
 #define WAVEFROMGENERATOR_H
 
 #include "qscpi.h"
+#include <QProgressBar>
 
 class WaveFromGenerator : public QSCPI{
 public:
@@ -20,14 +21,15 @@ public:
     void SetAmp(int ch, double amp);
     void SetFreq(int ch, double freq);
     void SetOffset(int ch, double offset);
+    void GoToOffset(int ch, double offset);
     void SetPhase(int ch, double phase);
 
     int GetWaveForm(int ch);
     int GetChIO(int ch);
-    double GetFreq(int ch);
-    double GetOffset(int ch);
-    double GetAmp(int ch);
-    double GetPhase(int ch);
+    double GetFreq(int ch); // kHz
+    double GetOffset(int ch); // mV
+    double GetAmp(int ch); // mV
+    double GetPhase(int ch); // deg
 
     void GetSetting(int ch);
 

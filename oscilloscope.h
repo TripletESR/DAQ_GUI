@@ -40,7 +40,7 @@ public:
     Oscilloscope(ViRsrc name);
     ~Oscilloscope();
 
-    void Initialize(int ch);
+    void Initialize();
     void SetRemoteLog(bool log);
     void SetTouch(bool touch);
     void SetPreset();

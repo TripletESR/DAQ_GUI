@@ -74,6 +74,37 @@ void WaveFromGenerator::SetOffset(int ch, double offset)
 
 }
 
+void WaveFromGenerator::GoToOffset(int ch, double offset)
+{
+    double presentDC = GetOffset(ch) ; //mV
+    double incr; //mV
+
+    scpi_Msg.sprintf("Going to the offset: %f mV, from %f mV", offset, presentDC);
+    SendMsg(scpi_Msg);
+    SendMsg("please wait.");
+
+    if( offset > presentDC){ // increase gentlely
+        incr = +10;
+    }else if( offset < presentDC){ // reduced gentlely
+        incr = -10;
+    }
+
+    double diff = offset - presentDC;
+    while(diff != 0){
+        Sleep(1200);
+        presentDC = presentDC + incr;
+        diff = offset - presentDC;
+        if( fabs(diff) > fabs(incr)){
+            SetOffset(ch, presentDC);
+        }else{
+            SetOffset(ch, offset);
+            diff = 0;
+        }
+    }
+    scpi_Msg.sprintf("Reached offset : %f mV", offset);
+    SendMsg(scpi_Msg);
+}
+
 void WaveFromGenerator::SetPhase(int ch, double phase)
 {
     if( sta != VI_SUCCESS) return;

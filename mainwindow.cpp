@@ -29,7 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // call wfg and osc dialog, in which the wfg and osc will be created
     wfgui = new WFG_Dialog(this);
     Write2Log(wfgui->Msg);
-    wfgui->OpenHallProbe();
     oscui = new osc_Dialog(this);
     Write2Log(oscui->Msg);
 
@@ -38,10 +37,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wfgui, SIGNAL(SendLogMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(wfgui->wfg, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
-    connect(wfgui->hallProbe, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
+
 
     connect(wfgui, SIGNAL(ReadOSCDMM()), oscui, SLOT(on_pushButton_2_clicked()));
-    connect(oscui, SIGNAL(SendDMM(double)), wfgui, SLOT(SAVEOSCDMM(double)));
+    connect(oscui, SIGNAL(SendDMM(double)), wfgui, SLOT(SaveOscDMM(double)));
+
+    wfgui->OpenHallProbe();
+    connect(wfgui->hallProbe, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
 
     //Get Setting
     wfgui->on_comboBox_ch_activated(0);
@@ -268,6 +270,17 @@ void MainWindow::on_pushButton_Auto_clicked()
     if( ui->lineEdit_end->text()=="") return;
     if( ui->lineEdit_step->text()=="") return;
 
+
+    const int wfgch = 1;
+    const double bStart = ui->lineEdit_start->text().toDouble();
+    const double bEnd   = ui->lineEdit_end->text().toDouble();
+    const double bInc   = ui->lineEdit_step->text().toDouble();
+
+    if( bStart < bEnd ) return;
+    if( bInc <= 0) return;
+    if( bStart < 0 || bEnd < 0 )return;
+    if( bStart > 660 || bEnd > 660) return;
+
     //open file
     if(dataFile == NULL){
         Write2Log("============== Please open a file to save data. Abort.");
@@ -295,18 +308,15 @@ void MainWindow::on_pushButton_Auto_clicked()
     QVector<double> Y(points);
 
 
-    const int wfgch = 1;
-    const double bStart = ui->lineEdit_start->text().toDouble();
-    const double bEnd   = ui->lineEdit_end->text().toDouble();
-    const double bInc   = ui->lineEdit_step->text().toDouble();
     //Get the WFG to be DC mode
-    wfgui->wfg->SetWaveForm(wfgch, 1); // 1= sin,  8 = DC
+    wfgui->wfg->SetWaveForm(wfgch, 8); // 1= sin,  8 = DC
     //Set WFG Voltage to be max of magnetic field
     //wfgui->wfg->SetOffset(wfgch, bStart);
-    wfgui->wfg->SetFreq(wfgch, bStart*1000);
+    wfgui->SetMagField(wfgch, bStart);
+    //wfgui->wfg->SetFreq(wfgch, bStart*1000);
     // wait for few min for B-field to stablized.
-    Write2Log("------------------------------------- wait for 6 sec.");
-    Sleep(6*1000);
+    Write2Log("------------------------------------- wait for 1 sec.");
+    Sleep(1000);
 
 
     //Start measurement loop;
@@ -343,8 +353,14 @@ void MainWindow::on_pushButton_Auto_clicked()
         }
 
         dataFile->AppendData(name, oscui->osc->xData[ch], Y);
-        wfgui->wfg->SetFreq(wfgch, b*1000);
 
+        QString msg;
+        msg.sprintf("recorded and saved %s.", name.toStdString().c_str());
+        Write2Log(msg);
+
+        //wfgui->wfg->SetFreq(wfgch, b*1000);
+        wfgui->SetMagField(wfgch, b);
     }
+
 
 }

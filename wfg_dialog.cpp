@@ -14,7 +14,7 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
         Msg.sprintf("Opened : %s", wfg->name.toStdString().c_str());
         ui->lineEdit->setText(wfg->name);
     }else{
-        Msg = "Cannot Open Wave Form generator.";
+        Msg = "Cannot Open : Wave Form generator.";
         ui->lineEdit->setText(Msg);
     }
 
@@ -53,7 +53,7 @@ WFG_Dialog::~WFG_Dialog()
     delete plot;
 }
 
-void WFG_Dialog::SAVEOSCDMM(double dvm){
+void WFG_Dialog::SaveOscDMM(double dvm){
     bField.push_back(-dvm);
 }
 
@@ -135,15 +135,13 @@ void WFG_Dialog::on_doubleSpinBox_Offset_valueChanged(double arg1)
 {
     wfg->SetOffset(wfg->ch, arg1/1000); // V
 
-    double HPV = hallProbe->GetReading() *1000; //mV
+    GetMagField();
 
-    double BField = HALLSLOPT * HPV + HALLOFFSET;
-
-    ui->lineEdit_HPV->setText(QString::number(HPV));
-    ui->lineEdit_B->setText(QString::number(BField));
+    ui->lineEdit_HPV->setText(QString::number(hallVoltage));
+    ui->lineEdit_B->setText(QString::number(magField));
 
     dcV.push_back(arg1/1000);
-    hallV.push_back(HPV);
+    hallV.push_back(hallVoltage);
 
     ReadOSCDMM();
 
@@ -168,6 +166,24 @@ void WFG_Dialog::DisplaySetting()
     ui->doubleSpinBox_Offset->setValue(wfg->offset);
     ui->doubleSpinBox_Phase->setValue(wfg->phase);
     ui->comboBox_WFG->setCurrentIndex(wfg->index);
+}
+
+void WFG_Dialog::SetMagField(int ch, double mag)
+{
+    double DC = Mag2DC(mag);
+    wfg->GoToOffset(ch, DC);
+}
+
+double WFG_Dialog::GetMagField()
+{
+    hallVoltage = hallProbe->GetReading() * 1000 ; //mV
+    magField = HALLSLOPT * hallVoltage + HALLOFFSET; // mT
+
+    return magField;
+}
+
+double WFG_Dialog::Mag2DC(double mag){
+    return (mag - HALLOFFSET)/HALLSLOPT;
 }
 
 void WFG_Dialog::on_pushButton_Save_clicked()
@@ -216,16 +232,37 @@ void WFG_Dialog::on_pushButton_Clear_clicked()
 
 void WFG_Dialog::on_pushButton_Auto_clicked()
 {
-    ClearData();
-    QProgressDialog progBox("Measuring Data....", "Abort.", 0, 450);
+    int dc = ui->doubleSpinBox_Offset->text().toInt();
+    int maxDC = 4500; // mV
+    int incr = 10;
+    int waittime = 1200; // msec
+
+    SendLogMsg("Auto Measurement of the Hall probe volatge.");
+    Msg.sprintf("Start DC: %d mV, End DC: %d mV, Incr: %d mV.", dc, maxDC, incr);
+    SendLogMsg(Msg);
+
+    ClearData();    
+
+    bool breakFlag = 0;
+
+    QProgressDialog progBox("Measuring Data....", "Abort.", 0, (maxDC - dc)/incr);
     progBox.setWindowModality(Qt::WindowModal);
     int waitcount = 0;
-    for(int i = -10; i <= 4500; i+=10){
+    for(int i = dc; i <= maxDC; i+=incr){
         //on_doubleSpinBox_Offset_valueChanged(i);
         ui->doubleSpinBox_Offset->setValue(i);
-        Sleep(1200);
+        Sleep(waittime);
         waitcount ++;
         progBox.setValue(waitcount);
-        if( progBox.wasCanceled() ) break;
+        if( progBox.wasCanceled() ){
+            breakFlag = 1;
+            break;
+        }
+    }
+
+    if( breakFlag){
+        SendLogMsg("Breaked.");
+    }else{
+        SendLogMsg("Finsihed.");
     }
 }

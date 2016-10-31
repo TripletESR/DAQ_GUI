@@ -9,14 +9,11 @@ DMM::DMM(ViRsrc name):
         Msg.sprintf("Instrument identification string: %s",  this->name.toStdString().c_str());
         qDebug() << Msg;
     }else{
-        Msg.sprintf("Cannot Open : %s ", this->name.toStdString().c_str());
+        Msg.sprintf("Cannot Open : %s ", "Keithley 2000 DMM");
         qDebug() << Msg;
         return;
     }
-
     Clear();
-
-
 }
 
 DMM::~DMM()

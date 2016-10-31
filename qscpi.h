@@ -4,6 +4,7 @@
 #include <QObject>
 #include <stdio.h>
 #include <cmath>
+#include <windows.h>
 #include "C:\Program Files (x86)\IVI Foundation\VISA\WinNT\Include\visa.h"
 #include <QDebug>
 

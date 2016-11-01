@@ -42,6 +42,11 @@ void WaveFromGenerator::SetWaveForm(int ch, int wf_id) {
     }
 
     SendCmd(cmd);
+
+    if( wf_id == 1) this->index = 0;
+    if( wf_id == 8) this->index = 1;
+    if( wf_id == 7) this->index = 2;
+
 }
 
 
@@ -76,7 +81,7 @@ void WaveFromGenerator::SetOffset(int ch, double offset)
 
 void WaveFromGenerator::GoToOffset(int ch, double offset)
 {
-    double presentDC = GetOffset(ch) ; //mV
+    double presentDC = GetOffset(ch)*1000 ; //mV
     double incr; //mV
 
     scpi_Msg.sprintf("Going to the offset: %f mV, from %f mV", offset, presentDC);
@@ -90,14 +95,16 @@ void WaveFromGenerator::GoToOffset(int ch, double offset)
     }
 
     double diff = offset - presentDC;
+    qDebug("diff : %f mV", diff);
     while(diff != 0){
         Sleep(1200);
         presentDC = presentDC + incr;
         diff = offset - presentDC;
+        qDebug("diff : %f mV", diff);
         if( fabs(diff) > fabs(incr)){
-            SetOffset(ch, presentDC);
+            SetOffset(ch, presentDC/1000);
         }else{
-            SetOffset(ch, offset);
+            SetOffset(ch, offset/1000);
             diff = 0;
         }
     }
@@ -150,7 +157,7 @@ double WaveFromGenerator::GetOffset(int ch)
 {
     if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:voltage:offset?\n", ch);
-    this->offset = Ask(cmd).toDouble()*1000;
+    this->offset = Ask(cmd).toDouble();
     //qDebug() << "Offset : " << this->offset << " mV";
     return this->offset;
 }
@@ -159,7 +166,7 @@ double WaveFromGenerator::GetAmp(int ch)
 {
     if( sta != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:voltage?\n", ch);
-    this->amp = Ask(cmd).toDouble()*1000;
+    this->amp = Ask(cmd).toDouble();
     //qDebug() << "Amp : " << this->amp << " mV";
     return this->amp;
 }

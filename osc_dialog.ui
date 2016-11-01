@@ -519,7 +519,7 @@
      <string>On/Off</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="pushButton_GetDVM">
     <property name="geometry">
      <rect>
       <x>10</x>

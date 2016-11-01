@@ -44,9 +44,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     wfgui->OpenHallProbe();
     connect(wfgui->hallProbe, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
+    wfgui->hallProbe->SetMeasureDCV();
 
     //Get Setting
     wfgui->on_comboBox_ch_activated(0);
+    //wfgui->on_pushButton_GetDeviceSetting_clicked();
     oscui->on_checkBox_Lock_clicked(1); //get osc status
     //oscui->osc->Clear(); //TODO somehow, the OSC has error msg that setting conflict.
 
@@ -57,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    Write2Log("========================= Program ended.");
 
     delete ui;
     delete wfgui;
@@ -66,8 +69,6 @@ MainWindow::~MainWindow()
     delete dataFile;
 
     delete plot;
-
-    Write2Log("========================= Program ended.");
 
 }
 
@@ -311,8 +312,8 @@ void MainWindow::on_pushButton_Auto_clicked()
     //Get the WFG to be DC mode
     wfgui->wfg->SetWaveForm(wfgch, 8); // 1= sin,  8 = DC
     //Set WFG Voltage to be max of magnetic field
-    //wfgui->wfg->SetOffset(wfgch, bStart);
-    wfgui->SetMagField(wfgch, bStart);
+    wfgui->wfg->SetOffset(wfgch, bStart);
+    //wfgui->SetMagField(wfgch, bStart);
     //wfgui->wfg->SetFreq(wfgch, bStart*1000);
     // wait for few min for B-field to stablized.
     Write2Log("------------------------------------- wait for 1 sec.");
@@ -345,7 +346,8 @@ void MainWindow::on_pushButton_Auto_clicked()
                  oscui->osc->yMin,
                  oscui->osc->yMax);
         // cover b to Magnetic field
-        name.sprintf("%s_%06.4f", name1.toStdString().c_str(), b);
+        double mag = wfgui->GetMagField();
+        name.sprintf("%s_%06.4f_%06.4f", name1.toStdString().c_str(),b, mag);
 
         for( int i = 0; i < points; i++){
             //Y[i] = oscui->osc->yData[ch][i] - oscui->osc->BGData[i];
@@ -359,7 +361,8 @@ void MainWindow::on_pushButton_Auto_clicked()
         Write2Log(msg);
 
         //wfgui->wfg->SetFreq(wfgch, b*1000);
-        wfgui->SetMagField(wfgch, b);
+        //wfgui->SetMagField(wfgch, b);
+        wfgui->wfg->GoToOffset(wfgch, b);
     }
 
 

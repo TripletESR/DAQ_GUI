@@ -27,8 +27,8 @@ public:
     int GetWaveForm(int ch);
     int GetChIO(int ch);
     double GetFreq(int ch); // kHz
-    double GetOffset(int ch); // mV
-    double GetAmp(int ch); // mV
+    double GetOffset(int ch); // V
+    double GetAmp(int ch); // V
     double GetPhase(int ch); // deg
 
     void GetSetting(int ch);

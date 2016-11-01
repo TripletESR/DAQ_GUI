@@ -60,7 +60,7 @@ void WFG_Dialog::SaveOscDMM(double dvm){
 void WFG_Dialog::OpenHallProbe(){
     hallProbe = new DMM(KEITHLEY2000);
     SendLogMsg(hallProbe->Msg);
-    hallProbe->SetMeasureDCV();
+    //hallProbe->SetMeasureDCV();
 }
 
 void WFG_Dialog::on_comboBox_ch_activated(int index)
@@ -72,7 +72,7 @@ void WFG_Dialog::on_comboBox_ch_activated(int index)
 
     wfg->GetSetting(wfg->ch);
     ui->comboBox_WFG->setCurrentIndex(wfg->index);
-    on_comboBox_WFG_activated(wfg->index);
+    on_comboBox_WFG_activated(wfg->index); // enable/diable input
     DisplaySetting();
 }
 
@@ -135,10 +135,7 @@ void WFG_Dialog::on_doubleSpinBox_Offset_valueChanged(double arg1)
 {
     wfg->SetOffset(wfg->ch, arg1/1000); // V
 
-    GetMagField();
-
-    ui->lineEdit_HPV->setText(QString::number(hallVoltage));
-    ui->lineEdit_B->setText(QString::number(magField));
+    on_pushButton_GetHPV_clicked();
 
     dcV.push_back(arg1/1000);
     hallV.push_back(hallVoltage);
@@ -161,17 +158,28 @@ void WFG_Dialog::on_doubleSpinBox_Phase_valueChanged(double arg1)
 void WFG_Dialog::DisplaySetting()
 {
     ui->checkBox->setChecked(wfg->IO);
-    ui->doubleSpinBox_Freq->setValue(wfg->freq);
-    ui->doubleSpinBox_Amp->setValue(wfg->amp);
-    ui->doubleSpinBox_Offset->setValue(wfg->offset);
-    ui->doubleSpinBox_Phase->setValue(wfg->phase);
+
     ui->comboBox_WFG->setCurrentIndex(wfg->index);
+
+    if( wfg->index == 0){
+        ui->doubleSpinBox_Freq->setValue(wfg->freq);
+        ui->doubleSpinBox_Amp->setValue(wfg->amp*1000);
+        ui->doubleSpinBox_Offset->setValue(wfg->offset*1000);
+        ui->doubleSpinBox_Phase->setValue(wfg->phase);
+    }
+
+    if( wfg->index == 1 || wfg->index == 2){
+        ui->doubleSpinBox_Offset->setValue(wfg->offset*1000);
+    }
 }
 
 void WFG_Dialog::SetMagField(int ch, double mag)
 {
     double DC = Mag2DC(mag);
     wfg->GoToOffset(ch, DC);
+
+    //Check the Hall Probe reading
+
 }
 
 double WFG_Dialog::GetMagField()
@@ -179,11 +187,15 @@ double WFG_Dialog::GetMagField()
     hallVoltage = hallProbe->GetReading() * 1000 ; //mV
     magField = HALLSLOPT * hallVoltage + HALLOFFSET; // mT
 
+    Msg.sprintf("HallVolatge : %f mV, Mag-Field: %f mT", hallVoltage, magField);
+    SendLogMsg(Msg);
+
     return magField;
 }
 
-double WFG_Dialog::Mag2DC(double mag){
-    return (mag - HALLOFFSET)/HALLSLOPT;
+double WFG_Dialog::Mag2DC(double mag){ // in mT to V
+
+    return 0.005785*mag - 4.214e-6*mag*mag + 1.27533e-11*mag*mag*mag;
 }
 
 void WFG_Dialog::on_pushButton_Save_clicked()
@@ -265,4 +277,65 @@ void WFG_Dialog::on_pushButton_Auto_clicked()
     }else{
         SendLogMsg("Finsihed.");
     }
+}
+
+void WFG_Dialog::on_pushButton_GetHPV_clicked()
+{
+    GetMagField();
+    ui->lineEdit_HPV->setText(QString::number(hallVoltage));
+    ui->lineEdit_B->setText(QString::number(magField));
+
+}
+
+void WFG_Dialog::on_pushButton_GetDeviceSetting_clicked()
+{
+    wfg->Clear();
+    int ch = ui->comboBox_ch->currentIndex() + 1;
+    wfg->GetSetting(ch);
+    DisplaySetting();
+
+    on_pushButton_GetHPV_clicked();
+}
+
+void WFG_Dialog::on_pushButton_SetB_clicked()
+{
+    double current_mag = GetMagField();
+    double mag = ui->lineEdit_B->text().toDouble(); // mT
+    double dc = Mag2DC(mag)*1000; // mV
+
+    Msg.sprintf("Set Magnetic field from %f mT to %f mT. Please wait.", current_mag, mag);
+    SendLogMsg(Msg);
+
+    Msg.sprintf("suitable DC should be %f mV", dc);
+    SendLogMsg(Msg);
+
+
+    int ch = ui->comboBox_ch->currentIndex() +1 ;
+    wfg->GoToOffset(ch, dc);
+
+    SendLogMsg("Fine Turning Mag Field.");
+    current_mag = GetMagField();
+    Msg.sprintf("diff Mag: %f mT", current_mag-mag);
+    SendLogMsg(Msg);
+    //compare Hall Probe
+    while(current_mag > mag){
+        dc = dc - 0.5;
+        wfg->SetOffset(ch, dc/1000);
+        Sleep(500);
+        current_mag = GetMagField();
+        Msg.sprintf("diff Mag: %f mT", current_mag-mag);
+        SendLogMsg(Msg);
+    }
+    while(current_mag < mag){
+        dc = dc + 0.5;
+        wfg->SetOffset(ch, dc/1000);
+        Sleep(500);
+        current_mag = GetMagField();
+        Msg.sprintf("diff Mag: %f mT", current_mag-mag);
+        SendLogMsg(Msg);
+    }
+
+    wfg->GetSetting(ch);
+    DisplaySetting();
+
 }

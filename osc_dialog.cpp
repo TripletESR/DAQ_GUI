@@ -409,7 +409,7 @@ void osc_Dialog::on_checkBox_DVM_clicked(bool checked)
 
 }
 
-void osc_Dialog::on_pushButton_2_clicked()
+void osc_Dialog::on_pushButton_GetDVM_clicked()
 {
     if( !ui->checkBox_DVM->isChecked() ){
         Msg.sprintf("Please turn on DVM.");

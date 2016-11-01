@@ -38,6 +38,8 @@ signals:
     void ReadOSCDMM();
 
 public slots:
+
+    void on_pushButton_GetDeviceSetting_clicked();
     void on_checkBox_clicked(bool checked);
 
     void on_comboBox_ch_activated(int index);
@@ -52,7 +54,7 @@ public slots:
 
     void SetMagField(int ch, double mag);
     double GetMagField();
-    double Mag2DC(double mag);
+
 
     void SaveOscDMM(double dvm);
     void ClearData();
@@ -62,6 +64,11 @@ private slots:
     void on_pushButton_Save_clicked();
     void on_pushButton_Clear_clicked();
     void on_pushButton_Auto_clicked();
+
+    void on_pushButton_GetHPV_clicked();
+    void on_pushButton_SetB_clicked();
+
+    double Mag2DC(double mag);
 
 private:
     Ui::WFG_Dialog *ui;

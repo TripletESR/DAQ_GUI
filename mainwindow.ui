@@ -265,7 +265,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Start [mT]</string>
+      <string>Start [V]</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -281,7 +281,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>End [mT]</string>
+      <string>End [V]</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -297,7 +297,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Step [mT]</string>
+      <string>Step [V]</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

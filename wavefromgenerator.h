@@ -8,7 +8,7 @@ class WaveFromGenerator : public QSCPI{
 public:
     double freq; //in kHz
     double phase;
-    double amp, offset; // in mV
+    double amp, offset; // in V
     int ch, index, IO; //index is the index in WFG_Dialog.h
 
     WaveFromGenerator(ViRsrc name);

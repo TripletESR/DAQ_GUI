@@ -54,7 +54,10 @@ public slots:
 
     void SetMagField(int ch, double mag);
     double GetMagField();
+    double GetHallVoltage(){ GetMagField(); return hallVoltage;}
 
+    void on_pushButton_GetHPV_clicked();
+    void on_pushButton_SetB_clicked();
 
     void SaveOscDMM(double dvm);
     void ClearData();
@@ -65,8 +68,8 @@ private slots:
     void on_pushButton_Clear_clicked();
     void on_pushButton_Auto_clicked();
 
-    void on_pushButton_GetHPV_clicked();
-    void on_pushButton_SetB_clicked();
+
+
 
     double Mag2DC(double mag);
 

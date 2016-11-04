@@ -82,7 +82,7 @@ void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zd
     if( endPos == 0 ){
         this->xdata = xdata;
         col = this->xdata.size();
-        outStr.sprintf("%20s","time [us]");
+        outStr.sprintf("%30s","time [us]");
         for(int i = 0; i < col ; i++){
             temp.sprintf(",%12.3e", (this->xdata)[i]);
             outStr.append(temp);
@@ -102,7 +102,32 @@ void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zd
         }
         //compare xdata and this->xdata
         //qDebug() << xdata;
-        for(int i = 0; i < size ; i ++ ){
+        double x1 = xdata[0];
+        double x2 = xdata[col-1];
+        double xStep = (x2-x1)/(col-1);
+        double range = x2 - x1 + xStep;
+
+        double qx1 = this->xdata[0];
+        double qx2 = this->xdata[col-1];
+        double qxStep = (qx2-qx1)/(col-1);
+        //double qrange = qx2 - qx1 + qxStep;
+
+        double torr = 1e-9;
+        if( fabs(x1- qx1) > torr) qDebug() << "x1:" << x1 << ", " << qx1 ;
+        if( fabs(x1- qx1) > torr) qDebug() << "x2:" << x2 << ", " << qx2 ;
+        if( fabs(xStep- qxStep) > torr) qDebug() << "xStep:" << xStep << ", " << qxStep ;
+
+        if( fabs(x1- qx1) > torr || fabs(x1- qx1) > torr || fabs(xStep- qxStep) > torr){
+            SendMsg("The x-data of input data is not matching with existing xdata. Abort.");
+            SendMsg("======== Input x-data structure.");
+            Msg.sprintf("(%f, %f) us", x1, x2);          SendMsg(Msg);
+            Msg.sprintf("Range  = %f us", range);        SendMsg(Msg);
+            Msg.sprintf("Scale  = %f us/div", range/10); SendMsg(Msg);
+            Msg.sprintf("Offset = %f us", x1 + range/2); SendMsg(Msg);
+            return;
+        }
+
+        /*for(int i = 0; i < size ; i ++ ){
             if( xdata[i] != (this->xdata)[i]){
                 SendMsg("The x-data of input data is not matching with existing xdata. Abort.");
                 Msg.sprintf("Difference at %d , input x-data = %f, existing x-data = %f", i, xdata[i], (this->xdata)[i]);
@@ -118,11 +143,11 @@ void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zd
                 Msg.sprintf("Offset = %f us", x1 + range/2); SendMsg(Msg);
                 return;
             }
-        }
+        }*/
     }
 
     //save ydata
-    outStr.sprintf("%20s", head.toStdString().c_str());
+    outStr.sprintf("%30s", head.toStdString().c_str());
     for(int i = 0; i < col ; i++){
         temp.sprintf(",%12.3e", zdata[i]);
         outStr.append(temp);

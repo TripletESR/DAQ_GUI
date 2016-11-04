@@ -54,6 +54,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->pushButton_Auto->setEnabled(0);
 
+    plot = ui->customPlot;
+    plot->setInteraction(QCP::iRangeDrag,true);
+    plot->setInteraction(QCP::iRangeZoom,true);
+
     Write2Log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Ready.");
 }
 
@@ -100,6 +104,7 @@ void MainWindow::on_actionWave_From_Generator_triggered()
                            wfgui->geometry().width(),
                            wfgui->geometry().height());
         wfgui->show();
+        wfgui->on_pushButton_GetHPV_clicked();
     }
 }
 
@@ -130,7 +135,13 @@ void MainWindow::on_pushButton_clicked()
              oscui->osc->yMin,
              oscui->osc->yMax);
 
-    SaveData("test",  oscui->osc->xData[ch], oscui->osc->yData[ch]);
+    QString saveName = ui->lineEdit_DataName->text();
+    double dc = wfgui->wfg->offset; //V
+    double mag = wfgui->GetMagField(); // mT
+    QString tmp;
+    tmp.sprintf("_%06.4fV_%06.2fmT", dc, mag);
+    saveName.append(tmp);
+    SaveData(saveName,  oscui->osc->xData[ch], oscui->osc->yData[ch]);
 
 }
 
@@ -152,7 +163,6 @@ void MainWindow::PlotGraph(int ch, QVector<double> x, QVector<double> y, double 
     logMsg.sprintf("=========== Plot Ch %d", ch);
     Write2Log(logMsg);
 
-    plot = ui->customPlot;
     // initialize
     if( plot->graphCount() == 0){
         plot->xAxis->setLabel("time [us]");
@@ -275,12 +285,17 @@ void MainWindow::on_pushButton_Auto_clicked()
     const int wfgch = 1;
     const double bStart = ui->lineEdit_start->text().toDouble();
     const double bEnd   = ui->lineEdit_end->text().toDouble();
-    const double bInc   = ui->lineEdit_step->text().toDouble();
+    double bInc   = ui->lineEdit_step->text().toDouble();
 
+    // Force the control volatge to go down
+    bInc = -bInc;
     if( bStart < bEnd ) return;
-    if( bInc <= 0) return;
+
+    // other restriction on the control voltage
+    if( bInc >= 0) return;
     if( bStart < 0 || bEnd < 0 )return;
-    if( bStart > 660 || bEnd > 660) return;
+    if( bStart > 5 || bEnd > 5) return;
+
 
     //open file
     if(dataFile == NULL){
@@ -292,27 +307,27 @@ void MainWindow::on_pushButton_Auto_clicked()
     const int points = ui->spinBox_count->value();
 
     //Get BG Data;
-    oscui->osc->GetData(ch, points, 1);
+    //oscui->osc->GetData(ch, points, 1);
 
-    double bgmin = oscui->osc->GetMin(oscui->osc->BGData);
-    double bgmax = oscui->osc->GetMax(oscui->osc->BGData);
+    //double bgmin = oscui->osc->GetMin(oscui->osc->BGData);
+    //double bgmax = oscui->osc->GetMax(oscui->osc->BGData);
+    //qDebug() << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << bgmin << "," << bgmax;
 
-    qDebug() << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << bgmin << "," << bgmax;
-
-    PlotGraph(ch, oscui->osc->xData[ch],
-             oscui->osc->BGData,
-             oscui->osc->xMin,
-             oscui->osc->xMax,
-              oscui->osc->yMin,
-              oscui->osc->yMax);
+    //PlotGraph(ch, oscui->osc->xData[ch],
+    //         oscui->osc->BGData,
+    //         oscui->osc->xMin,
+    //         oscui->osc->xMax,
+    //          oscui->osc->yMin,
+    //          oscui->osc->yMax);
 
     QVector<double> Y(points);
-
 
     //Get the WFG to be DC mode
     wfgui->wfg->SetWaveForm(wfgch, 8); // 1= sin,  8 = DC
     //Set WFG Voltage to be max of magnetic field
-    wfgui->wfg->SetOffset(wfgch, bStart);
+    wfgui->wfg->GoToOffset(wfgch, bStart);
+    wfgui->on_doubleSpinBox_Offset_valueChanged(bStart*1000);
+    //wfgui->wfg->SetOffset(wfgch, bStart);
     //wfgui->SetMagField(wfgch, bStart);
     //wfgui->wfg->SetFreq(wfgch, bStart*1000);
     // wait for few min for B-field to stablized.
@@ -322,14 +337,14 @@ void MainWindow::on_pushButton_Auto_clicked()
 
     //Start measurement loop;
     int count = 0;
-    int n = ((int)bStart-(int)bEnd)/(int)bInc + 1;
+    //int n = ((int)bStart-(int)bEnd)/(int)bInc + 1;
     //QString str;
     //QProgressDialog progress("Getting Data ....", "Abort", 0, n, this);
     //progress.setWindowModality(Qt::WindowModal);
 
     QString name1 = ui->lineEdit_DataName->text();
     QString name;
-    for( double b = bStart; b >= bEnd ; b -= bInc){
+    for( double b = bStart; b >= bEnd ; b += bInc){
 
        // str.sprintf("Getting Data from %f to %f, size %f | Current : %f", bStart, bEnd, -bInc, b);
        // progress.setLabelText(str);
@@ -346,8 +361,9 @@ void MainWindow::on_pushButton_Auto_clicked()
                  oscui->osc->yMin,
                  oscui->osc->yMax);
         // cover b to Magnetic field
-        double mag = wfgui->GetMagField();
-        name.sprintf("%s_%06.4f_%06.4f", name1.toStdString().c_str(),b, mag);
+        //double mag = wfgui->GetMagField();
+        double HV = wfgui->GetHallVoltage();
+        name.sprintf("%s_%06.4fV_%06.2fmV", name1.toStdString().c_str(),b, HV);
 
         for( int i = 0; i < points; i++){
             //Y[i] = oscui->osc->yData[ch][i] - oscui->osc->BGData[i];
@@ -363,7 +379,8 @@ void MainWindow::on_pushButton_Auto_clicked()
         //wfgui->wfg->SetFreq(wfgch, b*1000);
         //wfgui->SetMagField(wfgch, b);
         wfgui->wfg->GoToOffset(wfgch, b);
+        wfgui->on_doubleSpinBox_Offset_valueChanged(b*1000);
     }
 
-
+    Write2Log("===================  Auto DAQ completed.");
 }

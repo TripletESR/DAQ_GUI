@@ -84,6 +84,8 @@ void WaveFromGenerator::GoToOffset(int ch, double offset)
     double presentDC = GetOffset(ch)*1000 ; //mV
     double incr; //mV
 
+    offset = offset*1000; //mV
+
     scpi_Msg.sprintf("Going to the offset: %f mV, from %f mV", offset, presentDC);
     SendMsg(scpi_Msg);
     SendMsg("please wait.");

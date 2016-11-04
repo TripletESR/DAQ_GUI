@@ -39,11 +39,13 @@ void Oscilloscope::Initialize()
 
     SendMsg("======= Initialize Oscilloscope");
     SetAcqMode(0);
-    SetTime(200E-6, 40E-6);
-    SetVoltage(1, 4, 0, 1);
+    SetTime(500E-6, 160E-6);
+    SetVoltage(1, 8, 0, 1);
+    SetVoltage(2, 0.4, 0, 0);
     OpenCh(1,1);
-    SetTriggerLevel(1, 0);
-    SetTrigger(1);
+    OpenCh(2,1);
+    SetTriggerLevel(2, 0.02);
+    SetTrigger(2);
 }
 
 void Oscilloscope::SetRemoteLog(bool log)
@@ -346,6 +348,7 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
 
     }
 
+    //TODO given to signal is 60 Hz, with known # of avergae, estimated the time.
     if( this->acqFlag == 1){
         SendMsg("===== Synchronizing in averaging acquisition mode.");
         sprintf(cmd,":STOP\n"); SendCmd(cmd);
@@ -372,9 +375,9 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
 
         int SBR;
         double lngElapsed = 0;
-        double waitsec = 0.5;//wait for # sec
+        double waitsec = 5.0;//wait for # sec
         int waitcount = 0;
-        QProgressDialog progBox("Waiting for the device....", "Abort.", 0, 240); // 240 = max wait for 120 sec // 65536 average uses 99 sec
+        QProgressDialog progBox("Waiting for the device....", "Abort.", 0, 240); // 240 = max wait for 480 sec
         progBox.setWindowModality(Qt::WindowModal);
         do{
             Sleep(waitsec * 1000);
@@ -384,7 +387,7 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
             SBR = StatusByteRegister(); //161 is system "good" status SBR
             scpi_Msg.sprintf("Waiting for the device: %5.1f sec. %#x =? %#x", lngElapsed, SBR, 161);
             SendMsg(scpi_Msg);
-            progBox.setLabelText(scpi_Msg + " (max 120 sec).");
+            progBox.setLabelText(scpi_Msg + " (max 1200 sec).");
             if( progBox.wasCanceled() ) break;
         }while((SBR & 32) == 0); // 32 is the ESR registor bit
 

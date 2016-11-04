@@ -60,6 +60,7 @@ private:
     QFileIO * logFile;
     QFileIO * dataFile;
 
+    QCPPlotTitle * plotTitle;
     QCustomPlot * plot;
 
 };

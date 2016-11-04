@@ -49,18 +49,24 @@ MainWindow::MainWindow(QWidget *parent) :
     //Get Setting
     wfgui->on_comboBox_ch_activated(0);
     //wfgui->on_pushButton_GetDeviceSetting_clicked();
-    oscui->on_checkBox_Lock_clicked(1); //get osc status
+    oscui->on_checkBox_Lock_clicked(1); //Lock the osc, get osc status
     on_spinBox_count_valueChanged(1000);
     //oscui->osc->Clear(); //TODO somehow, the OSC has error msg that setting conflict.
 
     ui->pushButton_Auto->setEnabled(0);
     ui->pushButton_Save->setEnabled(0);
 
+    if( !oscui->osc->IsOpen()) ui->pushButton_GetSingle->setEnabled(0);
+
     plot = ui->customPlot;
     plot->setInteraction(QCP::iRangeDrag,true);
     plot->setInteraction(QCP::iRangeZoom,true);
     plot->xAxis->setLabel("time [us]");
     plot->yAxis->setLabel("Volatge [V]");
+    plot->plotLayout()->insertRow(0);
+    plotTitle = new QCPPlotTitle(plot, "title");
+    plotTitle->setFont(QFont("sans", 9, QFont::Bold));
+    plot->plotLayout()->addElement(0,0, plotTitle);
     //plot->plotLayout()->insertRow(0);
 
 
@@ -102,6 +108,7 @@ MainWindow::~MainWindow()
     delete logFile;
     delete dataFile;
 
+    delete plotTitle;
     delete plot;
 
 }
@@ -187,10 +194,8 @@ void MainWindow::PlotGraph(int ch, QVector<double> x, QVector<double> y, double 
 
     // plot title
     QString plotLabel;
-    plotLabel.sprintf("%06.4fV %6.2fmV", wfgui->wfg->offset, wfgui->GetHallVoltage());
-    QCPPlotTitle * title = new QCPPlotTitle(plot, plotLabel);
-    plot->plotLayout()->addElement(0,0, title);
-
+    plotLabel.sprintf("%6.4fV %8.4fmV", wfgui->wfg->offset, wfgui->GetHallVoltage());
+    plotTitle->setText(plotLabel);
 
     // initialize
     if( plot->graphCount() == 0){

@@ -307,6 +307,8 @@ void MainWindow::on_pushButton_Auto_clicked()
     if( bStart < 0 || bEnd < 0 )return;
     if( bStart > 5 || bEnd > 5) return;
 
+    qDebug() << bStart <<"," << bEnd << "," << bInc;
+
     if( bStart > bEnd && bInc >=0 ){
         Write2Log("Step size should be negative.");
         return;
@@ -323,8 +325,10 @@ void MainWindow::on_pushButton_Auto_clicked()
         return;
     }
 
+    Write2Log("========================== Start Auto DAQ.");
     const int ch = ui->spinBox_ch->value();
     const int points = ui->spinBox_count->value();
+    int totCount = ui->lineEdit_numData->text().toInt();
 
     //Get BG Data;
     //oscui->osc->GetData(ch, points, 1);
@@ -369,6 +373,10 @@ void MainWindow::on_pushButton_Auto_clicked()
        // progress.setValue(count);
        // if(progress.wasCanceled()) break;
         count ++;
+        //wfgui->wfg->SetFreq(wfgch, b*1000);
+        //wfgui->SetMagField(wfgch, b);
+        wfgui->wfg->GoToOffset(wfgch, b);
+        wfgui->on_doubleSpinBox_Offset_valueChanged(b*1000);
 
         oscui->osc->GetData(ch, points, 0);
 
@@ -386,18 +394,14 @@ void MainWindow::on_pushButton_Auto_clicked()
 
         //double mag = wfgui->GetMagField();
         double hallV = wfgui->GetHallVoltage();
-        name.sprintf("%s_%06.4fV_%06.2fmV", name1.toStdString().c_str(),b, hallV);
+        name.sprintf("%s_%06.4fV_%08.4fmV", name1.toStdString().c_str(),b, hallV);
 
         dataFile->AppendData(name, oscui->osc->xData[ch], Y);
 
         QString msg;
-        msg.sprintf("recorded and saved %s.", name.toStdString().c_str());
+        msg.sprintf(" %d/%d =================== recorded and saved %s.", count, totCount, name.toStdString().c_str());
         Write2Log(msg);
 
-        //wfgui->wfg->SetFreq(wfgch, b*1000);
-        //wfgui->SetMagField(wfgch, b);
-        wfgui->wfg->GoToOffset(wfgch, b);
-        wfgui->on_doubleSpinBox_Offset_valueChanged(b*1000);
     }
 
     Write2Log("===================  Auto DAQ completed.");
@@ -435,7 +439,7 @@ void MainWindow::on_lineEdit_step_editingFinished()
     double bEnd = ui->lineEdit_end->text().toDouble();
     double bStep = ui->lineEdit_step->text().toDouble();
 
-    int n = fabs(bStart-bEnd)/fabs(bStep) + 1;
+    int n = fabs(fabs(bStart-bEnd)/bStep) + 1;
 
     ui->lineEdit_numData->setText(QString::number(n));
 }

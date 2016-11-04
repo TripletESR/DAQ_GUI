@@ -375,7 +375,7 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
 
         int SBR;
 
-        double timeExpect = points / LASERFREQ; // sec
+        double timeExpect = acqCount / LASERFREQ; // sec
         double lngElapsed = 0;
         double waitsec = 1.0;//wait for # sec
         if(timeExpect > 10) {

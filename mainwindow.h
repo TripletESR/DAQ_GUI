@@ -49,6 +49,8 @@ private slots:
     void Write2Log(QString msg);
 
 
+    void on_lineEdit_step_editingFinished();
+
 private:
     Ui::MainWindow *ui;
 

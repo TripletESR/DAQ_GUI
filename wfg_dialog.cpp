@@ -192,7 +192,7 @@ double WFG_Dialog::GetMagField()
     double x = hallVoltage;
     magField = HALL0 + HALL1 * x + HALL2 * x*x + HALL3 * x*x*x + HALL4 * x*x*x*x; // mT
 
-    Msg.sprintf("HallVolatge : %f mV, Mag-Field: %f mT", hallVoltage, magField);
+    Msg.sprintf("DC: %fV, HallVolatge : %f mV, Mag-Field: %f mT", wfg->offset, hallVoltage, magField);
     SendLogMsg(Msg);
 
     return magField;

@@ -307,6 +307,15 @@ void MainWindow::on_pushButton_Auto_clicked()
     if( bStart < 0 || bEnd < 0 )return;
     if( bStart > 5 || bEnd > 5) return;
 
+    if( bStart > bEnd && bInc >=0 ){
+        Write2Log("Step size should be negative.");
+        return;
+    }
+
+    if( bStart < bEnd && bInc <=0 ){
+        Write2Log("Step size should be positive.");
+        return;
+    }
 
     //open file
     if(dataFile == NULL){
@@ -412,10 +421,21 @@ void MainWindow::on_spinBox_count_valueChanged(int arg1)
     oscui->osc->GetTime();
     double tRange=oscui->osc->tRange;
 
-    double resol = tRange/arg1;
+    double resol = tRange/arg1*1000;
     if(resol == 0){
         ui->lineEdit_Resol->setText("NaN");
     }else{
         ui->lineEdit_Resol->setText(QString::number(resol));
     }
+}
+
+void MainWindow::on_lineEdit_step_editingFinished()
+{
+    double bStart = ui->lineEdit_start->text().toDouble();
+    double bEnd = ui->lineEdit_end->text().toDouble();
+    double bStep = ui->lineEdit_step->text().toDouble();
+
+    int n = fabs(bStart-bEnd)/fabs(bStep) + 1;
+
+    ui->lineEdit_numData->setText(QString::number(n));
 }

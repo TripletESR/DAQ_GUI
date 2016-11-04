@@ -30,7 +30,7 @@ public:
     double xMax, xMin;
 
     int acqCount;
-
+    double trgRate;
     bool lockFlag, touchFlag, acqFlag, logFlag;
 
     double tRange, tDelay;
@@ -43,6 +43,7 @@ public:
     ~Oscilloscope();
 
     void Initialize();
+    bool IsOpen(){return openFlag;}
     void SetRemoteLog(bool log);
     void SetTouch(bool touch);
     void SetPreset();
@@ -59,14 +60,16 @@ public:
     void GetChannelData(int ch);
     double GetDVM();
     void GetTime();
+    double GetTriggerRate();
+    int GetAcquireCount();
     void GetSystemStatus();  // lock, touch, Acq Mode
-
     void GetData(int ch, const int points, bool Save2BG);
     double GetMax(QVector<double> vec);
     double GetMin(QVector<double> vec);
 
 private:
 
+    bool openFlag;
 };
 
 #endif // OSCILLOSCOPE_H

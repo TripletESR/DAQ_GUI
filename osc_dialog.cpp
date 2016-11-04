@@ -175,24 +175,20 @@ void osc_Dialog::DisplaySystemStatus()
 {
     ui->checkBox_Touch->setChecked(osc->touchFlag);
     ui->checkBox_Lock->setChecked(osc->lockFlag);
-}
-
-void osc_Dialog::on_checkBox_Lock_clicked(bool checked) // like getting System Status
-{
-    osc->SystemLock(checked);
-
-    if(!checked) return;
 
     osc->GetTime(); DisplayTime();
-    osc->GetSystemStatus(); DisplaySystemStatus();
+    osc->GetSystemStatus();
 
     osc->GetChannelData(1); DisplayChannel(1);
     osc->GetChannelData(2); DisplayChannel(2);
     osc->GetChannelData(3); DisplayChannel(3);
     osc->GetChannelData(4); DisplayChannel(4);
     DisplayTrigger();
+    osc->GetTriggerRate();
+    ui->lineEdit_trgRate->setText(QString::number(osc->trgRate));
 
-    if( checked) {
+
+    if( !osc->lockFlag ) {
         ui->checkBox_Touch->setEnabled(0);
     }else{
         ui->checkBox_Touch->setEnabled(1);
@@ -207,6 +203,16 @@ void osc_Dialog::on_checkBox_Lock_clicked(bool checked) // like getting System S
     ui->checkBox_DVM->setChecked(osc->DVMIO);
     ui->comboBox_DVM_ch->setCurrentIndex(osc->DVMCh-1);
     ui->comboBox_DVM_Mode->setCurrentIndex(osc->DVMMode);
+
+}
+
+void osc_Dialog::on_checkBox_Lock_clicked(bool checked) // like getting System Status
+{
+    osc->SystemLock(checked);
+
+    if(!checked) return;
+
+    DisplaySystemStatus();
 }
 
 void osc_Dialog::on_pushButton_Clear_clicked()

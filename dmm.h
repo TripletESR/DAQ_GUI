@@ -16,9 +16,11 @@ public:
 public slots:
     void SetMeasureDCV();
     double GetReading();
+    bool IsOpen() {return openFlag;}
 
 private:
 
+    bool openFlag;
 };
 
 #endif // DMM_H

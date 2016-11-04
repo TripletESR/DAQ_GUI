@@ -2,10 +2,6 @@
 
 Oscilloscope::Oscilloscope(ViRsrc name): QSCPI(name)
 {
-    if( sta != VI_SUCCESS) {
-        qDebug() << "Cannot open " << name;
-        return;
-    }
 
     int SBR = StatusByteRegister();
     qDebug("%#x, %#x, %s", SBR, EventStatusRegister() ,GetErrorMsg().toStdString().c_str());
@@ -18,11 +14,15 @@ Oscilloscope::Oscilloscope(ViRsrc name): QSCPI(name)
     if( sta == VI_SUCCESS){
         this->name = GetName();
         qDebug() << "Instrument identification string:\n \t" <<  this->name;
+        openFlag = 1;
     }else{
         qDebug() << "Cannot open " << name;
+        openFlag = 0;
+        this->name = "Oscilloscope";
+        return;
     }
 
-    trgCh = 5;
+    //trgCh = 5;
 
     SetRemoteLog(1);
 }
@@ -224,6 +224,23 @@ void Oscilloscope::GetTime()
     tDelay = Ask(cmd).toDouble() * 1e6; //time delay
 }
 
+double Oscilloscope::GetTriggerRate()
+{
+    if( sta != VI_SUCCESS) return 0;
+    sprintf(cmd,":measure:frequency? channel%d\n", trgCh);
+    trgRate = Ask(cmd).toInt();
+    return trgRate;
+
+}
+
+int Oscilloscope::GetAcquireCount()
+{
+    if( sta != VI_SUCCESS) return 0;
+    sprintf(cmd,":acquire:count?\n");
+    acqCount = Ask(cmd).toInt();
+    return acqCount;
+}
+
 void Oscilloscope::GetSystemStatus(){
     if( sta != VI_SUCCESS) return;
 
@@ -238,8 +255,7 @@ void Oscilloscope::GetSystemStatus(){
     sprintf(cmd,":acquire:type?\n");
     QString mode = Ask(cmd);
 
-    sprintf(cmd,":acquire:count?\n");
-    acqCount = Ask(cmd).toInt();
+    GetAcquireCount();
 
     if(mode == "AVER"){
         acqFlag = 1;
@@ -250,6 +266,8 @@ void Oscilloscope::GetSystemStatus(){
 
     sprintf(cmd,":trigger:source?\n");
     trgCh = Ask(cmd).right(1).toInt();
+
+    GetTriggerRate();
 
     sprintf(cmd,":system:rlogger:state?\n");
     logFlag = Ask(cmd).toInt();
@@ -375,7 +393,7 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
 
         int SBR;
 
-        double timeExpect = acqCount / LASERFREQ; // sec
+        double timeExpect = acqCount / trgRate; // sec
         double lngElapsed = 0;
         double waitsec = 1.0;//wait for # sec
         if(timeExpect > 10) {
@@ -384,6 +402,7 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
         int maxWaitSec = qCeil(timeExpect)+5;
         QProgressDialog progBox("Waiting for the device....", "Abort.", 0, maxWaitSec);
         progBox.setWindowModality(Qt::WindowModal);
+        bool breakFlag = 0;
         do{
             scpi_Msg.sprintf("Waiting for the device: %5.1f sec. %#x =? %#x (Expect %d sec).", lngElapsed, SBR, 161, maxWaitSec);
             SendMsg(scpi_Msg);
@@ -392,8 +411,13 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
             lngElapsed += waitsec;
             progBox.setValue(lngElapsed);
             SBR = StatusByteRegister(); //161 is system "good" status SBR
-            if( progBox.wasCanceled() ) break;
+            if( progBox.wasCanceled() ) {
+                breakFlag = 1;
+                break;
+            }
         }while((SBR & 32) == 0); // 32 is the ESR registor bit
+
+        if( breakFlag ) return;
 
         // Clear ESR and restore previously saved *ESE mask.
         EventStatusRegister();
@@ -404,7 +428,7 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
         sprintf(cmd,":waveform:format ASCii\n");      SendCmd(cmd);
         sprintf(cmd,":waveform:points %d\n", points+1); SendCmd(cmd);
         sprintf(cmd,":waveform:data?\n");             SendCmd(cmd);
-        char rawData[90000];
+        char rawData[900000];
         viScanf(device, "%t", rawData);
         QString raw = rawData;
         QStringList data = raw.mid(10).split(',');

@@ -17,6 +17,7 @@ public:
     void OpenCh(int ch);
     void CloseCh(int ch);
 
+    bool IsOpen() {return openFlag;}
     void SetWaveForm(int ch, int wf_id);
     void SetAmp(int ch, double amp);
     void SetFreq(int ch, double freq);
@@ -34,6 +35,8 @@ public:
     void GetSetting(int ch);
 
 private:
+
+    bool openFlag;
 
 };
 

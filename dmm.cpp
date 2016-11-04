@@ -6,11 +6,14 @@ DMM::DMM(ViRsrc name):
 
     if( sta == VI_SUCCESS){
         this->name = GetName();
-        Msg.sprintf("Open Device : %s",  this->name.toStdString().c_str());
+        Msg.sprintf("Instrument identification string : %s",  this->name.toStdString().c_str());
         qDebug() << Msg;
+        openFlag = 1;
     }else{
         Msg.sprintf("Cannot Open : %s ", "Keithley 2000 DMM");
         qDebug() << Msg;
+        openFlag = 0;
+        this->name = "Keithley 2000 DMM";
         return;
     }
     Clear();

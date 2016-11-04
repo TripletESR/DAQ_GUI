@@ -29,6 +29,8 @@ signals:
     void SendDMM(double dmm);
 
 public slots:
+    void DisplaySystemStatus();
+
     void on_comboBox_currentIndexChanged(int index);
     void on_spinBox_valueChanged(int arg1);
     void on_pushButton_Reset_clicked();
@@ -86,7 +88,6 @@ private:
 
     void OpenChannel(int ch, bool checked);
 
-    void DisplaySystemStatus();
     void DisplayTime();
     void DisplayChannel(int ch);
     void DisplayTrigger();

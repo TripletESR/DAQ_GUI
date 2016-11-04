@@ -5,9 +5,12 @@ WaveFromGenerator::WaveFromGenerator(ViRsrc name): QSCPI(name)
     this->name = GetName();
 
     if( sta == VI_SUCCESS){
+        openFlag = 1;
         qDebug() << "Instrument identification string:\n \t" <<  this->name;
     }else{
+        openFlag = 0;
         qDebug() << "Cannot open " << name;
+        this->name = "Wave From Generator.";
     }
 }
 

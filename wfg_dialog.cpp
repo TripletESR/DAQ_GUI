@@ -184,8 +184,13 @@ void WFG_Dialog::SetMagField(int ch, double mag)
 
 double WFG_Dialog::GetMagField()
 {
+    int ch = ui->comboBox_ch->currentIndex()+1;
+    wfg->GetOffset(ch);
+    ui->doubleSpinBox_Offset->setValue(wfg->offset*1000);
+
     hallVoltage = hallProbe->GetReading() * 1000 ; //mV
-    magField = HALLSLOPT * hallVoltage + HALLOFFSET; // mT
+    double x = hallVoltage;
+    magField = HALL0 + HALL1 * x + HALL2 * x*x + HALL3 * x*x*x + HALL4 * x*x*x*x; // mT
 
     Msg.sprintf("HallVolatge : %f mV, Mag-Field: %f mT", hallVoltage, magField);
     SendLogMsg(Msg);

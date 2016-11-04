@@ -374,20 +374,24 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
         sprintf(cmd,"*OPC\n"); SendCmd(cmd);
 
         int SBR;
+
+        double timeExpect = points / LASERFREQ; // sec
         double lngElapsed = 0;
-        double waitsec = 5.0;//wait for # sec
-        int waitcount = 0;
-        QProgressDialog progBox("Waiting for the device....", "Abort.", 0, 240); // 240 = max wait for 480 sec
+        double waitsec = 1.0;//wait for # sec
+        if(timeExpect > 10) {
+            waitsec = 5.0;
+        }
+        int maxWaitSec = qCeil(timeExpect)+5;
+        QProgressDialog progBox("Waiting for the device....", "Abort.", 0, maxWaitSec);
         progBox.setWindowModality(Qt::WindowModal);
         do{
+            scpi_Msg.sprintf("Waiting for the device: %5.1f sec. %#x =? %#x (Expect %d sec).", lngElapsed, SBR, 161, maxWaitSec);
+            SendMsg(scpi_Msg);
+            progBox.setLabelText(scpi_Msg);
             Sleep(waitsec * 1000);
             lngElapsed += waitsec;
-            waitcount ++;
-            progBox.setValue(waitcount);
+            progBox.setValue(lngElapsed);
             SBR = StatusByteRegister(); //161 is system "good" status SBR
-            scpi_Msg.sprintf("Waiting for the device: %5.1f sec. %#x =? %#x", lngElapsed, SBR, 161);
-            SendMsg(scpi_Msg);
-            progBox.setLabelText(scpi_Msg + " (max 1200 sec).");
             if( progBox.wasCanceled() ) break;
         }while((SBR & 32) == 0); // 32 is the ESR registor bit
 

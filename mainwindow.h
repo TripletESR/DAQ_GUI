@@ -30,7 +30,7 @@ private slots:
 
     void on_actionWave_From_Generator_triggered();
     void on_actionOscilloscope_triggered();
-    void on_pushButton_clicked();
+    void on_pushButton_GetSingle_clicked();
     void GetData(int ch, int points);
     void GetBGData(int ch, int points);
     void PlotGraph(int ch, QVector<double> x,
@@ -41,11 +41,13 @@ private slots:
                       double yMax = 0);
     void SaveData(QString head, QVector<double> x, QVector<double> y);
 
+    void on_pushButton_Auto_clicked();
+    void on_pushButton_Save_clicked();
+    void on_spinBox_count_valueChanged(int arg1);
     void on_pushButton_openFile_clicked();
 
     void Write2Log(QString msg);
 
-    void on_pushButton_Auto_clicked();
 
 private:
     Ui::MainWindow *ui;

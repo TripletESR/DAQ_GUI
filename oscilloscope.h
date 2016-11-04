@@ -6,6 +6,8 @@
 #include <windows.h> // for Sleep
 #include <QFile>
 #include <QProgressDialog>
+#include "constant.h"
+#include <qmath.h>
 
 class Oscilloscope : public QSCPI{
 public:

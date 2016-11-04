@@ -323,6 +323,8 @@ void MainWindow::on_pushButton_Auto_clicked()
     if( bStart < 0 || bEnd < 0 )return;
     if( bStart > 5 || bEnd > 5) return;
 
+    qDebug() << bStart <<"," << bEnd << "," << bInc;
+
     if( bStart > bEnd && bInc >=0 ){
         Write2Log("Step size should be negative.");
         return;

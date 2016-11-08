@@ -370,89 +370,44 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
         sprintf(cmd,":DIGITIZE channel%d\n", ch); SendCmd(cmd);
         sprintf(cmd,"*OPC\n"); SendCmd(cmd);
 
-        //int SBR;
-
         double timeExpect = acqCount / trgRate; // sec
         timeElapsed = 0;
         double waitsec = 1.0;//wait for # sec
-        //if(timeExpect > 10) {
-        //    waitsec = 5.0;
-        //}
         maxWaitTime = qCeil(timeExpect)+5;
+        QString msg;
+        msg.sprintf("-------- Expected wait Time : %5.0f sec", maxWaitTime);
+        DeviceReady(msg);
+        SendMsg("Don't change OSC setting");
         SyncOSC(ch, points, waitsec, Save2BG);
-        //QProgressDialog progBox("Waiting for the device....", "Abort.", 0, maxWaitSec);
-        //progBox.setWindowModality(Qt::WindowModal);
-        //bool breakFlag = 0;
-        //do{
-        //    //scpi_Msg.sprintf("Waiting for the device: %5.1f sec. %#x =? %#x (Expect %d sec).", lngElapsed, SBR, 161, maxWaitSec);
-        //    //SendMsg(scpi_Msg);
-        //    //progBox.setLabelText(scpi_Msg);
-        //    Sleep(waitsec * 1000);
-        //    lngElapsed += waitsec;
-        //    //progBox.setValue(lngElapsed);
-        //    SBR = StatusByteRegister(); //161 is system "good" status SBR
-        //    //if( progBox.wasCanceled() ) {
-        //    //    breakFlag = 1;
-        //    //    break;
-        //    //}
-        //}while((SBR & 32) == 0); // 32 is the ESR registor bit
-
-        //if( breakFlag ) return;
-
-        // Clear ESR and restore previously saved *ESE mask.
-        //EventStatusRegister();
-        //sprintf(cmd,"*ESE 255\n"); SendCmd(cmd);
-        //
-        ////Get Result
-        //sprintf(cmd,":waveform:source channel%d\n", ch); SendCmd(cmd);
-        //sprintf(cmd,":waveform:format ASCii\n");      SendCmd(cmd);
-        //sprintf(cmd,":waveform:points %d\n", points+1); SendCmd(cmd);
-        //sprintf(cmd,":waveform:data?\n");             SendCmd(cmd);
-        //char rawData[900000];
-        //viScanf(device, "%t", rawData);
-        //QString raw = rawData;
-        //QStringList data = raw.mid(10).split(',');
-        ////qDebug() << data;
-        ////qDebug() << "number of data : " << data.length();
-        //
-        //double xOrigin = -(tRange/2-tDelay);
-        //double xStep = tRange/points;
-        //
-        //for( int i = 0 ; i < points; i++){
-        //    //qDebug() << (data[i]).toDouble();
-        //    xData[ch][i] = xOrigin + i * xStep;
-        //    yData[ch][i] = (data[i]).toDouble();
-        //    if( Save2BG ) BGData[i] = yData[ch][i];
-        //    //qDebug() << i << "," << xData[i] << "," << yData[i];
-        //}
 
     }
 
 }
 
 void Oscilloscope::SyncOSC(int ch, int points, double waitsec, bool Save2BG){
-    QTimer timer;
-    int SBR = StatusByteRegister();
-
-    qDebug("Sync OSC ... SBR: %d, time:%f", SBR, timeElapsed);
-
-    if( (SBR & 32) == 0 ) {
-        //NotFinished(timeElapsed);
+    int SBR ;
+    do{
+        QEventLoop eventloop;
+        QTimer::singleShot(waitsec*1000, &eventloop, SLOT(quit()));
+        eventloop.exec();
+        //Sleep(waitsec * 1000);
+        timeElapsed += waitsec;
+        SBR = StatusByteRegister(); //161 is system "good" status SBR
         DeviceNotReady(timeElapsed);
-        timeElapsed += waitsec*1000;
-        timer.singleShot(waitsec*1000, this, SLOT(SyncOSC(int,int,double,bool));
+        qDebug("Sync OSC ... SBR: %#x, time:%f/%f", SBR, timeElapsed, maxWaitTime);
 
-    }else{
-        DeviceReady("OSC is ready.");
+    }while((SBR & 32) == 0); // 32 is the ESR registor bit
 
-        // Clear ESR and restore previously saved *ESE mask.
-        EventStatusRegister();
-        sprintf(cmd,"*ESE 255\n"); SendCmd(cmd);
+    DeviceReady("OSC is ready.");
 
-        TranslateRawData(ch, points, Save2BG);
+    // Clear ESR and restore previously saved *ESE mask.
+    EventStatusRegister();
+    sprintf(cmd,"*ESE 255\n"); SendCmd(cmd);
 
-        Resume(ch);
-    }
+    TranslateRawData(ch, points, Save2BG);
+
+    Resume(ch);
+
 }
 
 void Oscilloscope::TranslateRawData(int ch, int points, bool Save2BG){

@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wfgui->wfg, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(oscui->osc, SIGNAL(DeviceNotReady(double)), this, SLOT(SetProgressBar(double)));
+    connect(oscui->osc, SIGNAL(DeviceReady(QString)), this, SLOT(WhenOSCReady(QString)));
 
     connect(wfgui, SIGNAL(ReadOSCDMM()), oscui, SLOT(on_pushButton_GetDVM_clicked()));
     connect(oscui, SIGNAL(SendDMM(double)), wfgui, SLOT(SaveOscDMM(double)));
@@ -467,7 +468,17 @@ void MainWindow::on_lineEdit_step_editingFinished()
 
 void MainWindow::SetProgressBar(double value)
 {
+    ui->progressBar->setValue(value);
+}
+
+void MainWindow::WhenOSCReady(QString msg)
+{
+    Write2Log(msg);
     double maxWaitTime = oscui->osc->GetMaxWaitTime();
-    double progress = value/maxWaitTime *100;
-    ui->progressBar->setValue(progress);
+    ui->progressBar->setMaximum(maxWaitTime);
+    QString text;
+    text.sprintf(" sec / %3.0f sec", maxWaitTime);
+    text.insert(0,"%v");
+    ui->progressBar->setFormat(text);
+    ui->progressBar->setValue(0);
 }

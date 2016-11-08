@@ -50,6 +50,7 @@ private slots:
     void on_lineEdit_step_editingFinished();
 
     void SetProgressBar(double value);
+    void WhenOSCReady(QString msg);
 
 private:
     Ui::MainWindow *ui;

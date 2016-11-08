@@ -6,6 +6,7 @@
 #include <windows.h> // for Sleep
 #include <QFile>
 #include <QTimer>
+#include <QEventLoop>
 #include <QProgressDialog>
 #include "constant.h"
 #include <qmath.h>
@@ -73,8 +74,6 @@ public:
     void TranslateRawData(int ch, int points, bool Save2BG);
     double GetMaxWaitTime(){return maxWaitTime;}
 
-
-private slots:
     void SyncOSC(int ch, int points, double waitsec, bool Save2BG);
 
 private:

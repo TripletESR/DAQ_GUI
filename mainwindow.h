@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
+#include <QEventLoop>
 #include "qfileio.h"
 #include "wfg_dialog.h"
 #include "osc_dialog.h"

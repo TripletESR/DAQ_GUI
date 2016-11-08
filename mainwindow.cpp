@@ -302,7 +302,7 @@ void MainWindow::on_pushButton_openFile_clicked()
     }
 
     if(dataFile != NULL){
-        ui->pushButton_Auto->setEnabled(1);
+        //ui->pushButton_Auto->setEnabled(1);
         ui->pushButton_Save->setEnabled(1);
     }
 
@@ -375,28 +375,28 @@ void MainWindow::on_pushButton_Auto_clicked()
     //wfgui->wfg->SetOffset(wfgch, bStart);
     //wfgui->SetMagField(wfgch, bStart);
     // wait for few min for B-field to stablized.
-    Write2Log("------------------------------------- wait for 1 sec.");
-    Sleep(1000);
-
+    //Write2Log("------------------------------------- wait for 3 sec.");
+    //QEventLoop eventloop;
+    //QTimer::singleShot(3*1000, &eventloop, SLOT(quit()));
+    //eventloop.exec();
 
     //Start measurement loop;
     int count = 0;
-    //int n = ((int)bStart-(int)bEnd)/(int)bInc + 1;
-    //QString str;
-    //QProgressDialog progress("Getting Data ....", "Abort", 0, n, this);
+    int n = fabs(fabs(bStart-bEnd)/bInc) + 1;
+    QString str;
+    QProgressDialog progress("Getting Data ....", "Abort", 0, n, this);
     //progress.setWindowModality(Qt::WindowModal);
 
     QString name1 = ui->lineEdit_DataName->text();
     QString name;
-    for( double b = bStart; b >= bEnd ; b += bInc){
+    double b = bStart;
+    while( (bStart > bEnd && b >= bEnd) || (bStart < bEnd && b <= bEnd) ){
+    //for( double b = bStart; b >= bEnd ; b += bInc){
+        str.sprintf("From %5.3f V to %5.3 V, size %5.3 V| Current : %5.3f V", bStart, bEnd, bInc, b);
+        progress.setLabelText(str);
+        progress.setValue(count);
+        if(progress.wasCanceled()) break;
 
-       // str.sprintf("Getting Data from %f to %f, size %f | Current : %f", bStart, bEnd, -bInc, b);
-       // progress.setLabelText(str);
-       // progress.setValue(count);
-       // if(progress.wasCanceled()) break;
-        count ++;
-        //wfgui->wfg->SetFreq(wfgch, b*1000);
-        //wfgui->SetMagField(wfgch, b);
         wfgui->wfg->GoToOffset(wfgch, b);
         wfgui->on_doubleSpinBox_Offset_valueChanged(b*1000);
 
@@ -420,10 +420,13 @@ void MainWindow::on_pushButton_Auto_clicked()
 
         dataFile->AppendData(name, oscui->osc->xData[ch], Y);
 
+        count ++;
         QString msg;
         msg.sprintf(" %d/%d =================== recorded and saved %s.", count, totCount, name.toStdString().c_str());
         Write2Log(msg);
 
+
+        b += bInc;
     }
 
     Write2Log("===================  Auto DAQ completed.");
@@ -460,6 +463,19 @@ void MainWindow::on_lineEdit_step_editingFinished()
     double bStart = ui->lineEdit_start->text().toDouble();
     double bEnd = ui->lineEdit_end->text().toDouble();
     double bStep = ui->lineEdit_step->text().toDouble();
+
+    if( bStart > bEnd && bStep >= 0 ){
+        ui->lineEdit_numData->setText("Step should < 0.");
+        ui->pushButton_Auto->setEnabled(0);
+        return;
+    }
+    if( bStart < bEnd && bStep <= 0 ){
+        ui->lineEdit_numData->setText("Step should > 0.");
+        ui->pushButton_Auto->setEnabled(0);
+        return;
+    }
+
+    ui->pushButton_Auto->setEnabled(1);
 
     int n = fabs(fabs(bStart-bEnd)/bStep) + 1;
 

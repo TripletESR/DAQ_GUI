@@ -231,7 +231,7 @@
           <set>Qt::AlignCenter</set>
          </property>
          <property name="format">
-          <string>%v</string>
+          <string>%v sec / 0 sec</string>
          </property>
         </widget>
        </item>

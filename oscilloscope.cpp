@@ -227,8 +227,13 @@ void Oscilloscope::GetTime()
 double Oscilloscope::GetTriggerRate()
 {
     if( sta != VI_SUCCESS) return 0;
-    sprintf(cmd,":measure:frequency? channel%d\n", trgCh);
-    trgRate = Ask(cmd).toInt();
+    //sprintf(cmd,":measure:frequency? channel%d\n", trgCh);
+    sprintf(cmd,":counter:enable 1\n"); SendCmd(cmd);
+    sprintf(cmd,":counter:mode freq\n"); SendCmd(cmd);
+    sprintf(cmd,":counter:source chan%d\n", trgCh); SendCmd(cmd);
+    sprintf(cmd,":counter:current?\n");
+
+    trgRate = Ask(cmd).toDouble();
     return trgRate;
 
 }
@@ -289,16 +294,11 @@ void Oscilloscope::GetSystemStatus(){
 void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
 {
     if( sta != VI_SUCCESS) return;
-    xData[ch].clear();
-    yData[ch].clear();
 
     GetTime();
     GetSystemStatus();
     GetChannelData(ch);
 
-    xData[ch] = QVector<double>(points);
-    yData[ch] = QVector<double>(points);
-    if(Save2BG) BGData = QVector<double>(points);
     if(Save2BG) SendMsg("Getting Background signals.");
 
     if( this->acqFlag == 0){
@@ -370,7 +370,7 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
         sprintf(cmd,":DIGITIZE channel%d\n", ch); SendCmd(cmd);
         sprintf(cmd,"*OPC\n"); SendCmd(cmd);
 
-        int SBR;
+        //int SBR;
 
         double timeExpect = acqCount / trgRate; // sec
         timeElapsed = 0;
@@ -434,11 +434,16 @@ void Oscilloscope::SyncOSC(int ch, int points, double waitsec, bool Save2BG){
     QTimer timer;
     int SBR = StatusByteRegister();
 
-    if( SBR & 32 == 0 ) {
-        NotFinished(timeElapsed);
-        timer.singleShot(waitsec*1000, this, SLOT(SyncOSC(double,bool)));
+    qDebug("Sync OSC ... SBR: %d, time:%f", SBR, timeElapsed);
+
+    if( (SBR & 32) == 0 ) {
+        //NotFinished(timeElapsed);
+        DeviceNotReady(timeElapsed);
         timeElapsed += waitsec*1000;
+        timer.singleShot(waitsec*1000, this, SLOT(SyncOSC(int,int,double,bool));
+
     }else{
+        DeviceReady("OSC is ready.");
 
         // Clear ESR and restore previously saved *ESE mask.
         EventStatusRegister();
@@ -451,6 +456,10 @@ void Oscilloscope::SyncOSC(int ch, int points, double waitsec, bool Save2BG){
 }
 
 void Oscilloscope::TranslateRawData(int ch, int points, bool Save2BG){
+
+    xData[ch].clear();
+    yData[ch].clear();
+
     //Get Result
     sprintf(cmd,":waveform:source channel%d\n", ch); SendCmd(cmd);
     sprintf(cmd,":waveform:format ASCii\n");      SendCmd(cmd);
@@ -459,19 +468,20 @@ void Oscilloscope::TranslateRawData(int ch, int points, bool Save2BG){
     char rawData[900000];
     viScanf(device, "%t", rawData);
     QString raw = rawData;
+    //qDebug() << raw;
     QStringList data = raw.mid(10).split(',');
     //qDebug() << data;
-    //qDebug() << "number of data : " << data.length();
+    qDebug() << "number of data : " << data.length();
 
     double xOrigin = -(tRange/2-tDelay);
     double xStep = tRange/points;
 
-    for( int i = 0 ; i < points; i++){
+    for( int i = 0 ; i < data.length(); i++){
         //qDebug() << (data[i]).toDouble();
-        xData[ch][i] = xOrigin + i * xStep;
-        yData[ch][i] = (data[i]).toDouble();
-        if( Save2BG ) BGData[i] = yData[ch][i];
-        //qDebug() << i << "," << xData[i] << "," << yData[i];
+        xData[ch].push_back(xOrigin + i * xStep);
+        yData[ch].push_back((data[i]).toDouble());
+        if( Save2BG ) BGData.push_back((data[i]).toDouble());
+        //qDebug() << i << "," << xData[ch][i] << "," << yData[ch][i];
     }
 }
 

@@ -18,6 +18,7 @@ QSCPI::~QSCPI(){
     scpi_Msg.sprintf("Closing VIAS session : %s", this->name.toStdString().c_str());
     emit SendMsg(scpi_Msg);
 }
+
 void QSCPI::SendCmd(char *cmd){
     if( sta != VI_SUCCESS ) return;
     viPrintf(device, cmd);

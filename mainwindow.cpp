@@ -37,9 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wfgui, SIGNAL(SendLogMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(wfgui->wfg, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
-    connect(oscui->osc, SIGNAL(NotFinished(double)), this, SLOT(SetProgressBar(double)));
+    connect(oscui->osc, SIGNAL(DeviceNotReady(double)), this, SLOT(SetProgressBar(double)));
 
-    connect(wfgui, SIGNAL(ReadOSCDMM()), oscui, SLOT(on_pushButton_2_clicked()));
+    connect(wfgui, SIGNAL(ReadOSCDMM()), oscui, SLOT(on_pushButton_GetDVM_clicked()));
     connect(oscui, SIGNAL(SendDMM(double)), wfgui, SLOT(SaveOscDMM(double)));
 
     wfgui->OpenHallProbe();

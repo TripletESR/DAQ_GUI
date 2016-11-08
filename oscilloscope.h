@@ -11,6 +11,7 @@
 #include <qmath.h>
 
 class Oscilloscope : public QSCPI{
+
 public:
 
     //status Byte Register
@@ -72,12 +73,9 @@ public:
     void TranslateRawData(int ch, int points, bool Save2BG);
     double GetMaxWaitTime(){return maxWaitTime;}
 
-signals:
-    void NotFinished(double i);
 
 private slots:
     void SyncOSC(int ch, int points, double waitsec, bool Save2BG);
-
 
 private:
     double timeElapsed;

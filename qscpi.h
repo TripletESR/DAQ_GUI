@@ -23,6 +23,8 @@ public:
 signals:
 
     void SendMsg(QString msg);
+    void DeviceNotReady(double time);
+    void DeviceReady(QString msg);
 
 public slots:
 

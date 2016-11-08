@@ -299,7 +299,6 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
     xData[ch] = QVector<double>(points);
     yData[ch] = QVector<double>(points);
     if(Save2BG) BGData = QVector<double>(points);
-
     if(Save2BG) SendMsg("Getting Background signals.");
 
     if( this->acqFlag == 0){
@@ -337,32 +336,12 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
 
         //------- Get Data
         if( lngElapsed < lngTimeout){
-            sprintf(cmd,":waveform:source channel%d\n", ch); SendCmd(cmd);
-            sprintf(cmd,":waveform:format ASCii\n"); SendCmd(cmd);
-            sprintf(cmd,":waveform:points %d\n", points+1); SendCmd(cmd);
-
-            sprintf(cmd,":waveform:data?\n"); SendCmd(cmd);
-            char rawData[90000];
-            viScanf(device, "%t", rawData);
-            QString raw = rawData;
-            QStringList data = raw.mid(10).split(',');
-            //qDebug() << data;
-            //qDebug() << "number of data : " << data.length();
-
-            double xOrigin = -(tRange/2-tDelay);
-            double xStep = tRange/points;
-
-            for( int i = 0 ; i < data.length(); i++){
-                //qDebug() << (data[i]).toDouble();
-                xData[ch][i] = xOrigin + i * xStep;
-                yData[ch][i] = (data[i]).toDouble();
-                if( Save2BG ) BGData[i] = yData[ch][i];
-                //qDebug() << i << "," << xData[i] << "," << yData[i];
-            }
-
+            TranslateRawData(ch, points, Save2BG);
         }else{
             SendMsg("===== 10 sec timeout for single-shot trigger.");
         }
+
+        Resume(ch);
 
     }
 
@@ -394,59 +373,109 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
         int SBR;
 
         double timeExpect = acqCount / trgRate; // sec
-        double lngElapsed = 0;
+        timeElapsed = 0;
         double waitsec = 1.0;//wait for # sec
-        if(timeExpect > 10) {
-            waitsec = 5.0;
-        }
-        int maxWaitSec = qCeil(timeExpect)+5;
-        QProgressDialog progBox("Waiting for the device....", "Abort.", 0, maxWaitSec);
-        progBox.setWindowModality(Qt::WindowModal);
-        bool breakFlag = 0;
-        do{
-            scpi_Msg.sprintf("Waiting for the device: %5.1f sec. %#x =? %#x (Expect %d sec).", lngElapsed, SBR, 161, maxWaitSec);
-            SendMsg(scpi_Msg);
-            progBox.setLabelText(scpi_Msg);
-            Sleep(waitsec * 1000);
-            lngElapsed += waitsec;
-            progBox.setValue(lngElapsed);
-            SBR = StatusByteRegister(); //161 is system "good" status SBR
-            if( progBox.wasCanceled() ) {
-                breakFlag = 1;
-                break;
-            }
-        }while((SBR & 32) == 0); // 32 is the ESR registor bit
+        //if(timeExpect > 10) {
+        //    waitsec = 5.0;
+        //}
+        maxWaitTime = qCeil(timeExpect)+5;
+        SyncOSC(ch, points, waitsec, Save2BG);
+        //QProgressDialog progBox("Waiting for the device....", "Abort.", 0, maxWaitSec);
+        //progBox.setWindowModality(Qt::WindowModal);
+        //bool breakFlag = 0;
+        //do{
+        //    //scpi_Msg.sprintf("Waiting for the device: %5.1f sec. %#x =? %#x (Expect %d sec).", lngElapsed, SBR, 161, maxWaitSec);
+        //    //SendMsg(scpi_Msg);
+        //    //progBox.setLabelText(scpi_Msg);
+        //    Sleep(waitsec * 1000);
+        //    lngElapsed += waitsec;
+        //    //progBox.setValue(lngElapsed);
+        //    SBR = StatusByteRegister(); //161 is system "good" status SBR
+        //    //if( progBox.wasCanceled() ) {
+        //    //    breakFlag = 1;
+        //    //    break;
+        //    //}
+        //}while((SBR & 32) == 0); // 32 is the ESR registor bit
 
-        if( breakFlag ) return;
+        //if( breakFlag ) return;
+
+        // Clear ESR and restore previously saved *ESE mask.
+        //EventStatusRegister();
+        //sprintf(cmd,"*ESE 255\n"); SendCmd(cmd);
+        //
+        ////Get Result
+        //sprintf(cmd,":waveform:source channel%d\n", ch); SendCmd(cmd);
+        //sprintf(cmd,":waveform:format ASCii\n");      SendCmd(cmd);
+        //sprintf(cmd,":waveform:points %d\n", points+1); SendCmd(cmd);
+        //sprintf(cmd,":waveform:data?\n");             SendCmd(cmd);
+        //char rawData[900000];
+        //viScanf(device, "%t", rawData);
+        //QString raw = rawData;
+        //QStringList data = raw.mid(10).split(',');
+        ////qDebug() << data;
+        ////qDebug() << "number of data : " << data.length();
+        //
+        //double xOrigin = -(tRange/2-tDelay);
+        //double xStep = tRange/points;
+        //
+        //for( int i = 0 ; i < points; i++){
+        //    //qDebug() << (data[i]).toDouble();
+        //    xData[ch][i] = xOrigin + i * xStep;
+        //    yData[ch][i] = (data[i]).toDouble();
+        //    if( Save2BG ) BGData[i] = yData[ch][i];
+        //    //qDebug() << i << "," << xData[i] << "," << yData[i];
+        //}
+
+    }
+
+}
+
+void Oscilloscope::SyncOSC(int ch, int points, double waitsec, bool Save2BG){
+    QTimer timer;
+    int SBR = StatusByteRegister();
+
+    if( SBR & 32 == 0 ) {
+        NotFinished(timeElapsed);
+        timer.singleShot(waitsec*1000, this, SLOT(SyncOSC(double,bool)));
+        timeElapsed += waitsec*1000;
+    }else{
 
         // Clear ESR and restore previously saved *ESE mask.
         EventStatusRegister();
         sprintf(cmd,"*ESE 255\n"); SendCmd(cmd);
 
-        //Get Result
-        sprintf(cmd,":waveform:source channel%d\n", ch); SendCmd(cmd);
-        sprintf(cmd,":waveform:format ASCii\n");      SendCmd(cmd);
-        sprintf(cmd,":waveform:points %d\n", points+1); SendCmd(cmd);
-        sprintf(cmd,":waveform:data?\n");             SendCmd(cmd);
-        char rawData[900000];
-        viScanf(device, "%t", rawData);
-        QString raw = rawData;
-        QStringList data = raw.mid(10).split(',');
-        //qDebug() << data;
-        //qDebug() << "number of data : " << data.length();
+        TranslateRawData(ch, points, Save2BG);
 
-        double xOrigin = -(tRange/2-tDelay);
-        double xStep = tRange/points;
-
-        for( int i = 0 ; i < points; i++){
-            //qDebug() << (data[i]).toDouble();
-            xData[ch][i] = xOrigin + i * xStep;
-            yData[ch][i] = (data[i]).toDouble();
-            if( Save2BG ) BGData[i] = yData[ch][i];
-            //qDebug() << i << "," << xData[i] << "," << yData[i];
-        }
-
+        Resume(ch);
     }
+}
+
+void Oscilloscope::TranslateRawData(int ch, int points, bool Save2BG){
+    //Get Result
+    sprintf(cmd,":waveform:source channel%d\n", ch); SendCmd(cmd);
+    sprintf(cmd,":waveform:format ASCii\n");      SendCmd(cmd);
+    sprintf(cmd,":waveform:points %d\n", points+1); SendCmd(cmd);
+    sprintf(cmd,":waveform:data?\n");             SendCmd(cmd);
+    char rawData[900000];
+    viScanf(device, "%t", rawData);
+    QString raw = rawData;
+    QStringList data = raw.mid(10).split(',');
+    //qDebug() << data;
+    //qDebug() << "number of data : " << data.length();
+
+    double xOrigin = -(tRange/2-tDelay);
+    double xStep = tRange/points;
+
+    for( int i = 0 ; i < points; i++){
+        //qDebug() << (data[i]).toDouble();
+        xData[ch][i] = xOrigin + i * xStep;
+        yData[ch][i] = (data[i]).toDouble();
+        if( Save2BG ) BGData[i] = yData[ch][i];
+        //qDebug() << i << "," << xData[i] << "," << yData[i];
+    }
+}
+
+void Oscilloscope::Resume(int ch){
 
     //resume
     SendMsg("===== Resume RUN.");
@@ -462,7 +491,6 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
 
     scpi_Msg.sprintf("X :(%7f, %7f)", xMin, xMax); SendMsg(scpi_Msg);
     scpi_Msg.sprintf("Y :(%7f, %7f)", yMin, yMax); SendMsg(scpi_Msg);
-
 }
 
 double Oscilloscope::GetMax(QVector<double> vec){

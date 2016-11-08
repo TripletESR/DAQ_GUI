@@ -47,9 +47,9 @@ private slots:
     void on_pushButton_openFile_clicked();
 
     void Write2Log(QString msg);
-
-
     void on_lineEdit_step_editingFinished();
+
+    void SetProgressBar(double value);
 
 private:
     Ui::MainWindow *ui;

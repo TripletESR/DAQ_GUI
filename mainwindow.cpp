@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wfgui, SIGNAL(SendLogMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(wfgui->wfg, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
-
+    connect(oscui->osc, SIGNAL(NotFinished(double)), this, SLOT(SetProgressBar(double)));
 
     connect(wfgui, SIGNAL(ReadOSCDMM()), oscui, SLOT(on_pushButton_2_clicked()));
     connect(oscui, SIGNAL(SendDMM(double)), wfgui, SLOT(SaveOscDMM(double)));
@@ -463,4 +463,11 @@ void MainWindow::on_lineEdit_step_editingFinished()
     int n = fabs(fabs(bStart-bEnd)/bStep) + 1;
 
     ui->lineEdit_numData->setText(QString::number(n));
+}
+
+void MainWindow::SetProgressBar(double value)
+{
+    double maxWaitTime = oscui->osc->GetMaxWaitTime();
+    double progress = value/maxWaitTime *100;
+    ui->progressBar->setValue(progress);
 }

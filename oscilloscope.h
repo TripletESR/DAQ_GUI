@@ -5,6 +5,7 @@
 #include <QVector>
 #include <windows.h> // for Sleep
 #include <QFile>
+#include <QTimer>
 #include <QProgressDialog>
 #include "constant.h"
 #include <qmath.h>
@@ -67,8 +68,20 @@ public:
     double GetMax(QVector<double> vec);
     double GetMin(QVector<double> vec);
 
-private:
+    void Resume(int ch);
+    void TranslateRawData(int ch, int points, bool Save2BG);
+    double GetMaxWaitTime(){return maxWaitTime;}
 
+signals:
+    void NotFinished(double i);
+
+private slots:
+    void SyncOSC(int ch, int points, double waitsec, bool Save2BG);
+
+
+private:
+    double timeElapsed;
+    double maxWaitTime;
     bool openFlag;
 };
 

@@ -10,7 +10,7 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
 
     wfg = new WaveFromGenerator(KEYSIGHT33500B);
 
-    if( wfg->sta == VI_SUCCESS ) {
+    if( wfg->status == VI_SUCCESS ) {
         Msg.sprintf("Opened : %s", wfg->name.toStdString().c_str());
         ui->lineEdit->setText(wfg->name);
     }else{

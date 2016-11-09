@@ -27,21 +27,6 @@ public:
      7 = Operation Status Register
     ***/
 
-    QVector<double> BGData;
-    QVector<double> xData[5], yData[5];
-    double yMax, yMin;
-    double xMax, xMin;
-
-    int acqCount;
-    double trgRate;
-    bool lockFlag, touchFlag, acqFlag, logFlag;
-
-    double tRange, tDelay;
-    double trgLevel[5]; // index 0 does not use for convienience
-    int trgCh, ohm[5], IO[5];
-    double vRange[5], vOffset[5];
-    bool DVMIO; int DVMCh, DVMMode;
-
     Oscilloscope(ViRsrc name);
     ~Oscilloscope();
 
@@ -61,22 +46,42 @@ public:
     void SetDVM(bool IO, int ch, int mode);
 
     void GetChannelData(int ch);
-    double GetDVM();
     void GetTime();
-    double GetTriggerRate();
-    int GetAcquireCount();
     void GetSystemStatus();  // lock, touch, Acq Mode
-    void GetData(int ch, const int points, bool Save2BG);
-    double GetMax(QVector<double> vec);
-    double GetMin(QVector<double> vec);
 
+    double GetDVMValue();
+    int GetAcquireCount();
+    double GetTriggerRate();
+    int GetTriggerChannel();
+
+    void GetData(int ch, const int points, bool Save2BG);
     void Resume(int ch);
     void TranslateRawData(int ch, int points, bool Save2BG);
-    double GetMaxWaitTime(){return maxWaitTime;}
-
     void SyncOSC(int ch, int points, double waitsec, bool Save2BG);
 
+    double CalMax(QVector<double> vec);
+    double CalMin(QVector<double> vec);
+
+    QVector<double> BGData;
+    QVector<double> xData[5], yData[5];
+    double yMax, yMin;
+    double xMax, xMin;
+
+    bool lockFlag, touchFlag, acqFlag, logFlag;
+
+    double tRange, tDelay;
+    int acqCount;
+    double trgRate;
+    double trgLevel[5]; // index 0 does not use for convienience
+    int trgCh, ohm[5], IO[5];
+    double vRange[5], vOffset[5];
+    bool DVMIO; int DVMCh, DVMMode;
+
+    double GetMaxWaitTime(){return maxWaitTime;}
+
 private:
+
+
     double timeElapsed;
     double maxWaitTime;
     bool openFlag;

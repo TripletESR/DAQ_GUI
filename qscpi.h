@@ -13,7 +13,7 @@ class QSCPI : public QObject
     Q_OBJECT
 public:
     char cmd[100], buf[256];
-    ViStatus sta;
+    ViStatus status;
     QString name, scpi_Msg;
 
     //explicit QSCPI(ViRsrc name,QObject *parent = 0);

@@ -76,15 +76,19 @@ MainWindow::MainWindow(QWidget *parent) :
     //Display Massege for devices
     if(wfgui->wfg->IsOpen()){
         logMsg.sprintf("Opened : %s", wfgui->wfg->name.toStdString().c_str());
+        ui->actionWave_From_Generator->setEnabled(1);
     }else{
         logMsg.sprintf("Not Opened : %s", wfgui->wfg->name.toStdString().c_str());
+        ui->actionWave_From_Generator->setEnabled(0);
     }
     Write2Log(logMsg);
 
     if(oscui->osc->IsOpen()){
         logMsg.sprintf("Opened : %s", oscui->osc->name.toStdString().c_str());
+        ui->actionOscilloscope->setEnabled(1);
     }else{
         logMsg.sprintf("Not Opened : %s", oscui->osc->name.toStdString().c_str());
+        ui->actionOscilloscope->setEnabled(0);
     }
     Write2Log(logMsg);
 

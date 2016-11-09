@@ -36,6 +36,7 @@ public slots:
     void on_pushButton_Reset_clicked();
     void on_checkBox_Touch_clicked(bool checked);
     void on_checkBox_Lock_clicked(bool checked); // like getting System Status
+    void on_checkBox_Log_clicked(bool checked);
     void on_pushButton_Clear_clicked();
 
     void on_checkBox_1_IO_clicked(bool checked);
@@ -81,6 +82,8 @@ public slots:
     void on_radioButton_ext_clicked();
 
 private slots:
+
+
 
 
 private:

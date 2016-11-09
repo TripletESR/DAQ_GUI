@@ -4,7 +4,7 @@ WaveFromGenerator::WaveFromGenerator(ViRsrc name): QSCPI(name)
 {
     this->name = GetName();
 
-    if( sta == VI_SUCCESS){
+    if( status == VI_SUCCESS){
         openFlag = 1;
         qDebug() << "Instrument identification string:\n \t" <<  this->name;
     }else{
@@ -19,19 +19,19 @@ WaveFromGenerator::~WaveFromGenerator(){
 
 
 void WaveFromGenerator::OpenCh(int ch){
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     sprintf(cmd, "output%d ON\n", ch); SendCmd(cmd);
 }
 
 void WaveFromGenerator::CloseCh(int ch)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     sprintf(cmd, "output%d Off\n", ch); SendCmd(cmd);
 }
 
 void WaveFromGenerator::SetWaveForm(int ch, int wf_id) {
 
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
 
     switch (wf_id) {
         case 1: sprintf(cmd,"source%d:function sin\n", ch); break;
@@ -55,7 +55,7 @@ void WaveFromGenerator::SetWaveForm(int ch, int wf_id) {
 
 void WaveFromGenerator::SetAmp(int ch, double amp)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     this->amp = amp;
     sprintf(cmd, "source%d:voltage %f\n", ch, amp);
     SendCmd(cmd);
@@ -63,7 +63,7 @@ void WaveFromGenerator::SetAmp(int ch, double amp)
 
 void WaveFromGenerator::SetFreq(int ch, double freq)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     this->freq = freq;
     sprintf(cmd, "source%d:frequency %f\n", ch, freq);
     SendCmd(cmd);
@@ -71,7 +71,7 @@ void WaveFromGenerator::SetFreq(int ch, double freq)
 
 void WaveFromGenerator::SetOffset(int ch, double offset)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     if( std::abs(offset) > 5) {
         qDebug() << "DC offset must be smaller than +- 5 V !\n";
     }else{
@@ -119,7 +119,7 @@ void WaveFromGenerator::GoToOffset(int ch, double offset)
 
 void WaveFromGenerator::SetPhase(int ch, double phase)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     this->phase = phase;
     sprintf(cmd, "source%d:phase %f\n", ch, phase); // angle:unit = degree
     SendCmd(cmd);
@@ -127,7 +127,7 @@ void WaveFromGenerator::SetPhase(int ch, double phase)
 
 int WaveFromGenerator::GetWaveForm(int ch)
 {
-    if( sta != VI_SUCCESS) return -1;
+    if( status != VI_SUCCESS) return -1;
     sprintf(cmd, "source%d:function?\n", ch);
     Ask(cmd);
     //viPrintf(device, cmd);
@@ -143,7 +143,7 @@ int WaveFromGenerator::GetWaveForm(int ch)
 
 int WaveFromGenerator::GetChIO(int ch)
 {
-    if( sta != VI_SUCCESS) return 0;
+    if( status != VI_SUCCESS) return 0;
     sprintf(cmd, "output%d?\n", ch);
     this->IO = Ask(cmd).toInt();
     return this->IO;
@@ -151,7 +151,7 @@ int WaveFromGenerator::GetChIO(int ch)
 
 double WaveFromGenerator::GetFreq(int ch)
 {
-    if( sta != VI_SUCCESS) return 0;
+    if( status != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:frequency?\n", ch);
     this->freq = Ask(cmd).toDouble()/1000;
     //qDebug() << "Freq : " << this->freq << " kHz";
@@ -160,7 +160,7 @@ double WaveFromGenerator::GetFreq(int ch)
 
 double WaveFromGenerator::GetOffset(int ch)
 {
-    if( sta != VI_SUCCESS) return 0;
+    if( status != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:voltage:offset?\n", ch);
     this->offset = Ask(cmd).toDouble();
     //qDebug() << "Offset : " << this->offset << " mV";
@@ -169,7 +169,7 @@ double WaveFromGenerator::GetOffset(int ch)
 
 double WaveFromGenerator::GetAmp(int ch)
 {
-    if( sta != VI_SUCCESS) return 0;
+    if( status != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:voltage?\n", ch);
     this->amp = Ask(cmd).toDouble();
     //qDebug() << "Amp : " << this->amp << " mV";
@@ -178,7 +178,7 @@ double WaveFromGenerator::GetAmp(int ch)
 
 double WaveFromGenerator::GetPhase(int ch)
 {
-    if( sta != VI_SUCCESS) return 0;
+    if( status != VI_SUCCESS) return 0;
     sprintf(cmd, "source%d:phase?\n", ch);
     this->phase = Ask(cmd).toDouble();
     //qDebug() << "Phase : " << this->phase << " deg";
@@ -187,7 +187,7 @@ double WaveFromGenerator::GetPhase(int ch)
 
 void WaveFromGenerator::GetSetting(int ch)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
 
     scpi_Msg.sprintf("------- Get WF setting, Ch %d", ch);
     SendMsg(scpi_Msg);

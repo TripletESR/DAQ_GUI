@@ -10,7 +10,7 @@ osc_Dialog::osc_Dialog(QWidget *parent) :
 
     osc = new Oscilloscope(KEYSIGHTDSOX3024T);
 
-    if( osc->sta == VI_SUCCESS ) {
+    if( osc->status == VI_SUCCESS ) {
         ui->lineEdit->setText(osc->name);
         Msg.sprintf("Opened : %s", osc->name.toStdString().c_str());
     }else{
@@ -175,6 +175,7 @@ void osc_Dialog::DisplaySystemStatus()
 {
     ui->checkBox_Touch->setChecked(osc->touchFlag);
     ui->checkBox_Lock->setChecked(osc->lockFlag);
+    ui->checkBox_Log->setChecked(osc->logFlag);
 
     osc->GetTime(); DisplayTime();
     osc->GetSystemStatus();
@@ -422,7 +423,7 @@ void osc_Dialog::on_pushButton_GetDVM_clicked()
         SendLogMsg(Msg);
         return;
     }
-    double DVM = osc->GetDVM() * 1000; //mV
+    double DVM = osc->GetDVMValue() * 1000; //mV
     ui->lineEdit_DVM->setText(QString::number(DVM));
 
     Msg.sprintf("DVM: %f mV", DVM);
@@ -445,4 +446,9 @@ void osc_Dialog::on_comboBox_DVM_ch_currentIndexChanged(int index)
     int indexMode = ui->comboBox_DVM_Mode->currentIndex();
 
     osc->SetDVM(checked, index+1, indexMode);
+}
+
+void osc_Dialog::on_checkBox_Log_clicked(bool checked)
+{
+    osc->SetRemoteLog(checked);
 }

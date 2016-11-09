@@ -8,7 +8,7 @@ QSCPI::QSCPI(ViRsrc name)
     //emit signal did not work, because no connection is made yet
     //emit SendMsg(scpi_Msg);
     viOpenDefaultRM(&defaultRM);
-    sta = viOpen(defaultRM, name, VI_NULL, VI_NULL, &device);
+    status = viOpen(defaultRM, name, VI_NULL, VI_NULL, &device);
     Clear();
 }
 QSCPI::~QSCPI(){
@@ -20,7 +20,7 @@ QSCPI::~QSCPI(){
 }
 
 void QSCPI::SendCmd(char *cmd){
-    if( sta != VI_SUCCESS ) return;
+    if( status != VI_SUCCESS ) return;
     viPrintf(device, cmd);
     *std::remove(cmd, cmd+strlen(cmd), '\n') = '\0'; //remove "\n"
     //qDebug("%s", cmd);
@@ -30,7 +30,7 @@ void QSCPI::SendCmd(char *cmd){
 
 QString QSCPI::ReadRespond() //Change to AskQ
 {
-    if( sta != VI_SUCCESS ) return "Err.";
+    if( status != VI_SUCCESS ) return "Err.";
     viScanf(device, "%t", this->buf);
     *std::remove(buf, buf+strlen(buf), '\n') = '\0';
     //qDebug("%s", buf);
@@ -40,7 +40,7 @@ QString QSCPI::ReadRespond() //Change to AskQ
 }
 
 QString QSCPI::Ask(char *cmd){
-    if( sta != VI_SUCCESS) return "Err.";
+    if( status != VI_SUCCESS) return "Err.";
     SendCmd(cmd);
     QString res = ReadRespond();
     //scpi_Msg.sprintf("%s" , res.toStdString().c_str());
@@ -49,7 +49,7 @@ QString QSCPI::Ask(char *cmd){
 }
 
 void QSCPI::Reset(){
-    if( sta != VI_SUCCESS ) return;
+    if( status != VI_SUCCESS ) return;
     viPrintf(device, "*RST\n");
     //qDebug() << "Reset : " << this->name;
     scpi_Msg.sprintf("Reset device : %s", this->name.toStdString().c_str());
@@ -57,7 +57,7 @@ void QSCPI::Reset(){
 }
 
 void QSCPI::Clear(){
-    if( sta != VI_SUCCESS ) return;
+    if( status != VI_SUCCESS ) return;
     viPrintf(device, "*CLS\n");
     //qDebug() << "Clear : " << this->name;
     scpi_Msg.sprintf("Clear device : %s", this->name.toStdString().c_str());
@@ -66,19 +66,19 @@ void QSCPI::Clear(){
 
 QString QSCPI::GetName()
 {
-    if( sta != VI_SUCCESS ) return "";
+    if( status != VI_SUCCESS ) return "";
     sprintf(cmd,"*IDN?\n");
     return Ask(cmd);
 }
 
 QString QSCPI::GetErrorMsg(){
-    if( sta != VI_SUCCESS ) return "Err.";
+    if( status != VI_SUCCESS ) return "Err.";
     sprintf(cmd,"SYST:ERR?\n");
     return Ask(cmd);
 }
 
 bool QSCPI::isOperationCompleted(){
-    if( sta != VI_SUCCESS) return "Err.";
+    if( status != VI_SUCCESS) return "Err.";
     sprintf(cmd,"*OPC?\n");
     return Ask(cmd).toInt();
 }

@@ -4,7 +4,7 @@ DMM::DMM(ViRsrc name):
   QSCPI(name)
 {
 
-    if( sta == VI_SUCCESS){
+    if( status == VI_SUCCESS){
         this->name = GetName();
         Msg.sprintf("Instrument identification string : %s",  this->name.toStdString().c_str());
         qDebug() << Msg;

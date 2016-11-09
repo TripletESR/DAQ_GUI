@@ -11,7 +11,7 @@ Oscilloscope::Oscilloscope(ViRsrc name): QSCPI(name)
     //    qDebug() << "Try to change trigger level & try again. Exact reason unknown.";
     //}
 
-    if( sta == VI_SUCCESS){
+    if( status == VI_SUCCESS){
         this->name = GetName();
         qDebug() << "Instrument identification string:\n \t" <<  this->name;
         openFlag = 1;
@@ -22,7 +22,7 @@ Oscilloscope::Oscilloscope(ViRsrc name): QSCPI(name)
         return;
     }
 
-    //trgCh = 5;
+    trgCh = 0;
 
     SetRemoteLog(1);
 }
@@ -35,7 +35,7 @@ Oscilloscope::~Oscilloscope(){
 
 void Oscilloscope::Initialize()
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
 
     SendMsg("======= Initialize Oscilloscope");
     SetAcqMode(0);
@@ -50,47 +50,47 @@ void Oscilloscope::Initialize()
 
 void Oscilloscope::SetRemoteLog(bool log)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     sprintf(cmd,":system:rlogger %d\n", log);SendCmd(cmd);
     sprintf(cmd,":system:rlogger:display %d\n", log);SendCmd(cmd);
-    logFlag =1;
+    logFlag = log;
 }
 
 void Oscilloscope::SetTouch(bool touch)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     sprintf(cmd,":SYSTem:TOUCh %d\n", touch);SendCmd(cmd);
     touchFlag =1;
 }
 
 void Oscilloscope::SetPreset()
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     sprintf(cmd,":SYSTem:preset\n");SendCmd(cmd);
 }
 
 void Oscilloscope::SystemLock(bool lock){
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     sprintf(cmd,":SYSTem:Lock %d\n", lock);SendCmd(cmd);
     lockFlag = 1;
 }
 
 void Oscilloscope::SetTime(double range, double delay){
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     sprintf(cmd,":timebase:range %f\n", range);SendCmd(cmd); // time for 10 div
     sprintf(cmd,":timebase:position %f\n", delay);SendCmd(cmd); //time delay
 }
 
 void Oscilloscope::SetTriggerLevel(int ch, double level)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     sprintf(cmd,":trigger:level %f, Channel%d\n", level, ch);SendCmd(cmd); // in Voltage
     sprintf(cmd,":trigger:slope positive\n"); SendCmd(cmd);
 
 }
 
 void Oscilloscope::OpenCh(int ch, bool display){
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     //:CHANnel<n>:DISPlay?
     sprintf(cmd,":channel%d:display %d\n", ch, display);SendCmd(cmd);
 }
@@ -102,7 +102,7 @@ void Oscilloscope::SetVoltage(int ch, double range, double offset, bool ohm1M){
     //:CHANnel<n>:RANGe? //full range
     //:CHANnel<n>:SCALe? // div
 
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     sprintf(cmd,":channel%d:range %f\n", ch, range);SendCmd(cmd); // range for 8 div
     sprintf(cmd,":channel%d:offset %f\n", ch, offset);SendCmd(cmd);
 
@@ -115,7 +115,7 @@ void Oscilloscope::SetVoltage(int ch, double range, double offset, bool ohm1M){
 
 void Oscilloscope::SetTrigger(int ch)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     if( ch <= 4 && ch >=1 ){
         sprintf(cmd,":trigger:source channel%d\n", ch); SendCmd(cmd);
     }else if(ch == 0){
@@ -124,7 +124,7 @@ void Oscilloscope::SetTrigger(int ch)
 }
 
 void Oscilloscope::SetAcqMode(int mode){
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     switch (mode) {
         case 0:
             sprintf(cmd,":acquire:type normal\n");
@@ -141,7 +141,7 @@ void Oscilloscope::SetAcqMode(int mode){
 }
 void Oscilloscope::SetAverage(int count)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     acqCount = count;
     sprintf(cmd,":acquire:type average\n"); SendCmd(cmd);
     sprintf(cmd,":acquire:count %d\n", count); SendCmd(cmd);
@@ -153,23 +153,25 @@ void Oscilloscope::SetAverage(int count)
 
 void Oscilloscope::SetDVM(bool IO, int ch, int mode)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
     scpi_Msg.sprintf(" ============== Setting DVM. ch:%d, IO:%d", ch, IO);
     SendMsg(scpi_Msg);
     sprintf(cmd,":DVM:enable %d\n", IO); SendCmd(cmd);
-    sprintf(cmd,":DVM:source channel%d\n", ch); SendCmd(cmd);
     DVMIO = IO;
-    DVMCh = ch;
-    DVMMode = mode;
 
-    sprintf(cmd, ":dvm:arange 1\n"); // set auto range
-    SendCmd(cmd);
+    if( !IO ) return;
+
+    sprintf(cmd,":DVM:source channel%d\n", ch); SendCmd(cmd);
+    DVMCh = ch;
+
+    sprintf(cmd, ":dvm:arange 1\n"); SendCmd(cmd);// set auto range
 
     switch(mode){
         case 0 : sprintf(cmd,":DVM:mode DC\n"); SendCmd(cmd); break;
         case 1 : sprintf(cmd,":DVM:mode DCRMS\n"); SendCmd(cmd); break;
         case 2 : sprintf(cmd,":DVM:mode ACRMS\n"); SendCmd(cmd); break;
     }
+    DVMMode = mode;
 
     SetVoltage(ch, vRange[ch], vOffset[ch], 1); // set resistanc eot be 1M.
     ohm[ch] = 1;
@@ -177,7 +179,7 @@ void Oscilloscope::SetDVM(bool IO, int ch, int mode)
 
 void Oscilloscope::GetChannelData(int ch)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
 
     scpi_Msg.sprintf("==== Getting Channal Setting, CH %d", ch);
     SendMsg(scpi_Msg);
@@ -199,21 +201,23 @@ void Oscilloscope::GetChannelData(int ch)
     if( ans == "FIFT") ohm[ch] = 0; //need to match the checkbox index
     if( ans == "ONEM") ohm[ch] = 1;
 
-    //sprintf(cmd,":trigger:source?\n", ch);
-    //trgCh = Ask(cmd).right(1).toInt();
-    //qDebug() << "Trg Channel : " <<trgCh;
-
 }
 
-double Oscilloscope::GetDVM()
+double Oscilloscope::GetDVMValue()
 {
+    if( status != VI_SUCCESS) return 0;
+
+    if( DVMIO == 0 ){
+        SendMsg("DVM is diabled.");
+        return 0;
+    }
     sprintf(cmd,":dvm:current?\n");
     return Ask(cmd).toDouble();
 }
 
 void Oscilloscope::GetTime()
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
 
     SendMsg("==== Getting Time Setting");
 
@@ -226,8 +230,10 @@ void Oscilloscope::GetTime()
 
 double Oscilloscope::GetTriggerRate()
 {
-    if( sta != VI_SUCCESS) return 0;
-    //sprintf(cmd,":measure:frequency? channel%d\n", trgCh);
+    if( status != VI_SUCCESS) return 0;
+
+    if(trgCh == 0) GetTriggerChannel();
+
     sprintf(cmd,":counter:enable 1\n"); SendCmd(cmd);
     sprintf(cmd,":counter:mode freq\n"); SendCmd(cmd);
     sprintf(cmd,":counter:source chan%d\n", trgCh); SendCmd(cmd);
@@ -238,16 +244,24 @@ double Oscilloscope::GetTriggerRate()
 
 }
 
+int Oscilloscope::GetTriggerChannel()
+{
+    if( status != VI_SUCCESS) return 0;
+    sprintf(cmd,":trigger:source?\n");
+    trgCh = Ask(cmd).right(1).toInt();
+    return trgCh;
+}
+
 int Oscilloscope::GetAcquireCount()
 {
-    if( sta != VI_SUCCESS) return 0;
+    if( status != VI_SUCCESS) return 0;
     sprintf(cmd,":acquire:count?\n");
     acqCount = Ask(cmd).toInt();
     return acqCount;
 }
 
 void Oscilloscope::GetSystemStatus(){
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
 
     SendMsg("==== Getting System Setting");
 
@@ -259,9 +273,6 @@ void Oscilloscope::GetSystemStatus(){
 
     sprintf(cmd,":acquire:type?\n");
     QString mode = Ask(cmd);
-
-    GetAcquireCount();
-
     if(mode == "AVER"){
         acqFlag = 1;
     }else{
@@ -269,9 +280,9 @@ void Oscilloscope::GetSystemStatus(){
     }
     //qDebug() << " acquire:Type : " << mode << ", " << acqFlag;
 
-    sprintf(cmd,":trigger:source?\n");
-    trgCh = Ask(cmd).right(1).toInt();
+    GetAcquireCount();
 
+    GetTriggerChannel();
     GetTriggerRate();
 
     sprintf(cmd,":system:rlogger:state?\n");
@@ -280,20 +291,21 @@ void Oscilloscope::GetSystemStatus(){
     sprintf(cmd,":dvm:enable?\n");
     DVMIO = Ask(cmd).toInt();
 
-    sprintf(cmd,":dvm:source?\n");
-    DVMCh = Ask(cmd).right(1).toInt();
+    if( DVMIO == 1){
+        sprintf(cmd,":dvm:source?\n");
+        DVMCh = Ask(cmd).right(1).toInt();
 
-    sprintf(cmd,":dvm:mode?\n");
-    mode = Ask(cmd);
-    if( mode == "DC") DVMMode = 0;
-    if( mode == "DCRM") DVMMode = 1;
-    if( mode == "ACRM") DVMMode = 2;
-
+        sprintf(cmd,":dvm:mode?\n");
+        mode = Ask(cmd);
+        if( mode == "DC") DVMMode = 0;
+        if( mode == "DCRM") DVMMode = 1;
+        if( mode == "ACRM") DVMMode = 2;
+    }
 }
 
 void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
 {
-    if( sta != VI_SUCCESS) return;
+    if( status != VI_SUCCESS) return;
 
     GetTime();
     GetSystemStatus();
@@ -449,16 +461,16 @@ void Oscilloscope::Resume(int ch){
         OpenCh(i, IO[i]);
     }
 
-    xMax = GetMax(xData[ch]);
-    xMin = GetMin(xData[ch]);
-    yMax = GetMax(yData[ch]);
-    yMin = GetMin(yData[ch]);
+    xMax = CalMax(xData[ch]);
+    xMin = CalMin(xData[ch]);
+    yMax = CalMax(yData[ch]);
+    yMin = CalMin(yData[ch]);
 
     scpi_Msg.sprintf("X :(%7f, %7f)", xMin, xMax); SendMsg(scpi_Msg);
     scpi_Msg.sprintf("Y :(%7f, %7f)", yMin, yMax); SendMsg(scpi_Msg);
 }
 
-double Oscilloscope::GetMax(QVector<double> vec){
+double Oscilloscope::CalMax(QVector<double> vec){
     double max = vec[0];
     int size = vec.size();
     for(int i = 1 ; i < size ; i++){
@@ -467,7 +479,7 @@ double Oscilloscope::GetMax(QVector<double> vec){
     return max;
 }
 
-double Oscilloscope::GetMin(QVector<double> vec)
+double Oscilloscope::CalMin(QVector<double> vec)
 {
     double min = vec[0];
     int size = vec.size();

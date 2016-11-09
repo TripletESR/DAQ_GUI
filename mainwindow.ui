@@ -38,19 +38,6 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="2" colspan="2">
-     <widget class="QLineEdit" name="lineEdit_DataName">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="inputMask">
-       <string/>
-      </property>
-      <property name="text">
-       <string>&lt;Data Name&gt;</string>
-      </property>
-     </widget>
-    </item>
     <item row="2" column="0">
      <widget class="QPushButton" name="pushButton_GetSingle">
       <property name="text">
@@ -264,6 +251,51 @@
         </widget>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="QLineEdit" name="lineEdit_DataName">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="inputMask">
+       <string/>
+      </property>
+      <property name="text">
+       <string>&lt;Data Name&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="3">
+     <widget class="QComboBox" name="comboBox">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <item>
+       <property name="text">
+        <string>Select to Fit</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>a * Exp-(t/Ta)</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>a * Exp(-t/Ta) + c</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>a * Exp(-t/Ta) + b * Exp(-t/Tb)</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>a * Exp(-t/Ta) + b * Exp(-t/Tb) + c</string>
+       </property>
+      </item>
      </widget>
     </item>
    </layout>

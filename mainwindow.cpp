@@ -70,6 +70,9 @@ MainWindow::MainWindow(QWidget *parent) :
     plot->plotLayout()->addElement(0,0, plotTitle);
     //plot->plotLayout()->insertRow(0);
 
+    ana = new Analysis();
+    connect(ana, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
+    ui->comboBox->setEnabled(0);
 
     Write2Log("-----------------------------------");
 
@@ -183,6 +186,12 @@ void MainWindow::GetData(int ch, int points){
     logMsg.sprintf("=========== Get Data == Ch %d, #pt %d", ch, ui->spinBox_count->value());
     Write2Log(logMsg);
     oscui->osc->GetData(ch, points ,0);
+
+    ana->SetData(oscui->osc->xData[ch], oscui->osc->yData[ch]);
+    ui->comboBox->setEnabled(1);
+    if( plot->graphCount()>= 5){
+        plot->graph(5)->clearData();
+    }
 }
 
 void MainWindow::GetBGData(int ch, int points)
@@ -227,9 +236,11 @@ void MainWindow::PlotGraph(int ch, QVector<double> x, QVector<double> y, double 
     case 3:plot->graph(ch-1)->setPen(QPen(Qt::darkGreen)); break;
     case 4:plot->graph(ch-1)->setPen(QPen(Qt::magenta)); break;
         // when ch > 4, it would be the fitting function.
+    case 5:plot->graph(ch-1)->setPen(QPen(Qt::black)); break;
     }
 
     //fill data
+    plot->graph(ch-1)->clearData();
     plot->graph(ch-1)->setData(x, y);
 
     //replot
@@ -319,21 +330,13 @@ void MainWindow::on_pushButton_Auto_clicked()
     if( ui->lineEdit_end->text()=="") return;
     if( ui->lineEdit_step->text()=="") return;
 
-
-    const int wfgch = 1;
     const double bStart = ui->lineEdit_start->text().toDouble();
     const double bEnd   = ui->lineEdit_end->text().toDouble();
     const double bInc   = ui->lineEdit_step->text().toDouble();
 
-    // Force the control volatge to go down
-    //if( bStart < bEnd ) return;
-
-    // other restriction on the control voltage
-    //if( bInc >= 0) return;
+    //================ restrictions on the control voltage
     if( bStart < 0 || bEnd < 0 )return;
     if( bStart > 5 || bEnd > 5) return;
-
-    qDebug() << bStart <<"," << bEnd << "," << bInc;
 
     if( bStart > bEnd && bInc >=0 ){
         Write2Log("Step size should be negative.");
@@ -345,7 +348,7 @@ void MainWindow::on_pushButton_Auto_clicked()
         return;
     }
 
-    //open file
+    //============== open file check
     if(dataFile == NULL){
         Write2Log("============== Please open a file to save data. Abort.");
         return;
@@ -356,7 +359,7 @@ void MainWindow::on_pushButton_Auto_clicked()
     const int points = ui->spinBox_count->value();
     int totCount = ui->lineEdit_numData->text().toInt();
 
-    //Get BG Data;
+    //=============== Get BG Data;
     //oscui->osc->GetData(ch, points, 1);
 
     //double bgmin = oscui->osc->GetMin(oscui->osc->BGData);
@@ -370,9 +373,8 @@ void MainWindow::on_pushButton_Auto_clicked()
     //          oscui->osc->yMin,
     //          oscui->osc->yMax);
 
-    QVector<double> Y(points);
-
-    //Get the WFG to be DC mode
+    //======================== Set the WFG to be DC mode
+    const int wfgch = 1;
     wfgui->wfg->SetWaveForm(wfgch, 8); // 1= sin,  8 = DC
     wfgui->wfg->GoToOffset(wfgch, bStart);
     wfgui->on_doubleSpinBox_Offset_valueChanged(bStart*1000);
@@ -384,13 +386,14 @@ void MainWindow::on_pushButton_Auto_clicked()
     //QTimer::singleShot(3*1000, &eventloop, SLOT(quit()));
     //eventloop.exec();
 
-    //Start measurement loop;
+    //======================== Start measurement loop;
     int count = 0;
     int n = fabs(fabs(bStart-bEnd)/bInc) + 1;
     QString str;
     QProgressDialog progress("Getting Data ....", "Abort", 0, n, this);
     //progress.setWindowModality(Qt::WindowModal);
 
+    QVector<double> Y(points);
     QString name1 = ui->lineEdit_DataName->text();
     QString name;
     double b = bStart;
@@ -404,7 +407,8 @@ void MainWindow::on_pushButton_Auto_clicked()
         wfgui->wfg->GoToOffset(wfgch, b);
         wfgui->on_doubleSpinBox_Offset_valueChanged(b*1000);
 
-        oscui->osc->GetData(ch, points, 0);
+        //oscui->osc->GetData(ch, points, 0);
+        GetData(ch, points);
 
         PlotGraph(ch, oscui->osc->xData[ch],
                  oscui->osc->yData[ch],
@@ -418,7 +422,6 @@ void MainWindow::on_pushButton_Auto_clicked()
             Y[i] = oscui->osc->yData[ch][i];
         }
 
-        //double mag = wfgui->GetMagField();
         double hallV = wfgui->GetHallVoltage();
         name.sprintf("%s_%06.4fV_%08.4fmV", name1.toStdString().c_str(),b, hallV);
 
@@ -428,7 +431,6 @@ void MainWindow::on_pushButton_Auto_clicked()
         QString msg;
         msg.sprintf(" %d/%d =================== recorded and saved %s.", count, totCount, name.toStdString().c_str());
         Write2Log(msg);
-
 
         b += bInc;
     }
@@ -501,4 +503,36 @@ void MainWindow::WhenOSCReady(QString msg)
     text.insert(0,"%v");
     ui->progressBar->setFormat(text);
     ui->progressBar->setValue(0);
+}
+
+void MainWindow::on_comboBox_currentIndexChanged(int index)
+{
+    int parSize = 2;
+    switch (index) {
+    case 1:
+        parSize = 2;
+        Write2Log("Fit for : a * Exp(-t/Ta).");
+        break;
+    case 2:
+        parSize = 3;
+        Write2Log("Fit for : a * Exp(-t/Ta) + c.");
+        break;
+    case 3:
+        parSize = 4;
+        Write2Log("Fit for : a * Exp(-t/Ta) + b * Exp(-t/Tb).");
+        break;
+    case 4:
+        parSize = 5;
+        Write2Log("Fit for : a * Exp(-t/Ta) + b * Exp(-t/Tb) + c.");
+        break;
+    }
+
+    if( index != 0){
+        ana->NonLinearFit(parSize);
+
+        QVector<double> fitYData = ana->GetFitFuncVector();
+        QVector<double> xData = ana->GetXDataVector();
+        PlotGraph(5, xData, fitYData);
+
+    }
 }

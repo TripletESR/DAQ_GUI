@@ -9,9 +9,9 @@
 #include "osc_dialog.h"
 #include "qcustomplot.h"
 #include <QFileDialog>
-
 #include <QString>
 #include <QDateTime>
+#include "analysis.h"
 
 namespace Ui {
 class MainWindow;
@@ -54,6 +54,8 @@ private slots:
     void SetProgressBar(double value);
     void WhenOSCReady(QString msg);
 
+    void on_comboBox_currentIndexChanged(int index);
+
 private:
     Ui::MainWindow *ui;
 
@@ -65,6 +67,8 @@ private:
 
     QCPPlotTitle * plotTitle;
     QCustomPlot * plot;
+
+    Analysis *ana;
 
 };
 

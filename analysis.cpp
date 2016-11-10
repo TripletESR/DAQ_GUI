@@ -52,7 +52,7 @@ QVector<double> Analysis::EstimatePar(int i)
     }
     a = a - c;
     b = b - c;
-    if( a < b) {
+    if( fabs(a) < fabs(b)) {
         double tmp = a;
         a = b;
         b = tmp;

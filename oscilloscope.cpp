@@ -30,7 +30,7 @@ Oscilloscope::Oscilloscope(ViRsrc name): QSCPI(name)
 Oscilloscope::~Oscilloscope(){
     SystemLock(0);
     SetRemoteLog(0);
-    Clear();
+    //Clear();
 }
 
 void Oscilloscope::Initialize()
@@ -388,8 +388,7 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
         maxWaitTime = qCeil(timeExpect)+5;
         QString msg;
         msg.sprintf("-------- Expected wait Time : %5.0f sec", maxWaitTime);
-        DeviceReady(msg);
-        SendMsg("Don't change OSC setting");
+        SendMsg(msg);
         SyncOSC(ch, points, waitsec, Save2BG);
 
     }
@@ -399,13 +398,13 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
 void Oscilloscope::SyncOSC(int ch, int points, double waitsec, bool Save2BG){
     int SBR ;
     do{
+        DeviceNotReady(timeElapsed);
         QEventLoop eventloop;
         QTimer::singleShot(waitsec*1000, &eventloop, SLOT(quit()));
         eventloop.exec();
         //Sleep(waitsec * 1000);
         timeElapsed += waitsec;
         SBR = StatusByteRegister(); //161 is system "good" status SBR
-        DeviceNotReady(timeElapsed);
         qDebug("Sync OSC ... SBR: %#x, time:%f/%f", SBR, timeElapsed, maxWaitTime);
 
     }while((SBR & 32) == 0); // 32 is the ESR registor bit

@@ -81,7 +81,6 @@ public:
 
 private:
 
-
     double timeElapsed;
     double maxWaitTime;
     bool openFlag;

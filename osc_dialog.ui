@@ -329,6 +329,9 @@
    <property name="text">
     <string>Reset Default</string>
    </property>
+   <property name="autoDefault">
+    <bool>false</bool>
+   </property>
   </widget>
   <widget class="QCheckBox" name="checkBox_Touch">
    <property name="geometry">
@@ -596,6 +599,49 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>comboBox</tabstop>
+  <tabstop>spinBox</tabstop>
+  <tabstop>pushButton_Reset</tabstop>
+  <tabstop>pushButton_Clear</tabstop>
+  <tabstop>checkBox_Lock</tabstop>
+  <tabstop>checkBox_Touch</tabstop>
+  <tabstop>checkBox_Log</tabstop>
+  <tabstop>checkBox_1_IO</tabstop>
+  <tabstop>lineEdit_1_range</tabstop>
+  <tabstop>lineEdit_1_offset</tabstop>
+  <tabstop>radioButton_1</tabstop>
+  <tabstop>lineEdit_1_TL</tabstop>
+  <tabstop>comboBox_1_ohm</tabstop>
+  <tabstop>checkBox_2_IO</tabstop>
+  <tabstop>lineEdit_2_range</tabstop>
+  <tabstop>lineEdit_2_offset</tabstop>
+  <tabstop>radioButton_2</tabstop>
+  <tabstop>lineEdit_2_TL</tabstop>
+  <tabstop>comboBox_2_ohm</tabstop>
+  <tabstop>checkBox_3_IO</tabstop>
+  <tabstop>lineEdit_3_range</tabstop>
+  <tabstop>lineEdit_3_offset</tabstop>
+  <tabstop>radioButton_3</tabstop>
+  <tabstop>lineEdit_3_TL</tabstop>
+  <tabstop>comboBox_3_ohm</tabstop>
+  <tabstop>checkBox_4_IO</tabstop>
+  <tabstop>lineEdit_4_range</tabstop>
+  <tabstop>lineEdit_4_offset</tabstop>
+  <tabstop>radioButton_4</tabstop>
+  <tabstop>lineEdit_4_TL</tabstop>
+  <tabstop>comboBox_4_ohm</tabstop>
+  <tabstop>lineEdit_timeRange</tabstop>
+  <tabstop>lineEdit_timeDelay</tabstop>
+  <tabstop>comboBox_DVM_ch</tabstop>
+  <tabstop>comboBox_DVM_Mode</tabstop>
+  <tabstop>checkBox_DVM</tabstop>
+  <tabstop>pushButton_GetDVM</tabstop>
+  <tabstop>lineEdit_DVM</tabstop>
+  <tabstop>radioButton_ext</tabstop>
+  <tabstop>lineEdit_trgRate</tabstop>
+  <tabstop>lineEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

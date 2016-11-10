@@ -56,6 +56,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->pushButton_Auto->setEnabled(0);
     ui->pushButton_Save->setEnabled(0);
+    ui->lineEdit_start->setEnabled(0);
+    ui->lineEdit_end->setEnabled(0);
+    ui->lineEdit_step->setEnabled(0);
 
     if( !oscui->osc->IsOpen()) ui->pushButton_GetSingle->setEnabled(0);
 
@@ -203,14 +206,20 @@ void MainWindow::GetBGData(int ch, int points)
 
 void MainWindow::PlotGraph(int ch, QVector<double> x, QVector<double> y, double xMin, double xMax, double yMin, double yMax){
 
-    logMsg.sprintf("=========== Plot Ch %d", ch);
+
+    if( 1 <= ch && ch <=4 ){
+        logMsg.sprintf("=========== Plot Ch %d", ch);
+    }else if( ch == 5){
+        logMsg = "========== Plot Fit Function.";
+    }
     Write2Log(logMsg);
 
     // plot title
-    QString plotLabel;
-    plotLabel.sprintf("%6.4fV %8.4fmV", wfgui->wfg->offset, wfgui->GetHallVoltage());
-    plotTitle->setText(plotLabel);
-
+    if( 1 <= ch && ch <=4 ){
+        QString plotLabel;
+        plotLabel.sprintf("%6.4fV %8.4fmV", wfgui->wfg->offset, wfgui->GetHallVoltage());
+        plotTitle->setText(plotLabel);
+    }
     // initialize
     if( plot->graphCount() == 0){
         plot->xAxis->setRange(xMin, xMax);
@@ -236,7 +245,7 @@ void MainWindow::PlotGraph(int ch, QVector<double> x, QVector<double> y, double 
     case 3:plot->graph(ch-1)->setPen(QPen(Qt::darkGreen)); break;
     case 4:plot->graph(ch-1)->setPen(QPen(Qt::magenta)); break;
         // when ch > 4, it would be the fitting function.
-    case 5:plot->graph(ch-1)->setPen(QPen(Qt::black)); break;
+    case 5:plot->graph(ch-1)->setPen(QPen(Qt::red)); break;
     }
 
     //fill data
@@ -319,6 +328,9 @@ void MainWindow::on_pushButton_openFile_clicked()
     if(dataFile != NULL){
         //ui->pushButton_Auto->setEnabled(1);
         ui->pushButton_Save->setEnabled(1);
+        ui->lineEdit_start->setEnabled(1);
+        ui->lineEdit_end->setEnabled(1);
+        ui->lineEdit_step->setEnabled(1);
     }
 
 }
@@ -386,6 +398,11 @@ void MainWindow::on_pushButton_Auto_clicked()
     //QTimer::singleShot(3*1000, &eventloop, SLOT(quit()));
     //eventloop.exec();
 
+    oscui->hide();
+    wfgui->hide();
+    ui->actionOscilloscope->setEnabled(0);
+    ui->actionWave_From_Generator->setEnabled(0);
+
     //======================== Start measurement loop;
     int count = 0;
     int n = fabs(fabs(bStart-bEnd)/bInc) + 1;
@@ -399,7 +416,7 @@ void MainWindow::on_pushButton_Auto_clicked()
     double b = bStart;
     while( (bStart > bEnd && b >= bEnd) || (bStart < bEnd && b <= bEnd) ){
     //for( double b = bStart; b >= bEnd ; b += bInc){
-        str.sprintf("From %5.3f V to %5.3 V, size %5.3 V| Current : %5.3f V", bStart, bEnd, bInc, b);
+        str.sprintf("From %5.3f V to %5.3f V, size %5.3f V| Current : %5.3f V", bStart, bEnd, bInc, b);
         progress.setLabelText(str);
         progress.setValue(count);
         if(progress.wasCanceled()) break;
@@ -436,6 +453,10 @@ void MainWindow::on_pushButton_Auto_clicked()
     }
 
     Write2Log("===================  Auto DAQ completed.");
+
+    ui->actionOscilloscope->setEnabled(1);
+    ui->actionWave_From_Generator->setEnabled(1);
+
 }
 
 void MainWindow::on_pushButton_Save_clicked()
@@ -470,6 +491,18 @@ void MainWindow::on_lineEdit_step_editingFinished()
     double bEnd = ui->lineEdit_end->text().toDouble();
     double bStep = ui->lineEdit_step->text().toDouble();
 
+    if( bStart == bEnd ){
+        ui->lineEdit_numData->setText("Start == End.");
+        ui->pushButton_Auto->setEnabled(0);
+        return;
+    }
+
+    if( bStep == 0){
+        ui->lineEdit_numData->setText("Step Size == 0.");
+        ui->pushButton_Auto->setEnabled(0);
+        return;
+    }
+
     if( bStart > bEnd && bStep >= 0 ){
         ui->lineEdit_numData->setText("Step should < 0.");
         ui->pushButton_Auto->setEnabled(0);
@@ -490,19 +523,21 @@ void MainWindow::on_lineEdit_step_editingFinished()
 
 void MainWindow::SetProgressBar(double value)
 {
+    if( value == 0){
+        double maxWaitTime = oscui->osc->GetMaxWaitTime();
+        ui->progressBar->setMaximum(maxWaitTime);
+        QString text;
+        text.sprintf(" sec / %3.0f sec", maxWaitTime);
+        text.insert(0,"%v");
+        ui->progressBar->setFormat(text);
+    }
     ui->progressBar->setValue(value);
 }
 
 void MainWindow::WhenOSCReady(QString msg)
 {
     Write2Log(msg);
-    double maxWaitTime = oscui->osc->GetMaxWaitTime();
-    ui->progressBar->setMaximum(maxWaitTime);
-    QString text;
-    text.sprintf(" sec / %3.0f sec", maxWaitTime);
-    text.insert(0,"%v");
-    ui->progressBar->setFormat(text);
-    ui->progressBar->setValue(0);
+    ui->progressBar->setFormat("Completed.");
 }
 
 void MainWindow::on_comboBox_currentIndexChanged(int index)
@@ -511,19 +546,19 @@ void MainWindow::on_comboBox_currentIndexChanged(int index)
     switch (index) {
     case 1:
         parSize = 2;
-        Write2Log("Fit for : a * Exp(-t/Ta).");
+        Write2Log("================ Fit for : a * Exp(-t/Ta).");
         break;
     case 2:
         parSize = 3;
-        Write2Log("Fit for : a * Exp(-t/Ta) + c.");
+        Write2Log("================ Fit for : a * Exp(-t/Ta) + c.");
         break;
     case 3:
         parSize = 4;
-        Write2Log("Fit for : a * Exp(-t/Ta) + b * Exp(-t/Tb).");
+        Write2Log("================ Fit for : a * Exp(-t/Ta) + b * Exp(-t/Tb).");
         break;
     case 4:
         parSize = 5;
-        Write2Log("Fit for : a * Exp(-t/Ta) + b * Exp(-t/Tb) + c.");
+        Write2Log("================ Fit for : a * Exp(-t/Ta) + b * Exp(-t/Tb) + c.");
         break;
     }
 

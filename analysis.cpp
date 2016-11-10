@@ -29,8 +29,7 @@ void Analysis::SetData(QVector<double> x, QVector<double> y){
     torr = 1e-6;
     torrGrad = 1e-3;
     lambda = -1; // -1 enable cal. Lambda
-    sampleMean = 0;
-    sampleVariance = 0;
+    maxIter = 500;
 
 }
 
@@ -38,7 +37,7 @@ QVector<double> Analysis::EstimatePar(int i)
 {
     double a , Ta, b, Tb, c;
     //Estimate c to be the sampleMean;
-    c = sampleMean;
+    c = this->sampleMean;
     //Estimate Ta;
     Ta = 20;
     //Estimate Tb;
@@ -59,6 +58,7 @@ QVector<double> Analysis::EstimatePar(int i)
     }
 
     QVector<double> par;
+    par.clear();
     par.push_back(a);
     par.push_back(Ta);
     if(i == 3){
@@ -145,16 +145,25 @@ int Analysis::LMA( QVector<double> par0, double lambda0){
 
 int Analysis::NonLinearFit(int i)
 {
+    QString msg;
+    msg.sprintf("Fit from xIndex = %d (%f)", xStartIndex, xData[xStartIndex]);
+    SendMsg(msg);
+
     QVector<double> par = EstimatePar(i);
+    PrintVector(par, "initial guess");
+
     LMA(par, -1);
 
     PrintVector(sol, "sol.");
     PrintVector(error, "error");
     PrintVector(gradSSR, "grad. SSR");
 
-    QString msg;
+    CalFitFunction();
+
     double chisq = sqrt(SSR / DF / sampleVariance);
-    msg.sprintf("SSR : %f, delta: %f, chi-sqaured: %f", SSR, delta, chisq);
+    msg.sprintf("DF: %d, Sample Variance : %f", DF, sampleVariance);
+    SendMsg(msg);
+    msg.sprintf("SSR : %f, delta: %f, chi-sqaured: %f",SSR, delta, chisq);
     SendMsg(msg);
 
     return 0;
@@ -174,9 +183,9 @@ void Analysis::MeanAndvariance(int index_1, int index_2)
     }
 
     int size = index_2 - index_1 + 1;
-    sampleMean = 0;
+    this->sampleMean = 0;
     for( int i = index_1 ; i <= index_2 ; i++){
-        sampleMean += (this->yData)[i]/size;
+        this->sampleMean += (this->yData)[i]/size;
     }
 
     sampleVariance = 0;
@@ -186,7 +195,7 @@ void Analysis::MeanAndvariance(int index_1, int index_2)
     sampleVariance = sampleVariance / (size-1);
 
     QString Msg;
-    Msg.sprintf("From index %d to %d (%d data)\nMean = %f, Variance = %f, sigma = %f", index_1, index_2, size, sampleMean, sampleVariance, sqrt(sampleVariance));
+    Msg.sprintf("From index %d to %d (%d data) Mean = %f, Variance = %f, sigma = %f", index_1, index_2, size, sampleMean, sampleVariance, sqrt(sampleVariance));
     SendMsg(Msg);
 
 }

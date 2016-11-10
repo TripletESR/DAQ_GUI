@@ -30,7 +30,6 @@ osc_Dialog::~osc_Dialog()
     delete osc;
 }
 
-
 void osc_Dialog::on_comboBox_currentIndexChanged(int index)
 {
     ui->comboBox->setCurrentIndex(index);

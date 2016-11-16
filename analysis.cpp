@@ -11,16 +11,23 @@ Analysis::~Analysis()
 }
 
 void Analysis::SetData(QVector<double> x, QVector<double> y){
-    xData.clear();
-    yData.clear();
 
-    xData = x;
-    yData = y;
-
-    if( xData.size() != yData.size()){
+    if( x.size() != y.size()){
         //msg
         return;
     };
+
+    xData.clear();
+    yData.clear();
+
+    //xData = x;
+    //yData = y;
+
+    for(int i = 0 ; i < x.size(); i++){
+        xData.push_back(x[i]);
+        yData.push_back(y[i]);
+    }
+
     dataSize = xData.size();
     xStartIndex = FindXIndex(3);
 

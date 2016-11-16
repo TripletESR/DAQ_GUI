@@ -190,11 +190,11 @@ void MainWindow::GetData(int ch, int points){
     Write2Log(logMsg);
     oscui->osc->GetData(ch, points ,0);
 
-    //ana->SetData(oscui->osc->xData[ch], oscui->osc->yData[ch]);
-    //ui->comboBox->setEnabled(1);
-    //if( plot->graphCount()>= 5){
-    //    plot->graph(5)->clearData();
-    //}
+    qDebug() << "set ana data";
+    ana->SetData(oscui->osc->xData[ch], oscui->osc->yData[ch]);
+    ui->comboBox->setEnabled(1);
+    ui->comboBox->setCurrentIndex(0);
+
 }
 
 void MainWindow::GetBGData(int ch, int points)
@@ -222,8 +222,20 @@ void MainWindow::PlotGraph(int ch, QVector<double> x, QVector<double> y, double 
     }
     // initialize
     if( plot->graphCount() == 0){
+        for(int i = 1; i <= 5 ; i++ ){
+            plot->addGraph();
+        }
+        // set plot color
+        plot->graph(0)->setPen(QPen(Qt::blue));
+        plot->graph(1)->setPen(QPen(Qt::red));
+        plot->graph(2)->setPen(QPen(Qt::darkGreen));
+        plot->graph(3)->setPen(QPen(Qt::magenta));
+        plot->graph(4)->setPen(QPen(Qt::darkCyan));
+
         plot->xAxis->setRange(xMin, xMax);
-        plot->yAxis->setRange(yMin * 2, yMax * 2);
+        double yMean = (yMax + yMin )/2;
+        double yWidth = (yMax - yMin )/2;
+        plot->yAxis->setRange( yMean - yWidth*2, yMean+ yWidth*2 );
     }
 
     // adjust y range
@@ -232,21 +244,6 @@ void MainWindow::PlotGraph(int ch, QVector<double> x, QVector<double> y, double 
     if( yMin * 2 < plotyMin ) plotyMin = yMin * 2;
     if( yMax * 2 > plotyMax ) plotyMax = yMax * 2;
     plot->yAxis->setRange(plotyMin, plotyMax);
-
-    // add graph
-    while(plot->graphCount() < ch){
-        plot->addGraph();
-    }
-
-    // set plot color
-    switch (ch) {
-    case 1:plot->graph(ch-1)->setPen(QPen(Qt::blue)); break;
-    case 2:plot->graph(ch-1)->setPen(QPen(Qt::red)); break;
-    case 3:plot->graph(ch-1)->setPen(QPen(Qt::darkGreen)); break;
-    case 4:plot->graph(ch-1)->setPen(QPen(Qt::magenta)); break;
-        // when ch > 4, it would be the fitting function.
-    case 5:plot->graph(ch-1)->setPen(QPen(Qt::red)); break;
-    }
 
     //fill data
     plot->graph(ch-1)->clearData();
@@ -542,7 +539,6 @@ void MainWindow::WhenOSCReady(QString msg)
 
 void MainWindow::on_comboBox_currentIndexChanged(int index)
 {
-    return;
 
     int parSize = 2;
     switch (index) {
@@ -569,6 +565,7 @@ void MainWindow::on_comboBox_currentIndexChanged(int index)
 
         QVector<double> fitYData = ana->GetFitFuncVector();
         QVector<double> xData = ana->GetXDataVector();
+        plot->graph(4)->clearData();
         PlotGraph(5, xData, fitYData);
 
     }

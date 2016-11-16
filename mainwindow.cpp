@@ -190,11 +190,11 @@ void MainWindow::GetData(int ch, int points){
     Write2Log(logMsg);
     oscui->osc->GetData(ch, points ,0);
 
-    ana->SetData(oscui->osc->xData[ch], oscui->osc->yData[ch]);
-    ui->comboBox->setEnabled(1);
-    if( plot->graphCount()>= 5){
-        plot->graph(5)->clearData();
-    }
+    //ana->SetData(oscui->osc->xData[ch], oscui->osc->yData[ch]);
+    //ui->comboBox->setEnabled(1);
+    //if( plot->graphCount()>= 5){
+    //    plot->graph(5)->clearData();
+    //}
 }
 
 void MainWindow::GetBGData(int ch, int points)
@@ -542,6 +542,8 @@ void MainWindow::WhenOSCReady(QString msg)
 
 void MainWindow::on_comboBox_currentIndexChanged(int index)
 {
+    return;
+
     int parSize = 2;
     switch (index) {
     case 1:

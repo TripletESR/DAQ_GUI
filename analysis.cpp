@@ -11,6 +11,9 @@ Analysis::~Analysis()
 }
 
 void Analysis::SetData(QVector<double> x, QVector<double> y){
+    xData.clear();
+    yData.clear();
+
     xData = x;
     yData = y;
 

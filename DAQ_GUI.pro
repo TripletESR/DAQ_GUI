@@ -14,6 +14,8 @@ TEMPLATE = app
 #have to use winNT because the compiler WinGW is 32
 win32: LIBS += "C:/Program Files (x86)/IVI Foundation/VISA/WinNT/lib/msc/visa32.lib"
 
+win32:RC_ICONS += icon.ico
+
 SOURCES += main.cpp\
         mainwindow.cpp \
     qcustomplot.cpp \
@@ -45,3 +47,6 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     wfg_dialog.ui \
     osc_dialog.ui
+
+DISTFILES += \
+    icon.ico

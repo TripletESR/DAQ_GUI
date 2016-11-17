@@ -3,6 +3,8 @@
 
 #include "qscpi.h"
 #include <QProgressBar>
+#include <QEventLoop>
+#include <QTimer>
 
 class WaveFromGenerator : public QSCPI{
 public:

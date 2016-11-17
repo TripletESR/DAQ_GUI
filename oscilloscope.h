@@ -3,7 +3,6 @@
 
 #include "qscpi.h"
 #include <QVector>
-#include <windows.h> // for Sleep
 #include <QFile>
 #include <QTimer>
 #include <QEventLoop>

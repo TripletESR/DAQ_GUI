@@ -268,7 +268,9 @@ void WFG_Dialog::on_pushButton_Auto_clicked()
     for(int i = dc; i <= maxDC; i+=incr){
         //on_doubleSpinBox_Offset_valueChanged(i);
         ui->doubleSpinBox_Offset->setValue(i);
-        Sleep(waittime);
+        QEventLoop eventloop;
+        QTimer::singleShot(waittime*1000, &eventloop, SLOT(quit()));
+        eventloop.exec();
         waitcount ++;
         progBox.setValue(waitcount);
         if( progBox.wasCanceled() ){

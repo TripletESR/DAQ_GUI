@@ -51,7 +51,6 @@ MainWindow::MainWindow(QWidget *parent) :
     wfgui->on_comboBox_ch_activated(0);
     //wfgui->on_pushButton_GetDeviceSetting_clicked();
     oscui->on_checkBox_Lock_clicked(1); //Lock the osc, get osc status
-    on_spinBox_count_valueChanged(1000);
     //oscui->osc->Clear(); //TODO somehow, the OSC has error msg that setting conflict.
 
     ui->pushButton_Auto->setEnabled(0);
@@ -112,16 +111,15 @@ MainWindow::~MainWindow()
 {
     Write2Log("========================= Program ended.");
 
-    delete ui;
-    delete wfgui;
-    delete oscui;
-
     delete logFile;
     delete dataFile;
 
     delete plotTitle;
     delete plot;
 
+    delete wfgui;
+    delete oscui;
+    delete ui;
 }
 
 void MainWindow::Write2Log(QString msg) //TODO not finished
@@ -171,7 +169,8 @@ void MainWindow::on_actionOscilloscope_triggered()
 void MainWindow::on_pushButton_GetSingle_clicked()
 {
     int ch = ui->spinBox_ch->value();
-    int points = ui->spinBox_count->value();
+    //int points = ui->spinBox_count->value();
+    int points = ui->comboBox_points->currentText().toInt();
     GetData(ch, points);
 
     //oscui->osc->SetDVM(1,2, 1); // ch2, DC
@@ -186,7 +185,7 @@ void MainWindow::on_pushButton_GetSingle_clicked()
 }
 
 void MainWindow::GetData(int ch, int points){
-    logMsg.sprintf("=========== Get Data == Ch %d, #pt %d", ch, ui->spinBox_count->value());
+    logMsg.sprintf("=========== Get Data == Ch %d, #pt %d", ch, points);
     Write2Log(logMsg);
     oscui->osc->GetData(ch, points ,0);
 
@@ -199,7 +198,7 @@ void MainWindow::GetData(int ch, int points){
 
 void MainWindow::GetBGData(int ch, int points)
 {
-    logMsg.sprintf("=========== Get BG Data == Ch %d, #pt %d", ch, ui->spinBox_count->value());
+    logMsg.sprintf("=========== Get BG Data == Ch %d, #pt %d", ch, points);
     Write2Log(logMsg);
     oscui->osc->GetData(ch, points, 1);
 }
@@ -295,6 +294,10 @@ void MainWindow::on_pushButton_openFile_clicked()
         dirName  = old_dirName;
         fileName = old_fileName;
     }else{
+        //add .dat in the end of filePath
+        if(filePath.right(4) != ".dat"){
+            filePath.append(".dat");
+        }
         QStringList sFile = filePath.split('/');
         int size = sFile.size();
         if( size >= 2){
@@ -364,9 +367,12 @@ void MainWindow::on_pushButton_Auto_clicked()
     }
 
     Write2Log("========================== Start Auto DAQ.");
+    ui->lineEdit_start->setEnabled(0);
+    ui->lineEdit_end->setEnabled(0);
+    ui->lineEdit_step->setEnabled(0);
     const int ch = ui->spinBox_ch->value();
-    const int points = ui->spinBox_count->value();
-    int totCount = ui->lineEdit_numData->text().toInt();
+    //const int points = ui->spinBox_count->value();
+    const int points = ui->comboBox_points->currentText().toInt();
 
     //=============== Get BG Data;
     //oscui->osc->GetData(ch, points, 1);
@@ -402,9 +408,9 @@ void MainWindow::on_pushButton_Auto_clicked()
 
     //======================== Start measurement loop;
     int count = 0;
-    int n = fabs(fabs(bStart-bEnd)/bInc) + 1;
+    int totCount = ui->lineEdit_numData->text().toInt();
     QString str;
-    QProgressDialog progress("Getting Data ....", "Abort", 0, n, this);
+    QProgressDialog progress("Getting Data ....", "Abort", 0, totCount, this);
     //progress.setWindowModality(Qt::WindowModal);
 
     QVector<double> Y(points);
@@ -450,7 +456,9 @@ void MainWindow::on_pushButton_Auto_clicked()
     }
 
     Write2Log("===================  Auto DAQ completed.");
-
+    ui->lineEdit_start->setEnabled(1);
+    ui->lineEdit_end->setEnabled(1);
+    ui->lineEdit_step->setEnabled(1);
     ui->actionOscilloscope->setEnabled(1);
     ui->actionWave_From_Generator->setEnabled(1);
 
@@ -469,18 +477,19 @@ void MainWindow::on_pushButton_Save_clicked()
     SaveData(saveName,  oscui->osc->xData[ch], oscui->osc->yData[ch]);
 }
 
-void MainWindow::on_spinBox_count_valueChanged(int arg1)
-{
-    oscui->osc->GetTime();
-    double tRange=oscui->osc->tRange;
-
-    double resol = tRange/arg1*1000;
-    if(resol == 0){
-        ui->lineEdit_Resol->setText("NaN");
-    }else{
-        ui->lineEdit_Resol->setText(QString::number(resol));
-    }
-}
+//void MainWindow::on_spinBox_count_valueChanged(int arg1)
+//{
+//
+//    oscui->osc->GetTime();
+//    double tRange=oscui->osc->tRange;
+//
+//    double resol = tRange/arg1*1000;
+//    if(resol == 0){
+//        ui->lineEdit_Resol->setText("NaN");
+//    }else{
+//        ui->lineEdit_Resol->setText(QString::number(resol));
+//    }
+//}
 
 void MainWindow::on_lineEdit_step_editingFinished()
 {
@@ -513,9 +522,15 @@ void MainWindow::on_lineEdit_step_editingFinished()
 
     ui->pushButton_Auto->setEnabled(1);
 
-    int n = fabs(fabs(bStart-bEnd)/bStep) + 1;
-
+    int n = qFloor(fabs(bStart-bEnd)/fabs(bStep) + 1.0001);
     ui->lineEdit_numData->setText(QString::number(n));
+
+    double tRate = oscui->osc->GetTriggerRate();
+    int acqCount = oscui->osc->GetAcquireCount();
+    double estTime = acqCount/tRate*n/60.;
+
+    ui->lineEdit_EstTime->setText(QString::number(estTime));
+
 }
 
 void MainWindow::SetProgressBar(double value)
@@ -568,5 +583,33 @@ void MainWindow::on_comboBox_currentIndexChanged(int index)
         plot->graph(4)->clearData();
         PlotGraph(5, xData, fitYData);
 
+    }
+}
+
+void MainWindow::on_lineEdit_start_editingFinished()
+{
+    on_lineEdit_step_editingFinished();
+}
+
+void MainWindow::on_lineEdit_end_editingFinished()
+{
+    on_lineEdit_step_editingFinished();
+}
+
+void MainWindow::on_comboBox_points_currentTextChanged(const QString &arg1)
+{
+    int points = arg1.toInt();
+
+    qDebug() << ui->comboBox_points->currentText().toInt();
+
+    oscui->osc->GetTime();
+    double tRange=oscui->osc->tRange;
+
+    double resol = tRange/points*1000;
+
+    if(resol == 0){
+        ui->lineEdit_Resol->setText("NaN");
+    }else{
+        ui->lineEdit_Resol->setText(QString::number(resol));
     }
 }

@@ -93,16 +93,24 @@ void WaveFromGenerator::GoToOffset(int ch, double offset)
     SendMsg(scpi_Msg);
     SendMsg("please wait.");
 
+    // 20 mV per sec.
+
     if( offset > presentDC){ // increase gentlely
-        incr = +10;
+        incr = +20;
     }else if( offset < presentDC){ // reduced gentlely
-        incr = -10;
+        incr = -20;
     }
 
     double diff = offset - presentDC;
     qDebug("diff : %f mV", diff);
+
+    scpi_Msg.sprintf("Estimated wait time : %5.0f sec (20 mV/sec)", diff/fabs(incr));
+    SendMsg(scpi_Msg);
+
     while(diff != 0){
-        Sleep(1200);
+        QEventLoop eventloop;
+        QTimer::singleShot(1000, &eventloop, SLOT(quit()));
+        eventloop.exec();
         presentDC = presentDC + incr;
         diff = offset - presentDC;
         qDebug("diff : %f mV", diff);

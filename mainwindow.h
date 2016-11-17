@@ -45,16 +45,19 @@ private slots:
 
     void on_pushButton_Auto_clicked();
     void on_pushButton_Save_clicked();
-    void on_spinBox_count_valueChanged(int arg1);
+    //void on_spinBox_count_valueChanged(int arg1);
     void on_pushButton_openFile_clicked();
 
     void Write2Log(QString msg);
+    void on_lineEdit_start_editingFinished();
+    void on_lineEdit_end_editingFinished();
     void on_lineEdit_step_editingFinished();
 
     void SetProgressBar(double value);
     void WhenOSCReady(QString msg);
 
     void on_comboBox_currentIndexChanged(int index);
+    void on_comboBox_points_currentTextChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;

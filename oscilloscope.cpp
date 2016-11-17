@@ -341,7 +341,9 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
             if( (varQueryResult & 8) == 0){
                 break;
             }else{
-                Sleep(100);
+                QEventLoop eventloop;
+                QTimer::singleShot(100, &eventloop, SLOT(quit()));
+                eventloop.exec();
                 lngElapsed += 100;
             }
         }
@@ -402,7 +404,6 @@ void Oscilloscope::SyncOSC(int ch, int points, double waitsec, bool Save2BG){
         QEventLoop eventloop;
         QTimer::singleShot(waitsec*1000, &eventloop, SLOT(quit()));
         eventloop.exec();
-        //Sleep(waitsec * 1000);
         timeElapsed += waitsec;
         SBR = StatusByteRegister(); //161 is system "good" status SBR
         qDebug("Sync OSC ... SBR: %#x, time:%f/%f", SBR, timeElapsed, maxWaitTime);

@@ -56,18 +56,20 @@ void QFileIO::FileStructure()
 
     //qDebug() << xdata;
     if( col > 0 ){
-    double x1 = (this->xdata)[0];
-    double x2 = (this->xdata)[col-1];
-    double xStep = (x2-x1)/(col-1);
-    double range = x2 - x1 + xStep;
-    SendMsg("=========== Existing x-data");
-    Msg.sprintf("(%f, %f) us", x1, x2);                                  SendMsg(Msg);
-    Msg.sprintf("Range  = %f us", range);                                SendMsg(Msg);
-    Msg.sprintf("Scale  = %f us/div", range/10);                         SendMsg(Msg);
-    Msg.sprintf("Offset = %f us", x1 + range/2);                         SendMsg(Msg);
-    Msg.sprintf("(row, col, endPos) = (%d, %d, %d)", row, col, endPos);  SendMsg(Msg);
+        double x1 = (this->xdata)[0];
+        double x2 = (this->xdata)[col-1];
+        double xStep = (x2-x1)/(col-1);
+        double range = x2 - x1 + xStep;
+        SendMsg("=========== Existing x-data");
+        SendMsg(filePath);
+        Msg.sprintf("(%f, %f) us", x1, x2);                                  SendMsg(Msg);
+        Msg.sprintf("Range  = %f us", range);                                SendMsg(Msg);
+        Msg.sprintf("Scale  = %f us/div", range/10);                         SendMsg(Msg);
+        Msg.sprintf("Offset = %f us", x1 + range/2);                         SendMsg(Msg);
+        Msg.sprintf("(row, col, endPos) = (%d, %d, %d)", row, col, endPos);  SendMsg(Msg);
     }else{
         SendMsg("Openned an empty File.");
+        SendMsg(filePath);
     }
 }
 

@@ -73,7 +73,7 @@ void QFileIO::FileStructure()
     }
 }
 
-void QFileIO::AppendData(QString head, double acq,QVector<double> xdata, QVector<double> zdata)
+void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zdata)
 {
 
     myfile->seek(endPos);
@@ -84,7 +84,7 @@ void QFileIO::AppendData(QString head, double acq,QVector<double> xdata, QVector
     if( endPos == 0 ){
         this->xdata = xdata;
         col = this->xdata.size();
-        outStr.sprintf("%10s%-10.0f%10s", "Average:",acq ,"time [us]");
+        outStr.sprintf("%30s", "time [us]");
         for(int i = 0; i < col ; i++){
             temp.sprintf(",%12.3e", (this->xdata)[i]);
             outStr.append(temp);

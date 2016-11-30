@@ -252,13 +252,13 @@ void MainWindow::PlotGraph(int ch, QVector<double> x, QVector<double> y, double 
     plot->replot();
 }
 
-void MainWindow::SaveData(QString head, double acq, QVector<double> x, QVector<double> y){
+void MainWindow::SaveData(QString head, QVector<double> x, QVector<double> y){
 
     if( dataFile != NULL){
         logMsg = "++++++ Saving Data .... Data name :";
         logMsg += head;
         Write2Log(logMsg);
-        dataFile->AppendData(head, acq, x, y);
+        dataFile->AppendData(head, x, y);
     }else{
         Write2Log("Save file did not set. Data not saved.");
     }
@@ -443,9 +443,10 @@ void MainWindow::on_pushButton_Auto_clicked()
         }
 
         double hallV = wfgui->GetHallVoltage();
-        name.sprintf("%s_%06.4fV_%08.4fmV", name1.toStdString().c_str(),b, hallV);
+        int acqCount = oscui->osc->GetAcquireCount();
+        name.sprintf("%s_%06.4fV_%08.4fmV", name1.toStdString().c_str(), acqCount, b, hallV);
 
-        dataFile->AppendData(name, oscui->osc->acqCount, oscui->osc->xData[ch], Y);
+        dataFile->AppendData(name, oscui->osc->xData[ch], Y);
 
         count ++;
         QString msg;
@@ -471,10 +472,12 @@ void MainWindow::on_pushButton_Save_clicked()
     double dc = wfgui->wfg->offset; //V
     //double mag = wfgui->GetMagField(); // mT
     double hallV = wfgui->GetHallVoltage(); // mV
+    int acqCount = oscui->osc->GetAcquireCount();
     QString tmp;
-    tmp.sprintf("_%06.4fV_%06.2fmV", dc, hallV);
+    tmp.sprintf("_Avg%05d_%06.4fV_%06.2fmV", acqCount, dc, hallV);
     saveName.append(tmp);
-    SaveData(saveName, oscui->osc->acqCount , oscui->osc->xData[ch], oscui->osc->yData[ch]);
+    dataFile->AppendData(saveName, oscui->osc->xData[ch], oscui->osc->yData[ch]);
+    //SaveData(saveName, oscui->osc->xData[ch], oscui->osc->yData[ch]);
 }
 
 //void MainWindow::on_spinBox_count_valueChanged(int arg1)

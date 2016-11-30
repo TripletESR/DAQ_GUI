@@ -29,7 +29,7 @@ public:
     ~QFileIO();
 
     void FileStructure();
-    void AppendData(QString head, double acq, QVector<double> xdata, QVector<double> zdata);
+    void AppendData(QString head, QVector<double> xdata, QVector<double> zdata);
     void SaveLogData(QString Msg);
 
 signals:

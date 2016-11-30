@@ -24,7 +24,7 @@ public:
     void SetAmp(int ch, double amp);
     void SetFreq(int ch, double freq);
     void SetOffset(int ch, double offset);
-    void GoToOffset(int ch, double offset);
+    void GoToOffset(int ch, double offset, double rate);
     void SetPhase(int ch, double phase);
 
     int GetWaveForm(int ch);

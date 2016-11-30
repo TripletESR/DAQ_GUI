@@ -173,10 +173,15 @@ void WFG_Dialog::DisplaySetting()
     }
 }
 
-void WFG_Dialog::SetMagField(int ch, double mag)
+void WFG_Dialog::SetOffsetRate(double rate)
+{
+    ui->spinBox_OffsetRate->setValue(rate*1000); // in mV
+}
+
+void WFG_Dialog::SetMagField(int ch, double mag, double rate)
 {
     double DC = Mag2DC(mag);
-    wfg->GoToOffset(ch, DC);
+    wfg->GoToOffset(ch, DC, rate);
 
     //Check the Hall Probe reading
 
@@ -318,7 +323,8 @@ void WFG_Dialog::on_pushButton_SetB_clicked()
 
 
     int ch = ui->comboBox_ch->currentIndex() +1 ;
-    wfg->GoToOffset(ch, dc);
+    int rate = ui->spinBox_OffsetRate->value()/1000; // in V
+    wfg->GoToOffset(ch, dc, rate);
 
     SendLogMsg("Fine Turning Mag Field.");
     current_mag = GetMagField();

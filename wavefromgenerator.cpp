@@ -82,12 +82,13 @@ void WaveFromGenerator::SetOffset(int ch, double offset)
 
 }
 
-void WaveFromGenerator::GoToOffset(int ch, double offset)
+void WaveFromGenerator::GoToOffset(int ch, double offset, double rate)
 {
     double presentDC = GetOffset(ch)*1000 ; //mV
     double incr; //mV
 
     offset = offset*1000; //mV
+    rate = rate*1000 ; //mV
 
     scpi_Msg.sprintf("Going to the offset: %f mV, from %f mV", offset, presentDC);
     SendMsg(scpi_Msg);
@@ -96,9 +97,9 @@ void WaveFromGenerator::GoToOffset(int ch, double offset)
     // 20 mV per sec.
 
     if( offset > presentDC){ // increase gentlely
-        incr = +20;
+        incr = +rate;
     }else if( offset < presentDC){ // reduced gentlely
-        incr = -20;
+        incr = -rate;
     }
 
     double diff = offset - presentDC;

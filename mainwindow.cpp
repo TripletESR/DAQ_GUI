@@ -91,9 +91,11 @@ MainWindow::MainWindow(QWidget *parent) :
     if(oscui->osc->IsOpen()){
         logMsg.sprintf("Opened : %s", oscui->osc->name.toStdString().c_str());
         ui->actionOscilloscope->setEnabled(1);
+        ui->spinBox_DCRate->setEnabled(1);
     }else{
         logMsg.sprintf("Not Opened : %s", oscui->osc->name.toStdString().c_str());
         ui->actionOscilloscope->setEnabled(0);
+        ui->spinBox_DCRate->setEnabled(0);
     }
     Write2Log(logMsg);
 
@@ -390,8 +392,9 @@ void MainWindow::on_pushButton_Auto_clicked()
 
     //======================== Set the WFG to be DC mode
     const int wfgch = 1;
+    const double rate = ui->spinBox_DCRate->value()/1000; // in V
     wfgui->wfg->SetWaveForm(wfgch, 8); // 1= sin,  8 = DC
-    wfgui->wfg->GoToOffset(wfgch, bStart);
+    wfgui->wfg->GoToOffset(wfgch, bStart, rate);
     wfgui->on_doubleSpinBox_Offset_valueChanged(bStart*1000);
     //wfgui->wfg->SetOffset(wfgch, bStart);
     //wfgui->SetMagField(wfgch, bStart);
@@ -424,7 +427,7 @@ void MainWindow::on_pushButton_Auto_clicked()
         progress.setValue(count);
         if(progress.wasCanceled()) break;
 
-        wfgui->wfg->GoToOffset(wfgch, b);
+        wfgui->wfg->GoToOffset(wfgch, b, rate);
         wfgui->on_doubleSpinBox_Offset_valueChanged(b*1000);
 
         //oscui->osc->GetData(ch, points, 0);
@@ -615,4 +618,9 @@ void MainWindow::on_comboBox_points_currentTextChanged(const QString &arg1)
     }else{
         ui->lineEdit_Resol->setText(QString::number(resol));
     }
+}
+
+void MainWindow::on_spinBox_DCRate_valueChanged(int arg1)
+{
+    wfgui->SetOffsetRate(arg1/1000.);
 }

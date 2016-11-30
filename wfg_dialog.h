@@ -52,7 +52,9 @@ public slots:
 
     void DisplaySetting();
 
-    void SetMagField(int ch, double mag);
+    void SetOffsetRate(double rate);
+
+    void SetMagField(int ch, double mag, double rate);
     double GetMagField();
     double GetHallVoltage(){ GetMagField(); return hallVoltage;}
 

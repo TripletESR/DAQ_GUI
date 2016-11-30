@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QDebug>
+#include <QDateTime>
 #include <QVector>
 #include <QFile>
 #include <QProgressDialog>
@@ -32,6 +33,7 @@ public:
     ~WFG_Dialog();
 
     void OpenHallProbe();
+    void OpenHallParsFile();
 signals:
 
     void SendLogMsg(QString msg);
@@ -85,6 +87,8 @@ private:
     QVector<double> bField;
 
     double hallVoltage, magField;
+
+    QVector<double> hallPar;
 
 };
 

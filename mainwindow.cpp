@@ -13,6 +13,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
     this->setGeometry(10,50,this->geometry().width(),this->geometry().height());
+
+    //Check Directory, is not exist, create
+    QDir myDir;
+    myDir.setPath(DATA_PATH); if( !myDir.exists()) myDir.mkpath(DATA_PATH);
+    myDir.setPath(LOG_PATH); if( !myDir.exists()) myDir.mkpath(LOG_PATH);
+    myDir.setPath(HALL_DIR_PATH); if( !myDir.exists()) myDir.mkpath(HALL_DIR_PATH);
+
     // logfile
     MsgCount = 0;
     QString logFileName;
@@ -50,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Get Setting
     wfgui->on_comboBox_ch_activated(0);
+    wfgui->OpenHallParsFile();
     //wfgui->on_pushButton_GetDeviceSetting_clicked();
     oscui->on_checkBox_Lock_clicked(1); //Lock the osc, get osc status
     //oscui->osc->Clear(); //TODO somehow, the OSC has error msg that setting conflict.

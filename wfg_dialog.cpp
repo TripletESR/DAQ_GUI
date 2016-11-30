@@ -43,6 +43,7 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
     plot->axisRect()->setRangeZoom(Qt::Vertical);
 
     ClearData();
+
 }
 
 WFG_Dialog::~WFG_Dialog()
@@ -61,6 +62,56 @@ void WFG_Dialog::OpenHallProbe(){
     hallProbe = new DMM(KEITHLEY2000);
     SendLogMsg(hallProbe->Msg);
     //hallProbe->SetMeasureDCV();
+}
+
+void WFG_Dialog::OpenHallParsFile()
+{
+    hallPar.clear();
+    QFile hallParsFile(HALL_PATH);
+    if( hallParsFile.open(QIODevice::ReadOnly | QIODevice::Text)){
+        SendLogMsg("Found Hall Parameters Files at:");
+        SendLogMsg(HALL_PATH);
+
+        //read parameters
+        QTextStream stream(&hallParsFile);
+        QString line;
+
+        while(stream.readLineInto(&line)){
+            hallPar.push_back(line.toDouble());
+        }
+
+        hallParsFile.close();
+
+    }else{
+        SendLogMsg("The Hall Parameters Files not found. Use Default Parameters.");
+
+        hallPar.push_back(HALL0);
+        hallPar.push_back(HALL1);
+        hallPar.push_back(HALL2);
+        hallPar.push_back(HALL3);
+        hallPar.push_back(HALL4);
+    }
+
+    if( hallPar.size() <= 1){
+        SendLogMsg("The Hall Parameters Files is not valid. Use Default Parameters.");
+        hallPar.clear();
+        hallPar.push_back(HALL0);
+        hallPar.push_back(HALL1);
+        hallPar.push_back(HALL2);
+        hallPar.push_back(HALL3);
+        hallPar.push_back(HALL4);
+    }
+
+    QString msg = "Hall Parameters : ";
+    QString tmp;
+    int n = hallPar.size();
+    for( int i = 0; i < n-1; i++){
+        tmp.sprintf("%8e, ", hallPar[i]);
+        msg.append(tmp);
+    }
+    tmp.sprintf("%8e #", hallPar[n-1]);
+    msg.append(tmp);
+    SendLogMsg(msg);
 }
 
 void WFG_Dialog::on_comboBox_ch_activated(int index)
@@ -195,7 +246,10 @@ double WFG_Dialog::GetMagField()
 
     hallVoltage = hallProbe->GetReading() * 1000 ; //mV
     double x = hallVoltage;
-    magField = HALL0 + HALL1 * x + HALL2 * x*x + HALL3 * x*x*x + HALL4 * x*x*x*x; // mT
+    magField = 0;
+    for(int i = 0; i < hallPar.size(); i++){
+        magField += hallPar[i] * pow(x,i);
+    }
 
     Msg.sprintf("DC: %fV, HallVolatge : %f mV, Mag-Field: %f mT", wfg->offset, hallVoltage, magField);
     SendLogMsg(Msg);
@@ -210,7 +264,11 @@ double WFG_Dialog::Mag2DC(double mag){ // in mT to V
 
 void WFG_Dialog::on_pushButton_Save_clicked()
 {
-    QFile saveFile("C:/Users/Triplet-ESR/Desktop/hall_measure.txt");
+    QDateTime dateTime = QDateTime::currentDateTime();
+    QString saveFilePath;
+    saveFilePath.sprintf("%s/Hall_measure_%s.txt", HALL_DIR_PATH, dateTime.toString("yyyyMMdd_HHmmss"));
+    qDebug() << saveFilePath;
+    QFile saveFile(saveFilePath);
     saveFile.open(QIODevice::WriteOnly);
 
     QString line;

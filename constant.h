@@ -9,6 +9,8 @@ const QString DESKTOP_PATH = QStandardPaths::locate(QStandardPaths::DesktopLocat
 const QString HOME_PATH = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(), QStandardPaths::LocateDirectory);
 const QString DATA_PATH = HOME_PATH + "ESR_Data_201610/";
 const QString LOG_PATH = DATA_PATH + "DAQ_Log";
+const QString HALL_DIR_PATH = DATA_PATH + "Hall_data";
+const QString HALL_PATH = HALL_DIR_PATH + "/Hall_pars.txt";
 
 //device address
 #define KEYSIGHT33500B "USB0::0x0957::0x2607::MY52202101::0::INSTR"
@@ -23,8 +25,5 @@ const QString LOG_PATH = DATA_PATH + "DAQ_Log";
 #define HALL2 -0.00350328
 #define HALL3 5.32829e-6
 #define HALL4 0
-
-// Laser freqeuncy
-#define LASERFREQ 60 // Hz
 
 #endif // CONSTANT_H

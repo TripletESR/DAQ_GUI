@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QDir>
 #include <QEventLoop>
 #include "qfileio.h"
 #include "wfg_dialog.h"

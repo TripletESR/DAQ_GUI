@@ -6,8 +6,23 @@ QFileIO::QFileIO(QString dir, QString name, int mode, QObject *parent) : QObject
     fileDir  = dir;
     filePath = dir.append("/").append(name);
 
+    //QDir myDir(dir);
+    //qDebug() << dir;
+    //qDebug() << myDir.exists();
+    //if( !myDir.exists()){
+    //    qDebug() << myDir.mkpath(dir);
+    //}
+
     myfile = new QFile(filePath);
 
+    /*
+    if (!myfile->isOpen() ){
+        qDebug() << "no directory";
+        QDir::mkdir(dir);
+        delete myfile;
+        myfile = new QFile(filePath);
+    }
+    */
     switch (mode) {
     case 1:isOpen = myfile->open(QIODevice::ReadOnly | QIODevice::Text);break;
     case 2:isOpen = myfile->open(QIODevice::WriteOnly | QIODevice::Text);break;

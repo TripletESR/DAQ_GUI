@@ -18,11 +18,11 @@ const QString LOG_PATH = DATA_PATH + "DAQ_Log";
 
 // B-Field [mT] = HALL0 + HALL1 * HV + HALL2 * HV^2 + HALL3 * HV^3 + HALL4 * HV^4
 // Fit on 2016/10/28
-#define HALL0 0 // +- 0.18
-#define HALL1 0.00433188 // +- 4.681e-5
-#define HALL2 8.02776e-6 // +- 3.676e-7
-#define HALL3 -3.04478e-8 // 9.022e-10
-#define HALL4 3.60792e-11 // 6.962e-13
+#define HALL0 -2.3732
+#define HALL1 9.71921
+#define HALL2 -0.00350328
+#define HALL3 5.32829e-6
+#define HALL4 0
 
 // Laser freqeuncy
 #define LASERFREQ 60 // Hz

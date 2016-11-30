@@ -256,8 +256,8 @@ void WFG_Dialog::on_pushButton_Auto_clicked()
 {
     int dc = ui->doubleSpinBox_Offset->text().toInt();
     int maxDC = 4500; // mV
-    int incr = ui->spinBox_OffsetRate->value(); // mV
-    int waittime = 1000; // msec
+    int incr = ui->spinBox_OffsetRate->value()*2; // mV
+    int waittime = 2000; // msec
 
     SendLogMsg("Auto Measurement of the Hall probe volatge.");
     Msg.sprintf("Start DC: %d mV, End DC: %d mV, Incr: %d mV.", dc, maxDC, incr);
@@ -270,7 +270,7 @@ void WFG_Dialog::on_pushButton_Auto_clicked()
     QProgressDialog progBox("Measuring Data....", "Abort.", 0, (maxDC - dc)/incr);
     progBox.setWindowModality(Qt::WindowModal);
     int waitcount = 0;
-    for(int i = dc; i <= maxDC; i+=incr){
+    for(int i = maxDC; i >= 0; i-=incr){
         //on_doubleSpinBox_Offset_valueChanged(i);
         ui->doubleSpinBox_Offset->setValue(i);
         QEventLoop eventloop;

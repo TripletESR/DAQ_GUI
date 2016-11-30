@@ -13,7 +13,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
     this->setGeometry(10,50,this->geometry().width(),this->geometry().height());
-
     // logfile
     MsgCount = 0;
     QString logFileName;
@@ -29,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // call wfg and osc dialog, in which the wfg and osc will be created
     wfgui = new WFG_Dialog(this);
     Write2Log(wfgui->Msg);
+    //wfgui->setWindowFlags(wfgui->windowFlags() | Qt::Tool);
     oscui = new osc_Dialog(this);
     Write2Log(oscui->Msg);
 

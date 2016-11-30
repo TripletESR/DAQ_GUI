@@ -54,7 +54,7 @@ WFG_Dialog::~WFG_Dialog()
 }
 
 void WFG_Dialog::SaveOscDMM(double dvm){
-    bField.push_back(-dvm);
+    bField.push_back(fabs(dvm));
 }
 
 void WFG_Dialog::OpenHallProbe(){

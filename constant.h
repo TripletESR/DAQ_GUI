@@ -1,6 +1,15 @@
 #ifndef CONSTANT_H
 #define CONSTANT_H
 
+#include <QString>
+#include <QStandardPaths>
+
+//Directory
+const QString DESKTOP_PATH = QStandardPaths::locate(QStandardPaths::DesktopLocation, QString(), QStandardPaths::LocateDirectory);
+const QString HOME_PATH = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(), QStandardPaths::LocateDirectory);
+const QString DATA_PATH = HOME_PATH + "ESR_Data_201610/";
+const QString LOG_PATH = DATA_PATH + "DAQ_Log";
+
 //device address
 #define KEYSIGHT33500B "USB0::0x0957::0x2607::MY52202101::0::INSTR"
 #define KEYSIGHTDSOX3024T "USB0::0x2A8D::0x1766::MY56181001::0::INSTR"

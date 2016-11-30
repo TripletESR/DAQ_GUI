@@ -17,9 +17,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // logfile
     MsgCount = 0;
     QString logFileName;
-    QDate date = QDate::currentDate();
-    logFileName.sprintf("Log%s.txt", date.toString("yyyyMMdd").toStdString().c_str());
-    logFile = new QFileIO ("C:/Users/Triplet-ESR/Desktop/DAQ_Log", logFileName, 4);
+    QDateTime dateTime = QDateTime::currentDateTime();
+    logFileName.sprintf("Log%s.txt", dateTime.toString("yyyyMMdd_HHmmss").toStdString().c_str());
+    logFile = new QFileIO (LOG_PATH, logFileName, 4);
     logFile->SaveLogData("========================================== new session.");
     Write2Log(logFile->Msg);
     connect(logFile, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
@@ -130,7 +130,7 @@ void MainWindow::Write2Log(QString msg) //TODO not finished
 
     QDateTime date = QDateTime::currentDateTime();
     QString countStr;
-    countStr.sprintf(" [%04d]:    ", MsgCount);
+    countStr.sprintf(" [%06d]:    ", MsgCount);
     msg.insert(0,countStr).insert(0,date.toString());
     if( logFile != NULL){
         logFile->SaveLogData(msg);

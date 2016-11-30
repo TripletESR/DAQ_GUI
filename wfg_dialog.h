@@ -36,6 +36,7 @@ signals:
 
     void SendLogMsg(QString msg);
     void ReadOSCDMM();
+    void ChangeOffsetRate(int rate);
 
 public slots:
 
@@ -70,10 +71,9 @@ private slots:
     void on_pushButton_Clear_clicked();
     void on_pushButton_Auto_clicked();
 
-
-
-
     double Mag2DC(double mag);
+
+    void on_spinBox_OffsetRate_valueChanged(int arg1);
 
 private:
     Ui::WFG_Dialog *ui;

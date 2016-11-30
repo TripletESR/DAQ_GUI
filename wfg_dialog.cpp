@@ -175,7 +175,7 @@ void WFG_Dialog::DisplaySetting()
 
 void WFG_Dialog::SetOffsetRate(double rate)
 {
-    ui->spinBox_OffsetRate->setValue(rate*1000); // in mV
+    ui->spinBox_OffsetRate->setValue(rate); // in mV
 }
 
 void WFG_Dialog::SetMagField(int ch, double mag, double rate)
@@ -256,8 +256,8 @@ void WFG_Dialog::on_pushButton_Auto_clicked()
 {
     int dc = ui->doubleSpinBox_Offset->text().toInt();
     int maxDC = 4500; // mV
-    int incr = 10;
-    int waittime = 1200; // msec
+    int incr = ui->spinBox_OffsetRate->value(); // mV
+    int waittime = 1000; // msec
 
     SendLogMsg("Auto Measurement of the Hall probe volatge.");
     Msg.sprintf("Start DC: %d mV, End DC: %d mV, Incr: %d mV.", dc, maxDC, incr);
@@ -274,7 +274,7 @@ void WFG_Dialog::on_pushButton_Auto_clicked()
         //on_doubleSpinBox_Offset_valueChanged(i);
         ui->doubleSpinBox_Offset->setValue(i);
         QEventLoop eventloop;
-        QTimer::singleShot(waittime*1000, &eventloop, SLOT(quit()));
+        QTimer::singleShot(waittime, &eventloop, SLOT(quit()));
         eventloop.exec();
         waitcount ++;
         progBox.setValue(waitcount);
@@ -351,4 +351,9 @@ void WFG_Dialog::on_pushButton_SetB_clicked()
     wfg->GetSetting(ch);
     DisplaySetting();
 
+}
+
+void WFG_Dialog::on_spinBox_OffsetRate_valueChanged(int arg1)
+{
+    ChangeOffsetRate(arg1);
 }

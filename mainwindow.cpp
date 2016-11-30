@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     Write2Log(logFile->Msg);
     connect(logFile, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
 
-    ui->groupBox_log->setTitle(logFileName.insert(0,"Log : C:/Users/Triplet-ESR/Desktop/DAQ_Log/"));
+    ui->groupBox_log->setTitle(logFileName.insert(0,"/").insert(0, LOG_PATH).insert(0,"Log : "));
 
     // call wfg and osc dialog, in which the wfg and osc will be created
     wfgui = new WFG_Dialog(this);
@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //Setting up connectting
     connect(oscui, SIGNAL(SendLogMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(wfgui, SIGNAL(SendLogMsg(QString)), this, SLOT(Write2Log(QString)));
+    connect(wfgui, SIGNAL(ChangeOffsetRate(int)), this, SLOT(SetOffsetRate(int)));
     connect(wfgui->wfg, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(oscui->osc, SIGNAL(DeviceNotReady(double)), this, SLOT(SetProgressBar(double)));
@@ -122,6 +123,11 @@ MainWindow::~MainWindow()
     delete wfgui;
     delete oscui;
     delete ui;
+}
+
+void MainWindow::SetOffsetRate(int rate)
+{
+    ui->spinBox_DCRate->setValue(rate);
 }
 
 void MainWindow::Write2Log(QString msg) //TODO not finished
@@ -254,18 +260,6 @@ void MainWindow::PlotGraph(int ch, QVector<double> x, QVector<double> y, double 
     plot->replot();
 }
 
-void MainWindow::SaveData(QString head, QVector<double> x, QVector<double> y){
-
-    if( dataFile != NULL){
-        logMsg = "++++++ Saving Data .... Data name :";
-        logMsg += head;
-        Write2Log(logMsg);
-        dataFile->AppendData(head, x, y);
-    }else{
-        Write2Log("Save file did not set. Data not saved.");
-    }
-}
-
 void MainWindow::on_pushButton_openFile_clicked()
 {
     //Get current file Path
@@ -287,7 +281,7 @@ void MainWindow::on_pushButton_openFile_clicked()
     qDebug() << old_filePath << "," << old_dirName << "," << old_fileName;
 
     // Set new FIle Path
-    QString filePath = QFileDialog::getSaveFileName(this, "Save File", "C:/Users/Triplet-ESR/Desktop");
+    QString filePath = QFileDialog::getSaveFileName(this, "Save File", DATA_PATH);
     QString dirName;
     QString fileName;
 
@@ -622,5 +616,5 @@ void MainWindow::on_comboBox_points_currentTextChanged(const QString &arg1)
 
 void MainWindow::on_spinBox_DCRate_valueChanged(int arg1)
 {
-    wfgui->SetOffsetRate(arg1/1000.);
+    wfgui->SetOffsetRate(arg1); // mV
 }

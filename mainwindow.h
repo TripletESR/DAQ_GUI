@@ -29,6 +29,7 @@ public:
     QString logMsg;
 
 private slots:
+    void SetOffsetRate(int rate);
 
     void on_actionWave_From_Generator_triggered();
     void on_actionOscilloscope_triggered();
@@ -41,7 +42,6 @@ private slots:
                       double xMax = 0,
                       double yMin = 0,
                       double yMax = 0);
-    void SaveData(QString head, QVector<double> x, QVector<double> y);
 
     void on_pushButton_Auto_clicked();
     void on_pushButton_Save_clicked();

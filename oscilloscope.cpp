@@ -25,6 +25,7 @@ Oscilloscope::Oscilloscope(ViRsrc name): QSCPI(name)
     trgCh = 0;
 
     SetRemoteLog(1);
+    SetDVM(0,2,0);
 }
 
 Oscilloscope::~Oscilloscope(){

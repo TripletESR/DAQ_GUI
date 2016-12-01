@@ -453,7 +453,7 @@ void MainWindow::on_pushButton_Auto_clicked()
 
         double hallV = wfgui->GetHallVoltage();
         int acqCount = oscui->osc->GetAcquireCount();
-        name.sprintf("%s_%06.4fV_%08.4fmV", name1.toStdString().c_str(), acqCount, b, hallV);
+        name.sprintf("%s_Avg%05d_%06.4fV_%08.4fmV", name1.toStdString().c_str(), acqCount, b, hallV);
 
         dataFile->AppendData(name, oscui->osc->xData[ch], Y);
 

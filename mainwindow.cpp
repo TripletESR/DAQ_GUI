@@ -386,7 +386,7 @@ void MainWindow::on_pushButton_Auto_clicked()
 
     //======================== Set the WFG to be DC mode
     const int wfgch = 1;
-    const double rate = ui->spinBox_DCRate->value()/1000; // in V
+    const double rate = ui->spinBox_DCRate->value()/1000.; // in V
     wfgui->wfg->SetWaveForm(wfgch, 8); // 1= sin,  8 = DC
     wfgui->wfg->GoToOffset(wfgch, bStart, rate);
     wfgui->on_doubleSpinBox_Offset_valueChanged(bStart*1000);

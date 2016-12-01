@@ -90,7 +90,7 @@ void WaveFromGenerator::GoToOffset(int ch, double offset, double rate)
     offset = offset*1000; //mV
     rate = rate*1000 ; //mV
 
-    scpi_Msg.sprintf("Going to the offset: %f mV, from %f mV", offset, presentDC);
+    scpi_Msg.sprintf("Going to the offset: %f mV, from %f mV, Step size : %f mV", offset, presentDC, rate);
     SendMsg(scpi_Msg);
     SendMsg("please wait.");
 
@@ -105,7 +105,9 @@ void WaveFromGenerator::GoToOffset(int ch, double offset, double rate)
     double diff = offset - presentDC;
     qDebug("diff : %f mV", diff);
 
-    scpi_Msg.sprintf("Estimated wait time : %5.0f sec (20 mV/sec)", diff/fabs(incr));
+    if(fabs(incr) >= diff) incr = diff;
+
+    scpi_Msg.sprintf("Estimated wait time : %5.0f sec (Speed : %f mV/sec)", diff/fabs(rate), rate);
     SendMsg(scpi_Msg);
 
     while(diff != 0){

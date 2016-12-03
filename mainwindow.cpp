@@ -417,10 +417,6 @@ void MainWindow::on_pushButton_Auto_clicked()
     QString str;
     QProgressDialog progress("Getting Data ....", "Abort", 0, totCount, this);
     //progress.setWindowModality(Qt::WindowModal);
-    QPushButton * abortButton;
-    abortButton->setText("Abort.");
-    abortButton->setDefault(false);
-    progress.setCancelButton(abortButton);
 
     QVector<double> Y(points);
     QString name1 = ui->lineEdit_DataName->text();
@@ -431,7 +427,10 @@ void MainWindow::on_pushButton_Auto_clicked()
         str.sprintf("From %5.3f V to %5.3f V, size %5.3f V| Current : %5.3f V", bStart, bEnd, bInc, b);
         progress.setLabelText(str);
         progress.setValue(count);
-        if(progress.wasCanceled()) break;
+        if(progress.wasCanceled()) {
+            Write2Log("Abort Auto DAQ by User.");
+            break;
+        }
 
         wfgui->wfg->GoToOffset(wfgch, b, rate);
         wfgui->on_doubleSpinBox_Offset_valueChanged(b*1000);
@@ -488,20 +487,6 @@ void MainWindow::on_pushButton_Save_clicked()
     dataFile->AppendData(saveName, oscui->osc->xData[ch], oscui->osc->yData[ch]);
     //SaveData(saveName, oscui->osc->xData[ch], oscui->osc->yData[ch]);
 }
-
-//void MainWindow::on_spinBox_count_valueChanged(int arg1)
-//{
-//
-//    oscui->osc->GetTime();
-//    double tRange=oscui->osc->tRange;
-//
-//    double resol = tRange/arg1*1000;
-//    if(resol == 0){
-//        ui->lineEdit_Resol->setText("NaN");
-//    }else{
-//        ui->lineEdit_Resol->setText(QString::number(resol));
-//    }
-//}
 
 void MainWindow::on_lineEdit_step_editingFinished()
 {

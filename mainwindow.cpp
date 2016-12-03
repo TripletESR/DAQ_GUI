@@ -515,16 +515,22 @@ void MainWindow::on_lineEdit_step_editingFinished()
         return;
     }
 
-    ui->pushButton_Auto->setEnabled(1);
-
     int n = qFloor(fabs(bStart-bEnd)/fabs(bStep) + 1.0001);
     ui->lineEdit_numData->setText(QString::number(n));
 
+    oscui->osc->GetTriggerRate();
     double tRate = oscui->osc->GetTriggerRate();
+    if( tRate > 1e+8 || tRate == 0){
+        ui->lineEdit_EstTime->setText("Trigger Rate is abnormal.");
+        ui->pushButton_Auto->setEnabled(0);
+        return;
+    }
+
     int acqCount = oscui->osc->GetAcquireCount();
     double estTime = acqCount/tRate*n/60.;
-
     ui->lineEdit_EstTime->setText(QString::number(estTime));
+
+    ui->pushButton_Auto->setEnabled(1);
 
 }
 

@@ -32,7 +32,7 @@ void DMM::SetMeasureDCV()
 double DMM::GetReading()
 {
     sprintf(cmd, ":READ?\n");
-    return Ask(cmd).toDouble();
+    return fabs(Ask(cmd).toDouble());
 }
 
 

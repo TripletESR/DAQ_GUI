@@ -123,6 +123,9 @@ void Oscilloscope::SetTrigger(int ch)
     }else if(ch == 0){
         sprintf(cmd,":trigger:source external\n"); SendCmd(cmd);
     }
+
+    trgCh = ch;
+    GetTriggerRate();
 }
 
 void Oscilloscope::SetAcqMode(int mode){

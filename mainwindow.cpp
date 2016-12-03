@@ -185,6 +185,15 @@ void MainWindow::on_pushButton_GetSingle_clicked()
     int ch = ui->spinBox_ch->value();
     //int points = ui->spinBox_count->value();
     int points = ui->comboBox_points->currentText().toInt();
+
+    double trigRate = oscui->osc->GetTriggerRate();
+    if( trigRate <= 0 || trigRate > 1e+8){
+        QString msg;
+        msg.sprintf("Trigger Rate is abnormal : %e. Not Take Data.", trigRate);
+        Write2Log(msg);
+        return;
+    }
+
     GetData(ch, points);
 
     //oscui->osc->SetDVM(1,2, 1); // ch2, DC
@@ -518,7 +527,6 @@ void MainWindow::on_lineEdit_step_editingFinished()
     int n = qFloor(fabs(bStart-bEnd)/fabs(bStep) + 1.0001);
     ui->lineEdit_numData->setText(QString::number(n));
 
-    oscui->osc->GetTriggerRate();
     double tRate = oscui->osc->GetTriggerRate();
     if( tRate > 1e+8 || tRate == 0){
         ui->lineEdit_EstTime->setText("Trigger Rate is abnormal.");

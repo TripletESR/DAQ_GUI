@@ -21,7 +21,7 @@ DMM::DMM(ViRsrc name):
 
 DMM::~DMM()
 {
-
+    qDebug() << "Closing DMM";
 }
 
 void DMM::SetMeasureDCV()

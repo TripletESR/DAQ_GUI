@@ -15,6 +15,7 @@ WaveFromGenerator::WaveFromGenerator(ViRsrc name): QSCPI(name)
 }
 
 WaveFromGenerator::~WaveFromGenerator(){
+    qDebug() << "Closing WFG";
 }
 
 

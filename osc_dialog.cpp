@@ -26,8 +26,8 @@ osc_Dialog::osc_Dialog(QWidget *parent) :
 
 osc_Dialog::~osc_Dialog()
 {
-    delete ui;
     delete osc;
+    delete ui;
 }
 
 void osc_Dialog::on_comboBox_currentIndexChanged(int index)

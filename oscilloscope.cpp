@@ -31,6 +31,7 @@ Oscilloscope::Oscilloscope(ViRsrc name): QSCPI(name)
 Oscilloscope::~Oscilloscope(){
     SystemLock(0);
     SetRemoteLog(0);
+    qDebug() << "Closing OSC";
     //Clear();
 }
 

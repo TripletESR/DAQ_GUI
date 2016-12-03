@@ -120,16 +120,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    Write2Log("========================= Program ended.");
-
-    delete logFile;
     delete dataFile;
-
     delete plotTitle;
     delete plot;
 
-    delete wfgui;
     delete oscui;
+    delete wfgui;
+    Write2Log("========================= Program ended.");
+    delete logFile;
     delete ui;
 }
 

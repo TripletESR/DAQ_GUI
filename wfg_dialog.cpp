@@ -48,10 +48,10 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
 
 WFG_Dialog::~WFG_Dialog()
 {
-    delete ui;
     delete wfg;
     delete hallProbe;
     delete plot;
+    delete ui;
 }
 
 void WFG_Dialog::SaveOscDMM(double dvm){

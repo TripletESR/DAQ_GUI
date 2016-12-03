@@ -303,26 +303,31 @@ void osc_Dialog::on_lineEdit_4_TL_returnPressed()
 void osc_Dialog::on_radioButton_1_clicked()
 {
     osc->SetTrigger(1);
+    ui->lineEdit_trgRate->setText(QString::number(osc->trgRate));
 }
 
 void osc_Dialog::on_radioButton_2_clicked()
 {
     osc->SetTrigger(2);
+    ui->lineEdit_trgRate->setText(QString::number(osc->trgRate));
 }
 
 void osc_Dialog::on_radioButton_3_clicked()
 {
     osc->SetTrigger(3);
+    ui->lineEdit_trgRate->setText(QString::number(osc->trgRate));
 }
 
 void osc_Dialog::on_radioButton_4_clicked()
 {
     osc->SetTrigger(4);
+    ui->lineEdit_trgRate->setText(QString::number(osc->trgRate));
 }
 
 void osc_Dialog::on_radioButton_ext_clicked()
 {
     osc->SetTrigger(0); // external
+    ui->lineEdit_trgRate->setText(QString::number(osc->trgRate));
 }
 
 

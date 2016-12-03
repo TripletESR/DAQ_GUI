@@ -276,6 +276,9 @@
       <property name="text">
        <string/>
       </property>
+      <attribute name="buttonGroup">
+       <string notr="true">buttonGroup</string>
+      </attribute>
      </widget>
     </item>
     <item row="3" column="0">
@@ -296,6 +299,9 @@
       <property name="text">
        <string/>
       </property>
+      <attribute name="buttonGroup">
+       <string notr="true">buttonGroup</string>
+      </attribute>
      </widget>
     </item>
     <item row="3" column="3">
@@ -309,6 +315,9 @@
       <property name="autoExclusive">
        <bool>true</bool>
       </property>
+      <attribute name="buttonGroup">
+       <string notr="true">buttonGroup</string>
+      </attribute>
      </widget>
     </item>
     <item row="3" column="4">
@@ -319,6 +328,9 @@
       <property name="text">
        <string/>
       </property>
+      <attribute name="buttonGroup">
+       <string notr="true">buttonGroup</string>
+      </attribute>
      </widget>
     </item>
    </layout>
@@ -573,6 +585,9 @@
    <property name="text">
     <string>External</string>
    </property>
+   <attribute name="buttonGroup">
+    <string notr="true">buttonGroup</string>
+   </attribute>
   </widget>
   <widget class="QLineEdit" name="lineEdit_trgRate">
    <property name="geometry">
@@ -594,7 +609,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Trig. Rate [MHz]</string>
+    <string>Trig. Rate [Hz]</string>
    </property>
   </widget>
   <widget class="QCheckBox" name="checkBox_Log">
@@ -656,4 +671,7 @@
  </tabstops>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
 </ui>

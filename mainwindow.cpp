@@ -435,8 +435,19 @@ void MainWindow::on_pushButton_Auto_clicked()
         progress.setLabelText(str);
         progress.setValue(count);
         if(progress.wasCanceled()) {
-            Write2Log("Abort Auto DAQ by User.");
-            break;
+            QMessageBox msgBox("Warning!", "Are you sure want to Abort?",
+                               QMessageBox::Warning,
+                               QMessageBox::No | QMessageBox::Default | QMessageBox::Escape,
+                               QMessageBox::Yes,
+                               QMessageBox::NoButton);
+            if( msgBox.exec() == QMessageBox::Yes){
+                Write2Log("Abort Auto DAQ by User.");
+                break;
+            }else{
+                progress.reset();
+                progress.setLabelText(str);
+                progress.setValue(count);
+            }
         }
 
         wfgui->wfg->GoToOffset(wfgch, b, rate);

@@ -42,6 +42,8 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
     plot->axisRect()->setRangeDrag(Qt::Vertical);
     plot->axisRect()->setRangeZoom(Qt::Vertical);
 
+    connect(plot, SIGNAL(axisClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(SetChangeAxis(QCPAxis*)));
+
     ClearData();
 
 }

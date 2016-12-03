@@ -77,6 +77,11 @@ private slots:
 
     void on_spinBox_OffsetRate_valueChanged(int arg1);
 
+    void SetChangeAxis(QCPAxis * axis){
+        plot->axisRect()->setRangeDragAxes(plot->xAxis, axis);
+        plot->axisRect()->setRangeZoomAxes(plot->xAxis, axis);
+    }
+
 private:
     Ui::WFG_Dialog *ui;
 

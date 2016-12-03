@@ -417,6 +417,10 @@ void MainWindow::on_pushButton_Auto_clicked()
     QString str;
     QProgressDialog progress("Getting Data ....", "Abort", 0, totCount, this);
     //progress.setWindowModality(Qt::WindowModal);
+    QPushButton * abortButton;
+    abortButton->setText("Abort.");
+    abortButton->setDefault(false);
+    progress.setCancelButton(abortButton);
 
     QVector<double> Y(points);
     QString name1 = ui->lineEdit_DataName->text();

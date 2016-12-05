@@ -379,6 +379,8 @@ void MainWindow::on_pushButton_Auto_clicked()
     }
 
     Write2Log("========================== Start Auto DAQ.");
+    this->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
+    this->show();
     ui->lineEdit_start->setEnabled(0);
     ui->lineEdit_end->setEnabled(0);
     ui->lineEdit_step->setEnabled(0);
@@ -489,6 +491,9 @@ void MainWindow::on_pushButton_Auto_clicked()
         delete progress;
         Write2Log("===================  Auto DAQ completed.");
     }
+
+    this->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
+    this->show();
     ui->lineEdit_start->setEnabled(1);
     ui->lineEdit_end->setEnabled(1);
     ui->lineEdit_step->setEnabled(1);

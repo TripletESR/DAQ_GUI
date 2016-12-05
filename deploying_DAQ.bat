@@ -16,8 +16,7 @@ rem -----------------------------------------
 echo =====================================================
 echo Copy *.exe to %destination%
 echo =====================================================
-xcopy %origin%\%name% %destination%
-pause
+xcopy /I/Y %origin%\%name% %destination%
 
 rem -----------------------------------------
 echo =====================================================
@@ -31,4 +30,6 @@ IF "%deployFlag%"=="Y" (
 	echo %cd%
 	windeployqt.exe %destination%\%name%
 )
+
+echo --------------- bat script finished. ----------------
 pause

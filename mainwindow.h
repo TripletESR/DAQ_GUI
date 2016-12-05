@@ -31,6 +31,7 @@ public:
 
 private slots:
     void SetOffsetRate(int rate);
+    void TryToBreakAutoDAQ();
 
     void on_actionWave_From_Generator_triggered();
     void on_actionOscilloscope_triggered();
@@ -75,6 +76,9 @@ private:
     QCustomPlot * plot;
 
     Analysis *ana;
+
+    QProgressDialog * progress;
+    bool breakAutoDAQFlag;
 
 };
 

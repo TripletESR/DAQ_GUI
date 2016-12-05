@@ -8,7 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     oscui(NULL),
     logFile(NULL),
     dataFile(NULL),
-    plot(NULL)
+    plot(NULL),
+    progress(NULL)
 {
 
     ui->setupUi(this);
@@ -405,8 +406,6 @@ void MainWindow::on_pushButton_Auto_clicked()
     wfgui->wfg->SetWaveForm(wfgch, 8); // 1= sin,  8 = DC
     wfgui->wfg->GoToOffset(wfgch, bStart, rate);
     wfgui->on_doubleSpinBox_Offset_valueChanged(bStart*1000);
-    //wfgui->wfg->SetOffset(wfgch, bStart);
-    //wfgui->SetMagField(wfgch, bStart);
     // wait for few min for B-field to stablized.
     //Write2Log("------------------------------------- wait for 3 sec.");
     //QEventLoop eventloop;
@@ -422,38 +421,36 @@ void MainWindow::on_pushButton_Auto_clicked()
     int count = 0;
     int totCount = ui->lineEdit_numData->text().toInt();
     QString str;
-    QProgressDialog progress("Getting Data ....", "Abort", 0, totCount, this);
+    progress = new QProgressDialog("Getting Data ....", "Abort", 0, totCount, this);
     //progress.setWindowModality(Qt::WindowModal);
+    //disconnect the close signal.
+    progress->disconnect();
+    //when the close button clicked , canceled signal will send;
+    connect(progress, SIGNAL(canceled()), this, SLOT(TryToBreakAutoDAQ()));
+    //when the X clicked, the rejected and finished signal will send, onlt rejected will hide;
+    connect(progress, SIGNAL(rejected()), this, SLOT(TryToBreakAutoDAQ()));
+    progress->setAutoClose(false);
+    breakAutoDAQFlag = 0;
+    progress->show();
 
     QVector<double> Y(points);
     QString name1 = ui->lineEdit_DataName->text();
     QString name;
     double b = bStart;
     while( (bStart > bEnd && b >= bEnd) || (bStart < bEnd && b <= bEnd) ){
-    //for( double b = bStart; b >= bEnd ; b += bInc){
-        str.sprintf("From %5.3f V to %5.3f V, size %5.3f V| Current : %5.3f V", bStart, bEnd, bInc, b);
-        progress.setLabelText(str);
-        progress.setValue(count);
-        if(progress.wasCanceled()) {
-            QMessageBox msgBox("Warning!", "Are you sure want to Abort?",
-                               QMessageBox::Warning,
-                               QMessageBox::No | QMessageBox::Default | QMessageBox::Escape,
-                               QMessageBox::Yes,
-                               QMessageBox::NoButton);
-            if( msgBox.exec() == QMessageBox::Yes){
-                Write2Log("Abort Auto DAQ by User.");
-                break;
-            }else{
-                progress.reset();
-                progress.setLabelText(str);
-                progress.setValue(count);
-            }
+
+        if( breakAutoDAQFlag ){
+            delete progress;
+            break;
+        }else{
+            str.sprintf("From %5.3f V to %5.3f V, size %5.3f V| Current : %5.3f V", bStart, bEnd, bInc, b);
+            progress->setLabelText(str);
+            progress->setValue(count);
         }
 
         wfgui->wfg->GoToOffset(wfgch, b, rate);
         wfgui->on_doubleSpinBox_Offset_valueChanged(b*1000);
 
-        //oscui->osc->GetData(ch, points, 0);
         GetData(ch, points);
 
         PlotGraph(ch, oscui->osc->xData[ch],
@@ -482,12 +479,38 @@ void MainWindow::on_pushButton_Auto_clicked()
         b += bInc;
     }
 
-    Write2Log("===================  Auto DAQ completed.");
+
+    if( breakAutoDAQFlag){
+        Write2Log("================= Auto DAQ was aborted by User.");
+    }else{
+        progress->hide();
+        delete progress;
+        Write2Log("===================  Auto DAQ completed.");
+    }
     ui->lineEdit_start->setEnabled(1);
     ui->lineEdit_end->setEnabled(1);
     ui->lineEdit_step->setEnabled(1);
     ui->actionOscilloscope->setEnabled(1);
     ui->actionWave_From_Generator->setEnabled(1);
+
+}
+
+void MainWindow::TryToBreakAutoDAQ()
+{
+    progress->show();
+    QMessageBox msgBox("Warning!", "Are you sure want to Abort?",
+                       QMessageBox::Warning,
+                       QMessageBox::No | QMessageBox::Default | QMessageBox::Escape,
+                       QMessageBox::Yes,
+                       QMessageBox::NoButton);
+
+    if( msgBox.exec() == QMessageBox::Yes){
+        breakAutoDAQFlag = 1;
+        progress->hide();
+        progress->disconnect();
+    }else{
+        breakAutoDAQFlag = 0;
+    }
 
 }
 

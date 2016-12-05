@@ -428,7 +428,9 @@ void MainWindow::on_pushButton_Auto_clicked()
     //when the close button clicked , canceled signal will send;
     connect(progress, SIGNAL(canceled()), this, SLOT(TryToBreakAutoDAQ()));
     //when the X clicked, the rejected and finished signal will send, onlt rejected will hide;
-    connect(progress, SIGNAL(rejected()), this, SLOT(TryToBreakAutoDAQ()));
+    //connect(progress, SIGNAL(rejected()), this, SLOT(TryToBreakAutoDAQ()));
+    //remove the dialog X button
+    progress->setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     progress->setAutoClose(false);
     breakAutoDAQFlag = 0;
     progress->show();

@@ -13,10 +13,16 @@ const QString HALL_DIR_PATH = DATA_PATH + "Hall_data";
 const QString HALL_PATH = HALL_DIR_PATH + "/Hall_pars.txt";
 
 //device address
-#define KEYSIGHT33500B "USB0::0x0957::0x2607::MY52202101::0::INSTR"
-#define KEYSIGHTDSOX3024T "USB0::0x2A8D::0x1766::MY56181001::0::INSTR"
-#define KEITHLEY2000 "GPIB0::4::INSTR"
-#define AGILENTINFINIIVISION "TCPIP0::a-dx3024a-50186.rarfadv.riken.go.jp::inst0::INSTR"
+#define KEYSIGHT33500B "USB0::0x0957::0x2607::MY52202101::0::INSTR" //waveform generator
+#define KEYSIGHTDSOX3024T "USB0::0x2A8D::0x1766::MY56181001::0::INSTR" // oscilloscope
+#define KEITHLEY2000 "GPIB0::4::INSTR" // digital multimeter
+#define AGILENTINFINIIVISION "TCPIP0::a-dx3024a-50186.rarfadv.riken.go.jp::inst0::INSTR" // oscilloscope
+#define KEYSIGHT34460A "USB0::0x2A8D::0x1601::MY53102568::0::INSTR" //digital multimeter
+
+//choose which device is which
+#define OSCILLOSCOPE KEYSIGHTDSOX3024T
+#define WAVEFROM_GENERATOR KEYSIGHT33500B
+#define DIGITALMETER KEYSIGHT34460A
 
 // B-Field [mT] = HALL0 + HALL1 * HV + HALL2 * HV^2 + HALL3 * HV^3 + HALL4 * HV^4
 // Fit on 2016/10/28

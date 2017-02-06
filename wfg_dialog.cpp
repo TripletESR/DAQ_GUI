@@ -8,7 +8,7 @@ WFG_Dialog::WFG_Dialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    wfg = new WaveFromGenerator(KEYSIGHT33500B);
+    wfg = new WaveFromGenerator(WAVEFROM_GENERATOR);
 
     if( wfg->status == VI_SUCCESS ) {
         Msg.sprintf("Opened : %s", wfg->name.toStdString().c_str());
@@ -61,9 +61,10 @@ void WFG_Dialog::SaveOscDMM(double dvm){
 }
 
 void WFG_Dialog::OpenHallProbe(){
-    hallProbe = new DMM(KEITHLEY2000);
+    hallProbe = new DMM(DIGITALMETER);
     SendLogMsg(hallProbe->Msg);
     //hallProbe->SetMeasureDCV();
+    //hallProbe->Clear();
 }
 
 void WFG_Dialog::OpenHallParsFile()

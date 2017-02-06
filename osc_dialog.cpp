@@ -8,7 +8,7 @@ osc_Dialog::osc_Dialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    osc = new Oscilloscope(KEYSIGHTDSOX3024T);
+    osc = new Oscilloscope(OSCILLOSCOPE);
 
     if( osc->status == VI_SUCCESS ) {
         ui->lineEdit->setText(osc->name);

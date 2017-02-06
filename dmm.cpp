@@ -10,10 +10,10 @@ DMM::DMM(ViRsrc name):
         qDebug() << Msg;
         openFlag = 1;
     }else{
-        Msg.sprintf("Cannot Open : %s ", "Keithley 2000 DMM");
+        Msg.sprintf("Cannot Open : %s ", "Digital Meter");
         qDebug() << Msg;
         openFlag = 0;
-        this->name = "Keithley 2000 DMM";
+        this->name = "Digitial Meter";
         return;
     }
     Clear();

@@ -30,6 +30,9 @@ public:
     QString logMsg;
 
 private slots:
+    void keyPressEvent(QKeyEvent* keyEvent);
+    void keyReleaseEvent(QKeyEvent* keyEvent);
+
     void SetOffsetRate(int rate);
     void TryToBreakAutoDAQ();
 

@@ -74,6 +74,10 @@ MainWindow::MainWindow(QWidget *parent) :
     plot = ui->customPlot;
     plot->setInteraction(QCP::iRangeDrag,true);
     plot->setInteraction(QCP::iRangeZoom,true);
+    //plot->axisRect()->setRangeDrag(Qt::Vertical);
+    //plot->axisRect()->setRangeZoom(Qt::Vertical);
+    plot->axisRect()->setRangeDrag(Qt::Horizontal);
+    plot->axisRect()->setRangeZoom(Qt::Horizontal);
     plot->xAxis->setLabel("time [us]");
     plot->yAxis->setLabel("Volatge [V]");
     plot->plotLayout()->insertRow(0);
@@ -130,6 +134,25 @@ MainWindow::~MainWindow()
     Write2Log("========================= Program ended.");
     delete logFile;
     delete ui;
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
+{
+    if( keyEvent->key() == Qt::Key_Shift){
+        plot->axisRect()->setRangeDrag(Qt::Vertical);
+        plot->axisRect()->setRangeZoom(Qt::Vertical);
+        //plot->axisRect()->setRangeDrag(Qt::Horizontal);
+        //plot->axisRect()->setRangeZoom(Qt::Horizontal);
+    }
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *keyEvent)
+{
+    //plot->axisRect()->setRangeDrag(Qt::Vertical);
+    //plot->axisRect()->setRangeZoom(Qt::Vertical);
+    plot->axisRect()->setRangeDrag(Qt::Horizontal);
+    plot->axisRect()->setRangeZoom(Qt::Horizontal);
+
 }
 
 void MainWindow::SetOffsetRate(int rate)

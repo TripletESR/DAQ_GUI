@@ -17,41 +17,8 @@
    <string>DAQ</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout_3">
-    <item row="7" column="0" rowspan="2" colspan="5">
-     <widget class="QGroupBox" name="groupBox_log">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>1</horstretch>
-        <verstretch>6</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="title">
-       <string>Log : &lt;File Path&gt;</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QPlainTextEdit" name="plainTextEdit">
-         <property name="font">
-          <font>
-           <family>Courier New</family>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="lineWrapMode">
-          <enum>QPlainTextEdit::NoWrap</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="5" column="0" colspan="3">
+   <layout class="QGridLayout" name="gridLayout_3" columnstretch="1,1,1,1,1,1,2,2,2,1,2,1,1">
+    <item row="6" column="0" colspan="3">
      <widget class="QGroupBox" name="groupBox">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -164,7 +131,7 @@
       </layout>
      </widget>
     </item>
-    <item row="2" column="3" rowspan="4" colspan="2">
+    <item row="3" column="3" rowspan="4" colspan="10">
      <widget class="QCustomPlot" name="customPlot" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -174,7 +141,40 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0" colspan="3">
+    <item row="8" column="0" rowspan="2" colspan="13">
+     <widget class="QGroupBox" name="groupBox_log">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>1</horstretch>
+        <verstretch>6</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Log : &lt;File Path&gt;</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QPlainTextEdit" name="plainTextEdit">
+         <property name="font">
+          <font>
+           <family>Courier New</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="lineWrapMode">
+          <enum>QPlainTextEdit::NoWrap</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="3">
      <widget class="QGroupBox" name="groupBox_2">
       <property name="enabled">
        <bool>true</bool>
@@ -317,7 +317,7 @@
       </layout>
      </widget>
     </item>
-    <item row="4" column="0">
+    <item row="5" column="0">
      <widget class="QPushButton" name="pushButton_GetSingle">
       <property name="font">
        <font>
@@ -329,7 +329,37 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="3">
+    <item row="1" column="7">
+     <widget class="QLineEdit" name="lineEdit_Concentration">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>&lt;Concentration&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="8">
+     <widget class="QLineEdit" name="lineEdit_CreationDate">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>&lt;Creation Date&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="6">
+     <widget class="QLineEdit" name="lineEdit_Solvent">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>&lt;Host/Solvent&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="3">
      <widget class="QComboBox" name="comboBox">
       <property name="font">
        <font>
@@ -366,36 +396,6 @@
       </item>
      </widget>
     </item>
-    <item row="4" column="2">
-     <widget class="QPushButton" name="pushButton_Save">
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>Save</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2" colspan="3">
-     <widget class="QLineEdit" name="lineEdit_FileName">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="inputMask">
-       <string/>
-      </property>
-      <property name="text">
-       <string>&lt;File Path&gt;</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0" colspan="2">
      <widget class="QPushButton" name="pushButton_openFile">
       <property name="font">
@@ -408,7 +408,19 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="3" colspan="2">
+    <item row="5" column="2">
+     <widget class="QPushButton" name="pushButton_Save">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Save</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="3" colspan="10">
      <widget class="QLineEdit" name="lineEdit_DataName">
       <property name="enabled">
        <bool>true</bool>
@@ -426,7 +438,21 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="2">
+    <item row="1" column="4" colspan="2">
+     <widget class="QComboBox" name="comboBox_Sample">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2" colspan="2">
+     <widget class="QComboBox" name="comboBox_Chemical">
+      <property name="currentText">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="2">
      <widget class="QSpinBox" name="spinBox_DCRate">
       <property name="minimum">
        <number>10</number>
@@ -442,7 +468,32 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="0" colspan="2">
+    <item row="1" column="0" colspan="2">
+     <widget class="QCheckBox" name="checkBox_TestRun">
+      <property name="text">
+       <string>Test Run (Not Record in DB)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2" colspan="11">
+     <widget class="QLineEdit" name="lineEdit_FileName">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="inputMask">
+       <string/>
+      </property>
+      <property name="text">
+       <string>&lt;File Path&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0" colspan="2">
      <widget class="QLabel" name="label_9">
       <property name="font">
        <font>
@@ -451,6 +502,36 @@
       </property>
       <property name="text">
        <string>DC Change Rate [mV/s]</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="12">
+     <widget class="QPushButton" name="pushButton_ComfirmSelection">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Comfirm and Create file</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="9" colspan="2">
+     <widget class="QLineEdit" name="lineEdit_Comment">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>&lt;Comment&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="11">
+     <widget class="QLineEdit" name="lineEdit_Temperature">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>&lt;Temp&gt;</string>
       </property>
      </widget>
     </item>

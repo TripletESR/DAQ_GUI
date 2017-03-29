@@ -6,6 +6,11 @@ QFileIO::QFileIO(QString dir, QString name, int mode, QObject *parent) : QObject
     fileDir  = dir;
     filePath = dir.append("/").append(name);
 
+    // if not directory exist, make one
+    QDir myDir;
+    myDir.setPath(fileDir.append("/"));
+    if( !myDir.exists()) myDir.mkpath( myDir.path() );
+
     myfile = new QFile(filePath);
 
     switch (mode) {
@@ -19,7 +24,7 @@ QFileIO::QFileIO(QString dir, QString name, int mode, QObject *parent) : QObject
         Msg = "Opened : ";
         Msg += filePath;
     }else{
-        Msg = "Fail to open";
+        Msg = "Fail to open : ";
         Msg += filePath;
     }
 }

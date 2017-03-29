@@ -11,6 +11,7 @@ const QString DATA_PATH = HOME_PATH + "ESR_Data_201610/";
 const QString LOG_PATH = DATA_PATH + "DAQ_Log";
 const QString HALL_DIR_PATH = DATA_PATH + "Hall_data";
 const QString HALL_PATH = HALL_DIR_PATH + "/Hall_pars.txt";
+const QString DB_PATH = DATA_PATH + "database.db";
 
 //device address
 #define KEYSIGHT33500B "USB0::0x0957::0x2607::MY52202101::0::INSTR" //waveform generator

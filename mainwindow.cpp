@@ -120,6 +120,39 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     Write2Log(logMsg);
 
+    //=================================================== Setup linkage with database
+    Write2Log("Opening database.....");
+    bool isDBExist = false;
+    bool isDBOpened = false;
+    if( QFile::exists(DB_PATH) ){
+        Write2Log("database exist : " + DB_PATH);
+        isDBExist = true;
+    }else{
+        Write2Log("No database : " + DB_PATH);
+        isDBExist = false;
+    }
+
+    ui->comboBox_Sample->setEnabled(false);
+    ui->pushButton_ComfirmSelection->setEnabled(false);
+
+    if( isDBExist){
+        db = QSqlDatabase::addDatabase("QSQLITE");
+        db.setDatabaseName(DB_PATH);
+        db.open();
+        if( !db.isOpen()){
+            Write2Log("Database open Error.");
+            ui->checkBox_TestRun->setEnabled(false);
+            ui->comboBox_Chemical->setEnabled(false);
+        }
+        isDBOpened = true;
+        Write2Log("Database open succesful.");
+        ui->checkBox_TestRun->setEnabled(true);
+        ui->comboBox_Chemical->setEnabled(true);
+
+        updateChemicalCombox();
+
+    }
+
     Write2Log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Ready.");
 }
 
@@ -355,6 +388,7 @@ void MainWindow::on_pushButton_openFile_clicked()
             delete dataFile;
         }
         dataFile = new QFileIO (dirName, fileName, 3);
+        Write2Log(dataFile->Msg);
         connect(dataFile, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
         dataFile->FileStructure();
 
@@ -690,4 +724,159 @@ void MainWindow::on_comboBox_points_currentTextChanged(const QString &arg1)
 void MainWindow::on_spinBox_DCRate_valueChanged(int arg1)
 {
     wfgui->SetOffsetRate(arg1); // mV
+}
+
+QStringList MainWindow::GetTableColEntries(QString tableName, int col)
+{
+    QSqlQuery query;
+    query.exec("SELECT * FROM " + tableName);
+    //qDebug() << query.executedQuery();
+
+    QStringList entries;
+
+    while(query.next()){
+        //qDebug() << query.size() << "," << query.value(col);
+        entries << query.value(col).toString();
+    }
+
+    return entries;
+}
+
+void MainWindow::updateChemicalCombox()
+{
+    QStringList ChemicalList = GetTableColEntries("Chemical", 1);
+    ui->comboBox_Chemical->clear();
+    ui->comboBox_Chemical->addItems(ChemicalList);
+}
+
+void MainWindow::updateSampleCombox()
+{
+    QString ChemicalName = "'" + ui->comboBox_Chemical->currentText() + "'";
+    QStringList SampleList = GetTableColEntries("Sample Where Sample.Chemical = " + ChemicalName, 1);
+    ui->comboBox_Sample->clear();
+    ui->comboBox_Sample->addItems(SampleList);
+}
+
+void MainWindow::on_comboBox_Chemical_currentIndexChanged(int index)
+{
+    if (index == -1) return;
+    ui->comboBox_Sample->setEnabled(true);
+    ui->lineEdit_Temperature->setEnabled(true);
+    //ui->pushButton_ComfirmSelection->setEnabled(true);
+    updateSampleCombox();
+}
+
+void MainWindow::on_comboBox_Sample_currentIndexChanged(int index)
+{
+    if( index == -1 ) return;
+    QString SampleName = "'" + ui->comboBox_Sample->currentText() + "'";
+    QStringList HostList = GetTableColEntries("Sample Where Sample.NAME = " + SampleName, 3);
+
+    if(HostList[0] == "-------"){
+        QStringList SolventList = GetTableColEntries("Sample Where Sample.NAME = " + SampleName, 4);
+        if(SolventList.size() == 1) ui->lineEdit_Solvent->setText(SolventList[0]);
+    }else{
+        if(HostList.size() == 1) ui->lineEdit_Solvent->setText(HostList[0]);
+    }
+
+    QStringList ConcentrationList = GetTableColEntries("Sample Where Sample.NAME = " + SampleName, 5);
+    if(ConcentrationList.size() == 1) ui->lineEdit_Concentration->setText(ConcentrationList[0]);
+
+    QStringList CreationDateList = GetTableColEntries("Sample Where Sample.NAME = " + SampleName, 6);
+    if(CreationDateList.size() == 1) ui->lineEdit_CreationDate->setText( CreationDateList[0]);
+
+    QStringList CommentList = GetTableColEntries("Sample Where Sample.NAME = " + SampleName, 8);
+    if(CommentList.size() == 1) ui->lineEdit_CreationDate->setText( CommentList[0]);
+
+}
+
+void MainWindow::on_pushButton_ComfirmSelection_clicked()
+{
+    QString dirName, fileName;
+    QDateTime dateTime = QDateTime::currentDateTime();
+    fileName = dateTime.toString("yyyyMMddHHmmss");
+    if( ui->checkBox_TestRun->isChecked() ) fileName += "_test";
+    fileName += "_" + ui->comboBox_Chemical->currentText();
+    fileName += "_" + ui->comboBox_Sample->currentText();
+    fileName += "_" + ui->lineEdit_Solvent->text();
+    fileName += "_" + ui->lineEdit_Concentration->text();
+    if( ui->lineEdit_Temperature->text() != "<Temp>" ){
+        fileName += "_" + ui->lineEdit_Temperature->text() + "K";
+    }
+    fileName += ".dat";
+
+    dirName = DATA_PATH + "Data/";
+    dirName += dateTime.toString("yyyy") + "/";
+    dirName += dateTime.toString("MMMM") + "/";
+    dirName += dateTime.toString("dd") ;
+
+    ui->lineEdit_FileName->setText(dirName + "/" + fileName);
+
+    if( dataFile != NULL){
+        delete dataFile;
+    }
+    dataFile = new QFileIO (dirName, fileName, 3);
+    Write2Log(dataFile->Msg);
+    connect(dataFile, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
+    //dataFile->FileStructure();
+
+    if(dataFile != NULL){
+        ui->pushButton_Save->setEnabled(1);
+        ui->lineEdit_start->setEnabled(1);
+        ui->lineEdit_end->setEnabled(1);
+        ui->lineEdit_step->setEnabled(1);
+    }
+
+    //save to Database
+    if( ui->checkBox_TestRun->isChecked() == false){
+
+        QSqlQuery query;
+        query.prepare("INSERT INTO Data (Sample, Date, AcqRate, Temperature, TimeRange, Comment, PATH)"
+                      "VALUES (:Sample, :Date, :AcqRate, :Temperature, :TimeRange, :Comment, :PATH)");
+        query.bindValue(0, ui->comboBox_Sample->currentText());
+        query.bindValue(1, dateTime.toString("yyyy-MM-dd"));
+        query.bindValue(2, 1800);
+
+        if( ui->lineEdit_Temperature->text() != "<Temp>"){
+            query.bindValue(3, ui->lineEdit_Temperature->text());
+        }else{
+            query.bindValue(3, "");
+        }
+
+        query.bindValue(4, "");
+
+        if( ui->lineEdit_Comment->text() != "<Comment>"){
+            query.bindValue(5, ui->lineEdit_Comment->text());
+        }else{
+            query.bindValue(5, "");
+        }
+
+        int len1 = DATA_PATH.length();
+        int len2 = dirName.length();
+        query.bindValue(6, dirName.right(len2-len1) + fileName);
+        query.exec();
+
+        Write2Log("Written to database : ");
+
+        query.exec("SELECT * FROM Data");
+        int col = query.record().count();
+        query.last();
+        QString msg;
+        for( int i = 0 ; i < col; i++){
+            msg += query.value(i).toString() + " | ";
+        }
+
+        Write2Log(msg);
+
+    }
+
+    Write2Log("Test run : Database untouched.");
+
+}
+
+void MainWindow::on_lineEdit_Temperature_editingFinished()
+{
+    //QString str = ui->lineEdit_Temperature->text();
+    //ui->lineEdit_Temperature->setText(str + "K");
+    ui->pushButton_ComfirmSelection->setEnabled(true);
 }

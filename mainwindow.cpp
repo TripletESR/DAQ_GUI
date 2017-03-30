@@ -30,10 +30,15 @@ MainWindow::MainWindow(QWidget *parent) :
     logFile = new QFileIO (LOG_PATH, logFileName, 4);
     logFile->SaveLogData("========================================== new session.");
     Write2Log("Program " + title);
+    const QString APP_PATH = QApplication::applicationDirPath();
+    Write2Log("Program Location : " + APP_PATH);
     Write2Log(logFile->Msg);
     connect(logFile, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
 
     ui->groupBox_log->setTitle(logFileName.insert(0,"/").insert(0, LOG_PATH).insert(0,"Log : "));
+
+    //TODO Read Devices.ini for devices address
+
 
     // call wfg and osc dialog, in which the wfg and osc will be created
     wfgui = new WFG_Dialog(this);

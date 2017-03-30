@@ -11,8 +11,9 @@ MainWindow::MainWindow(QWidget *parent) :
     plot(NULL),
     progress(NULL)
 {
-
     ui->setupUi(this);
+    QString title; title.sprintf("DAQ v%3.2f", VERSION);
+    this->setWindowTitle(title);
     this->setGeometry(10,50,this->geometry().width(),this->geometry().height());
 
     //Check Directory, is not exist, create
@@ -28,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     logFileName.sprintf("Log%s.txt", dateTime.toString("yyyyMMdd_HHmmss").toStdString().c_str());
     logFile = new QFileIO (LOG_PATH, logFileName, 4);
     logFile->SaveLogData("========================================== new session.");
+    Write2Log("Program " + title);
     Write2Log(logFile->Msg);
     connect(logFile, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
 
@@ -90,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ana, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     ui->comboBox->setEnabled(0);
 
-    Write2Log("-----------------------------------");
+    Write2Log("----------------------------------- Device status : ");
 
     //Display Massege for devices
     if(wfgui->wfg->IsOpen()){
@@ -106,10 +108,20 @@ MainWindow::MainWindow(QWidget *parent) :
         logMsg.sprintf("Opened : %s", oscui->osc->name.toStdString().c_str());
         ui->actionOscilloscope->setEnabled(1);
         ui->spinBox_DCRate->setEnabled(1);
+        ui->spinBox_ch->setEnabled(1);
+        ui->comboBox_points->setEnabled(1);
+        int points = ui->comboBox_points->currentText().toInt();
+        oscui->osc->GetTime();
+        double tRange=oscui->osc->tRange;
+        double resol = tRange/points*1000;
+        ui->lineEdit_Resol->setText(QString::number(resol));
     }else{
         logMsg.sprintf("Not Opened : %s", oscui->osc->name.toStdString().c_str());
         ui->actionOscilloscope->setEnabled(0);
         ui->spinBox_DCRate->setEnabled(0);
+        ui->spinBox_ch->setEnabled(0);
+        ui->comboBox_points->setEnabled(0);
+        ui->lineEdit_Resol->setText("NaN");
     }
     Write2Log(logMsg);
 
@@ -121,9 +133,8 @@ MainWindow::MainWindow(QWidget *parent) :
     Write2Log(logMsg);
 
     //=================================================== Setup linkage with database
-    Write2Log("Opening database.....");
+    Write2Log("----------------------------------- Opening database.....");
     bool isDBExist = false;
-    bool isDBOpened = false;
     if( QFile::exists(DB_PATH) ){
         Write2Log("database exist : " + DB_PATH);
         isDBExist = true;
@@ -144,7 +155,6 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->checkBox_TestRun->setEnabled(false);
             ui->comboBox_Chemical->setEnabled(false);
         }
-        isDBOpened = true;
         Write2Log("Database open succesful.");
         ui->checkBox_TestRun->setEnabled(true);
         ui->comboBox_Chemical->setEnabled(true);
@@ -831,29 +841,32 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
     if( ui->checkBox_TestRun->isChecked() == false){
 
         QSqlQuery query;
-        query.prepare("INSERT INTO Data (Sample, Date, AcqRate, Temperature, TimeRange, Comment, PATH)"
-                      "VALUES (:Sample, :Date, :AcqRate, :Temperature, :TimeRange, :Comment, :PATH)");
+        query.prepare("INSERT INTO Data (Sample, Date, Laser, repetition, Average, DataPoint, Temperature, TimeRange, Comment, PATH)"
+                      "VALUES (:Sample, :Date, :Laser, :repetition, :Average, :DataPoint, :Temperature, :TimeRange, :Comment, :PATH)");
         query.bindValue(0, ui->comboBox_Sample->currentText());
         query.bindValue(1, dateTime.toString("yyyy-MM-dd"));
-        query.bindValue(2, 1800);
+        query.bindValue(2, "");
+
+        query.bindValue(3, oscui->osc->acqCount);
+        query.bindValue(4, ui->comboBox_points->currentText());
 
         if( ui->lineEdit_Temperature->text() != "<Temp>"){
-            query.bindValue(3, ui->lineEdit_Temperature->text());
-        }else{
-            query.bindValue(3, "");
-        }
-
-        query.bindValue(4, "");
-
-        if( ui->lineEdit_Comment->text() != "<Comment>"){
-            query.bindValue(5, ui->lineEdit_Comment->text());
+            query.bindValue(5, ui->lineEdit_Temperature->text());
         }else{
             query.bindValue(5, "");
         }
 
+        query.bindValue(6, oscui->osc->tRange);
+
+        if( ui->lineEdit_Comment->text() != "<Comment>"){
+            query.bindValue(7, ui->lineEdit_Comment->text());
+        }else{
+            query.bindValue(7, "");
+        }
+
         int len1 = DATA_PATH.length();
         int len2 = dirName.length();
-        query.bindValue(6, dirName.right(len2-len1) + fileName);
+        query.bindValue(8, dirName.right(len2-len1) + fileName);
         query.exec();
 
         Write2Log("Written to database : ");
@@ -867,11 +880,9 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
         }
 
         Write2Log(msg);
-
+    }else{
+        Write2Log("Test run : Database untouched.");
     }
-
-    Write2Log("Test run : Database untouched.");
-
 }
 
 void MainWindow::on_lineEdit_Temperature_editingFinished()

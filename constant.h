@@ -33,4 +33,7 @@ const QString DB_PATH = DATA_PATH + "database.db";
 #define HALL3 5.32829e-6
 #define HALL4 0
 
+//naive version definition
+#define VERSION 2.0
+
 #endif // CONSTANT_H

@@ -120,6 +120,7 @@ MainWindow::MainWindow(QWidget *parent) :
         double tRange=oscui->osc->tRange;
         double resol = tRange/points*1000;
         ui->lineEdit_Resol->setText(QString::number(resol));
+        ui->lineEdit_repeatition->setText(QString::number(oscui->osc->trgRate));
     }else{
         logMsg.sprintf("Not Opened : %s", oscui->osc->name.toStdString().c_str());
         ui->actionOscilloscope->setEnabled(0);
@@ -127,6 +128,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->spinBox_ch->setEnabled(0);
         ui->comboBox_points->setEnabled(0);
         ui->lineEdit_Resol->setText("NaN");
+        ui->lineEdit_repeatition->setText("NaN");
     }
     Write2Log(logMsg);
 
@@ -150,6 +152,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->comboBox_Sample->setEnabled(false);
     ui->pushButton_ComfirmSelection->setEnabled(false);
+    ui->comboBox_laser->setEnabled(false);
+    ui->lineEdit_repeatition->setEnabled(false);
+    ui->lineEdit_Temperature->setEnabled(false);
 
     if( isDBExist){
         db = QSqlDatabase::addDatabase("QSQLITE");
@@ -163,8 +168,10 @@ MainWindow::MainWindow(QWidget *parent) :
         Write2Log("Database open succesful.");
         ui->checkBox_TestRun->setEnabled(true);
         ui->comboBox_Chemical->setEnabled(true);
+        ui->comboBox_laser->setEnabled(true);
 
         updateChemicalCombox();
+        updateLaserCombox();
 
     }
 
@@ -772,6 +779,13 @@ void MainWindow::updateSampleCombox()
     ui->comboBox_Sample->addItems(SampleList);
 }
 
+void MainWindow::updateLaserCombox()
+{
+    QStringList LaserList = GetTableColEntries("Laser",1);
+    ui->comboBox_laser->clear();
+    ui->comboBox_laser->addItems(LaserList);
+}
+
 void MainWindow::on_comboBox_Chemical_currentIndexChanged(int index)
 {
     if (index == -1) return;
@@ -785,24 +799,32 @@ void MainWindow::on_comboBox_Sample_currentIndexChanged(int index)
 {
     if( index == -1 ) return;
     QString SampleName = "'" + ui->comboBox_Sample->currentText() + "'";
-    QStringList HostList = GetTableColEntries("Sample Where Sample.NAME = " + SampleName, 3);
+    QStringList HostList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, 3);
 
     if(HostList[0] == "-------"){
-        QStringList SolventList = GetTableColEntries("Sample Where Sample.NAME = " + SampleName, 4);
+        QStringList SolventList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, 4);
         if(SolventList.size() == 1) ui->lineEdit_Solvent->setText(SolventList[0]);
     }else{
         if(HostList.size() == 1) ui->lineEdit_Solvent->setText(HostList[0]);
     }
 
-    QStringList ConcentrationList = GetTableColEntries("Sample Where Sample.NAME = " + SampleName, 5);
+    QStringList ConcentrationList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, 5);
     if(ConcentrationList.size() == 1) ui->lineEdit_Concentration->setText(ConcentrationList[0]);
 
-    QStringList CreationDateList = GetTableColEntries("Sample Where Sample.NAME = " + SampleName, 6);
-    if(CreationDateList.size() == 1) ui->lineEdit_CreationDate->setText( CreationDateList[0]);
+    QStringList CreationDateList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, 6);
+    if(CreationDateList.size() == 1) ui->lineEdit_CreationDate->setText( CreationDateList[0] );
 
-    QStringList CommentList = GetTableColEntries("Sample Where Sample.NAME = " + SampleName, 8);
-    if(CommentList.size() == 1) ui->lineEdit_CreationDate->setText( CommentList[0]);
+    QStringList CommentList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, 8);
+    if(CommentList.size() == 1) ui->lineEdit_Comment->setText( CommentList[0]);
 
+}
+
+void MainWindow::on_comboBox_laser_currentIndexChanged(int index)
+{
+    if( index == -1 ) return;
+    QString LaserName = "'" + ui->comboBox_laser->currentText() + "'";
+    QStringList WavelengthList = GetTableColEntries("Laser WHERE Laser.NAME = " + LaserName, 2);
+    if(WavelengthList.size() == 1) ui->lineEdit_waveLength->setText(WavelengthList[0]);
 }
 
 void MainWindow::on_pushButton_ComfirmSelection_clicked()
@@ -850,8 +872,8 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
                       "VALUES (:Sample, :Date, :Laser, :repetition, :Average, :DataPoint, :Temperature, :TimeRange, :Comment, :PATH)");
         query.bindValue(0, ui->comboBox_Sample->currentText());
         query.bindValue(1, dateTime.toString("yyyy-MM-dd"));
-        query.bindValue(2, "");
 
+        query.bindValue(2, oscui->osc->GetTriggerRate());
         query.bindValue(3, oscui->osc->acqCount);
         query.bindValue(4, ui->comboBox_points->currentText());
 
@@ -892,7 +914,11 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
 
 void MainWindow::on_lineEdit_Temperature_editingFinished()
 {
-    //QString str = ui->lineEdit_Temperature->text();
-    //ui->lineEdit_Temperature->setText(str + "K");
-    ui->pushButton_ComfirmSelection->setEnabled(true);
+    double temperature = ui->lineEdit_Temperature->text().toDouble();
+    if( temperature > 0 ){
+        ui->pushButton_ComfirmSelection->setEnabled(true);
+    }else{
+        ui->pushButton_ComfirmSelection->setEnabled(false);
+    }
 }
+

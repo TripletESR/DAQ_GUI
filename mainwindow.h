@@ -70,13 +70,16 @@ private slots:
     QStringList GetTableColEntries(QString tableName, int col);
     void updateChemicalCombox();
     void updateSampleCombox();
+    void updateLaserCombox();
 
     void on_comboBox_Chemical_currentIndexChanged(int index);
     void on_comboBox_Sample_currentIndexChanged(int index);
+    void on_comboBox_laser_currentIndexChanged(int index);
 
     void on_pushButton_ComfirmSelection_clicked();
 
     void on_lineEdit_Temperature_editingFinished();
+
 
 private:
     Ui::MainWindow *ui;

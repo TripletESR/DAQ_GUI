@@ -743,11 +743,6 @@ void MainWindow::on_comboBox_points_currentTextChanged(const QString &arg1)
     }
 }
 
-void MainWindow::on_spinBox_DCRate_valueChanged(int arg1)
-{
-    wfgui->SetOffsetRate(arg1); // mV
-}
-
 QStringList MainWindow::GetTableColEntries(QString tableName, int col)
 {
     QSqlQuery query;

@@ -34,7 +34,6 @@ private slots:
     void keyPressEvent(QKeyEvent* keyEvent);
     void keyReleaseEvent(QKeyEvent* keyEvent);
 
-    void SetOffsetRate(int rate);
     void TryToBreakAutoDAQ();
 
     void on_actionWave_From_Generator_triggered();

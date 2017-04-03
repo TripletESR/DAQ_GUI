@@ -232,6 +232,11 @@ void WFG_Dialog::SetOffsetRate(double rate)
     ui->spinBox_OffsetRate->setValue(rate); // in mV
 }
 
+double WFG_Dialog::GetOffSetRate()
+{
+    return ui->spinBox_OffsetRate->value();
+}
+
 void WFG_Dialog::SetMagField(int ch, double mag, double rate)
 {
     double DC = Mag2DC(mag);

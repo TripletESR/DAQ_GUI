@@ -50,7 +50,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //Setting up connectting
     connect(oscui, SIGNAL(SendLogMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(wfgui, SIGNAL(SendLogMsg(QString)), this, SLOT(Write2Log(QString)));
-    connect(wfgui, SIGNAL(ChangeOffsetRate(int)), this, SLOT(SetOffsetRate(int)));
     connect(wfgui->wfg, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(oscui->osc, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
     connect(oscui->osc, SIGNAL(DeviceNotReady(double)), this, SLOT(SetProgressBar(double)));
@@ -112,7 +111,6 @@ MainWindow::MainWindow(QWidget *parent) :
     if(oscui->osc->IsOpen()){
         logMsg.sprintf("Opened : %s", oscui->osc->name.toStdString().c_str());
         ui->actionOscilloscope->setEnabled(1);
-        ui->spinBox_DCRate->setEnabled(1);
         ui->spinBox_ch->setEnabled(1);
         ui->comboBox_points->setEnabled(1);
         int points = ui->comboBox_points->currentText().toInt();
@@ -124,7 +122,6 @@ MainWindow::MainWindow(QWidget *parent) :
     }else{
         logMsg.sprintf("Not Opened : %s", oscui->osc->name.toStdString().c_str());
         ui->actionOscilloscope->setEnabled(0);
-        ui->spinBox_DCRate->setEnabled(0);
         ui->spinBox_ch->setEnabled(0);
         ui->comboBox_points->setEnabled(0);
         ui->lineEdit_Resol->setText("NaN");
@@ -208,11 +205,6 @@ void MainWindow::keyReleaseEvent(QKeyEvent *keyEvent)
     plot->axisRect()->setRangeDrag(Qt::Horizontal);
     plot->axisRect()->setRangeZoom(Qt::Horizontal);
 
-}
-
-void MainWindow::SetOffsetRate(int rate)
-{
-    ui->spinBox_DCRate->setValue(rate);
 }
 
 void MainWindow::Write2Log(QString msg) //TODO not finished
@@ -483,7 +475,7 @@ void MainWindow::on_pushButton_Auto_clicked()
 
     //======================== Set the WFG to be DC mode
     const int wfgch = 1;
-    const double rate = ui->spinBox_DCRate->value()/1000.; // in V
+    const double rate = wfgui->GetOffSetRate() /1000.; // in V
     wfgui->wfg->SetWaveForm(wfgch, 8); // 1= sin,  8 = DC
     wfgui->wfg->GoToOffset(wfgch, bStart, rate);
     wfgui->on_doubleSpinBox_Offset_valueChanged(bStart*1000);

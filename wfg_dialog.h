@@ -56,6 +56,7 @@ public slots:
     void DisplaySetting();
 
     void SetOffsetRate(double rate);
+    double GetOffSetRate();
 
     void SetMagField(int ch, double mag, double rate);
     double GetMagField();

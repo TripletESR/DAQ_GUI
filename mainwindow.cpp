@@ -95,7 +95,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ana = new Analysis();
     connect(ana, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
-    ui->comboBox->setEnabled(0);
+    ui->comboBox_Fit->setEnabled(0);
 
     Write2Log("----------------------------------- Device status : ");
 
@@ -293,8 +293,8 @@ void MainWindow::GetData(int ch, int points){
 
     qDebug() << "set ana data";
     ana->SetData(oscui->osc->xData[ch], oscui->osc->yData[ch]);
-    ui->comboBox->setEnabled(1);
-    ui->comboBox->setCurrentIndex(0);
+    ui->comboBox_Fit->setEnabled(1);
+    ui->comboBox_Fit->setCurrentIndex(0);
 
 }
 
@@ -681,7 +681,7 @@ void MainWindow::WhenOSCReady(QString msg)
     ui->progressBar->setFormat("Completed.");
 }
 
-void MainWindow::on_comboBox_currentIndexChanged(int index)
+void MainWindow::on_comboBox_Fit_currentIndexChanged(int index)
 {
 
     int parSize = 2;

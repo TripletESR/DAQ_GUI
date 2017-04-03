@@ -62,7 +62,7 @@ private slots:
     void SetProgressBar(double value);
     void WhenOSCReady(QString msg);
 
-    void on_comboBox_currentIndexChanged(int index);
+    void on_comboBox_Fit_currentIndexChanged(int index);
     void on_comboBox_points_currentTextChanged(const QString &arg1);
 
     void on_spinBox_DCRate_valueChanged(int arg1);

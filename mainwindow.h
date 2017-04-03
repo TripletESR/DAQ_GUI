@@ -65,8 +65,6 @@ private slots:
     void on_comboBox_Fit_currentIndexChanged(int index);
     void on_comboBox_points_currentTextChanged(const QString &arg1);
 
-    void on_spinBox_DCRate_valueChanged(int arg1);
-
     QStringList GetTableColEntries(QString tableName, int col);
     void updateChemicalCombox();
     void updateSampleCombox();

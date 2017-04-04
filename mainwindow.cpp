@@ -860,37 +860,41 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
         query.bindValue(0, ui->comboBox_Sample->currentText());
         query.bindValue(1, dateTime.toString("yyyy-MM-dd"));
 
-        query.bindValue(2, oscui->osc->GetTriggerRate());
-        query.bindValue(3, oscui->osc->acqCount);
-        query.bindValue(4, ui->comboBox_points->currentText());
+        query.bindValue(2, ui->comboBox_laser->currentText());
+        query.bindValue(3, oscui->osc->GetTriggerRate());
+        query.bindValue(4, oscui->osc->acqCount);
+        query.bindValue(5, ui->comboBox_points->currentText());
 
         if( ui->lineEdit_Temperature->text() != "<Temp>"){
-            query.bindValue(5, ui->lineEdit_Temperature->text());
+            query.bindValue(6, ui->lineEdit_Temperature->text());
         }else{
-            query.bindValue(5, "");
+            query.bindValue(6, "");
         }
 
-        query.bindValue(6, oscui->osc->tRange);
+        query.bindValue(7, oscui->osc->tRange);
 
         if( ui->lineEdit_Comment->text() != "<Comment>"){
-            query.bindValue(7, ui->lineEdit_Comment->text());
+            query.bindValue(8, ui->lineEdit_Comment->text());
         }else{
-            query.bindValue(7, "");
+            query.bindValue(8, "");
         }
 
         int len1 = DATA_PATH.length();
         int len2 = dirName.length();
-        query.bindValue(8, dirName.right(len2-len1) + fileName);
+        query.bindValue(9, dirName.right(len2-len1) + fileName);
         query.exec();
 
         Write2Log("Written to database : ");
+        QString msg;
+        msg = "ID, Sample, Date, Laser, repetition, Average, DataPoint, Temperature, TimeRange, Comment, PATH";
+        Write2Log(msg);
 
         query.exec("SELECT * FROM Data");
         int col = query.record().count();
         query.last();
-        QString msg;
+        msg.clear();
         for( int i = 0 ; i < col; i++){
-            msg += query.value(i).toString() + " | ";
+            msg += query.value(i).toString() + ", ";
         }
 
         Write2Log(msg);

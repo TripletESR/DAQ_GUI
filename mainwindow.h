@@ -34,7 +34,7 @@ private slots:
     void keyPressEvent(QKeyEvent* keyEvent);
     void keyReleaseEvent(QKeyEvent* keyEvent);
 
-    void loadConfigurationFile();
+    int loadConfigurationFile();
 
     void TryToBreakAutoDAQ();
 

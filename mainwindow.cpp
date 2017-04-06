@@ -12,7 +12,22 @@ MainWindow::MainWindow(QWidget *parent) :
     progress(NULL)
 {
     ui->setupUi(this);
-    loadConfigurationFile();
+    int configLoadedFlag = loadConfigurationFile();
+
+    if(configLoadedFlag == 1) {
+        QMessageBox msgBox;
+        msgBox.setText("The configuration file not exist.\n"
+                       "please check the ProgramConfiguration.ini exist on Desktop.");
+        msgBox.exec();
+    }else if(configLoadedFlag == 2){
+        QMessageBox msgBox;
+        msgBox.setText("The configuration file fail to open.");
+        msgBox.exec();
+    }else if(configLoadedFlag == 3){
+        QMessageBox msgBox;
+        msgBox.setText("Some items are missing in configuration file.");
+        msgBox.exec();
+    }
 
     QString title; title.sprintf("DAQ v%3.2f", VERSION);
     this->setWindowTitle(title);
@@ -38,9 +53,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(logFile, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
 
     ui->groupBox_log->setTitle(logFileName.insert(0,"/").insert(0, LOG_PATH).insert(0,"Log : "));
-
-    //TODO Read Devices.ini for devices address
-
 
     // call wfg and osc dialog, in which the wfg and osc will be created
     wfgui = new WFG_Dialog(this);
@@ -209,20 +221,20 @@ void MainWindow::keyReleaseEvent(QKeyEvent *keyEvent)
 
 }
 
-void MainWindow::loadConfigurationFile()
+int MainWindow::loadConfigurationFile()
 {
     QDateTime date;// = QDateTime::currentDateTime();
     QString countStr;
     countStr.sprintf(" [%06d]:    ", 0);
     QString msg;
 
-    QString path = DESKTOP_PATH + "/AnalysisProgram.ini";
+    QString path = DESKTOP_PATH + "/ProgramsConfiguration.ini";
     if( !QFile::exists(path) ){
         msg = "Configuration not found. | " + path;
         msg.insert(0,countStr).insert(0,date.currentDateTime().toString());
         ui->plainTextEdit->appendPlainText(msg);
         qDebug() << msg;
-        return;
+        return 1;
     }
 
     QFile configFile(path);
@@ -237,31 +249,61 @@ void MainWindow::loadConfigurationFile()
         msg.insert(0,countStr).insert(0,date.currentDateTime().toString());
         ui->plainTextEdit->appendPlainText(msg);
         qDebug() << msg;
-        return;
+        return 2;
     }
 
     QTextStream stream(&configFile);
     QString line;
     QStringList lineList;
 
+    int itemCount = 0;
+
     while(stream.readLineInto(&line) ){
         if( line.left(1) == "#" ) continue;
         lineList = line.split(" ");
         //qDebug() << lineList[0] << ", " << lineList[lineList.size()-1];
-        if( lineList[0] == "DATA_PATH") DATA_PATH = lineList[lineList.size()-1];
-        if( lineList[0] == "DB_PATH") DB_PATH = lineList[lineList.size()-1];
-        if( lineList[0] == "HALL_DIR_PATH") HALL_DIR_PATH = lineList[lineList.size()-1];
-        if( lineList[0] == "HALL_PATH") HALL_PATH = lineList[lineList.size()-1];
-        if( lineList[0] == "LOG_PATH") LOG_PATH = lineList[lineList.size()-1];
+        if( lineList[0] == "DATA_PATH") {
+            DATA_PATH = lineList[lineList.size()-1];
+            itemCount ++;
+        }
+        if( lineList[0] == "DB_PATH") {
+            DB_PATH = lineList[lineList.size()-1];
+            itemCount ++;
+        }
+        if( lineList[0] == "HALL_DIR_PATH") {
+            HALL_DIR_PATH = lineList[lineList.size()-1];
+            itemCount ++;
+        }
+        if( lineList[0] == "HALL_PATH") {
+            HALL_PATH = lineList[lineList.size()-1];
+            itemCount ++;
+        }
+        if( lineList[0] == "LOG_PATH") {
+            LOG_PATH = lineList[lineList.size()-1];
+            itemCount ++;
+        }
+        if( lineList[0] == "OSCILLOSCOPE") {
+            OSCILLOSCOPE = lineList[lineList.size()-1];
+            itemCount ++;
+        }
+        if( lineList[0] == "WAVEFROM_GENERATOR") {
+            WAVEFROM_GENERATOR = lineList[lineList.size()-1];
+            itemCount ++;
+        }
+        if( lineList[0] == "DIGITALMETER") {
+            DIGITALMETER = lineList[lineList.size()-1];
+            itemCount ++;
+        }
+    }
 
-        if( lineList[0] == "OSCILLOSCOPE") OSCILLOSCOPE = lineList[lineList.size()-1];
-        if( lineList[0] == "WAVEFROM_GENERATOR") WAVEFROM_GENERATOR = lineList[lineList.size()-1];
-        if( lineList[0] == "DIGITALMETER") DIGITALMETER = lineList[lineList.size()-1];
+    if( itemCount != 8){
+        return 3;
     }
 
     qDebug() << OSCILLOSCOPE;
     qDebug() << WAVEFROM_GENERATOR;
     qDebug() << DIGITALMETER;
+    return 0;
 }
 
 void MainWindow::Write2Log(QString msg) //TODO not finished

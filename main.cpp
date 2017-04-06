@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     sharedMemory.setKey("DAQ_GUI-Key");
     if( sharedMemory.create(1) == false){
         QMessageBox::warning(NULL, "Warning!", "Another instance alredy running!");
-        a.exit;
+        a.exit();
         return 0;
     }
 

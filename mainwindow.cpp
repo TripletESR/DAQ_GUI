@@ -12,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent) :
     progress(NULL)
 {
     ui->setupUi(this);
+    loadConfigurationFile();
+
     QString title; title.sprintf("DAQ v%3.2f", VERSION);
     this->setWindowTitle(title);
     this->setGeometry(10,50,this->geometry().width(),this->geometry().height());
@@ -207,14 +209,69 @@ void MainWindow::keyReleaseEvent(QKeyEvent *keyEvent)
 
 }
 
+void MainWindow::loadConfigurationFile()
+{
+    QDateTime date;// = QDateTime::currentDateTime();
+    QString countStr;
+    countStr.sprintf(" [%06d]:    ", 0);
+    QString msg;
+
+    QString path = DESKTOP_PATH + "/AnalysisProgram.ini";
+    if( !QFile::exists(path) ){
+        msg = "Configuration not found. | " + path;
+        msg.insert(0,countStr).insert(0,date.currentDateTime().toString());
+        ui->plainTextEdit->appendPlainText(msg);
+        qDebug() << msg;
+        return;
+    }
+
+    QFile configFile(path);
+    configFile.open(QIODevice::ReadOnly);
+    if( configFile.isOpen() ){
+        msg = "Configuration file found and opened :" + path;
+        msg.insert(0,countStr).insert(0,date.currentDateTime().toString());
+        ui->plainTextEdit->appendPlainText(msg);
+        qDebug() << msg;
+    }else{
+        msg = "Configuration file found but fail to open.";
+        msg.insert(0,countStr).insert(0,date.currentDateTime().toString());
+        ui->plainTextEdit->appendPlainText(msg);
+        qDebug() << msg;
+        return;
+    }
+
+    QTextStream stream(&configFile);
+    QString line;
+    QStringList lineList;
+
+    while(stream.readLineInto(&line) ){
+        if( line.left(1) == "#" ) continue;
+        lineList = line.split(" ");
+        //qDebug() << lineList[0] << ", " << lineList[lineList.size()-1];
+        if( lineList[0] == "DATA_PATH") DATA_PATH = lineList[lineList.size()-1];
+        if( lineList[0] == "DB_PATH") DB_PATH = lineList[lineList.size()-1];
+        if( lineList[0] == "HALL_DIR_PATH") HALL_DIR_PATH = lineList[lineList.size()-1];
+        if( lineList[0] == "HALL_PATH") HALL_PATH = lineList[lineList.size()-1];
+        if( lineList[0] == "LOG_PATH") LOG_PATH = lineList[lineList.size()-1];
+
+        if( lineList[0] == "OSCILLOSCOPE") OSCILLOSCOPE = lineList[lineList.size()-1];
+        if( lineList[0] == "WAVEFROM_GENERATOR") WAVEFROM_GENERATOR = lineList[lineList.size()-1];
+        if( lineList[0] == "DIGITALMETER") DIGITALMETER = lineList[lineList.size()-1];
+    }
+
+    qDebug() << OSCILLOSCOPE;
+    qDebug() << WAVEFROM_GENERATOR;
+    qDebug() << DIGITALMETER;
+}
+
 void MainWindow::Write2Log(QString msg) //TODO not finished
 {
     MsgCount ++;
 
-    QDateTime date = QDateTime::currentDateTime();
+    QDateTime date;// = QDateTime::currentDateTime();
     QString countStr;
     countStr.sprintf(" [%06d]:    ", MsgCount);
-    msg.insert(0,countStr).insert(0,date.toString());
+    msg.insert(0,countStr).insert(0,date.currentDateTime().toString());
     if( logFile != NULL){
         logFile->SaveLogData(msg);
     }

@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     qfileio.cpp \
     dmm.cpp \
     analysis.cpp \
-    matrix.cpp
+    matrix.cpp \
+    constant.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \

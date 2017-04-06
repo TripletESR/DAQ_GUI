@@ -86,6 +86,15 @@ void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zd
     QString outStr;
     QString temp;
 
+    if( head.left(4) == "#"){
+        out << head + "\n";
+        out.flush();
+
+        myfile->flush();
+        endPos = myfile->pos();
+        return;
+    }
+
     if( endPos == 0 ){
         this->xdata = xdata;
         col = this->xdata.size();
@@ -152,6 +161,7 @@ void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zd
             }
         }*/
     }
+
 
     //save ydata
     outStr.sprintf("%30s", head.toStdString().c_str());

@@ -415,7 +415,7 @@ void MainWindow::on_pushButton_openFile_clicked()
         ui->lineEdit_end->setEnabled(1);
         ui->lineEdit_step->setEnabled(1);
     }
-
+    openFlag = 1;
 }
 
 void MainWindow::on_pushButton_Auto_clicked()
@@ -554,13 +554,28 @@ void MainWindow::on_pushButton_Auto_clicked()
         b += bInc;
     }
 
-
     if( breakAutoDAQFlag){
         Write2Log("================= Auto DAQ was aborted by User.");
     }else{
         progress->hide();
         delete progress;
         Write2Log("===================  Auto DAQ completed.");
+
+        //after the data-taking, save data condition;
+        QVector<double> dummy;
+        dataFile->AppendData("####EndOfData####", dummy, dummy);
+        QDateTime dateTime = QDateTime::currentDateTime();
+        dataFile->AppendData("# Date       : " + dateTime.toString("yyyy-MM-dd, HH:mm:ss"), dummy, dummy);
+        dataFile->AppendData("# repetition : " + QString::number(oscui->osc->GetTriggerRate()), dummy, dummy);
+        dataFile->AppendData("# average    : " + QString::number(oscui->osc->acqCount), dummy, dummy);
+
+        if( openFlag == 2){
+            dataFile->AppendData("# Chemical      : " + ui->comboBox_Chemical->currentText(), dummy, dummy);
+            dataFile->AppendData("# Sample        : " + ui->comboBox_Sample->currentText(), dummy, dummy);
+            dataFile->AppendData("# Laser         : " + ui->comboBox_Sample->currentText(), dummy, dummy);
+            dataFile->AppendData("# Temperature   : " + ui->lineEdit_Temperature->text() + "K", dummy, dummy);
+        }
+
     }
 
     this->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
@@ -865,11 +880,7 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
         query.bindValue(4, oscui->osc->acqCount);
         query.bindValue(5, ui->comboBox_points->currentText());
 
-        if( ui->lineEdit_Temperature->text() != "<Temp>"){
-            query.bindValue(6, ui->lineEdit_Temperature->text());
-        }else{
-            query.bindValue(6, "");
-        }
+        query.bindValue(6, ui->lineEdit_Temperature->text());
 
         query.bindValue(7, oscui->osc->tRange);
 
@@ -901,6 +912,7 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
     }else{
         Write2Log("Test run : Database untouched.");
     }
+    openFlag = 2;
 }
 
 void MainWindow::on_lineEdit_Temperature_editingFinished()

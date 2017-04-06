@@ -97,6 +97,8 @@ private:
 
     QSqlDatabase db;
 
+    int openFlag;
+
 };
 
 #endif // MAINWINDOW_H

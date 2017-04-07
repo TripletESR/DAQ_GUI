@@ -98,6 +98,7 @@ private:
     bool breakAutoDAQFlag;
 
     QSqlDatabase db;
+    QSqlTableModel *dbTable;
 
     int openFlag;
 

@@ -127,12 +127,6 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->actionOscilloscope->setEnabled(1);
         ui->spinBox_ch->setEnabled(1);
         ui->comboBox_points->setEnabled(1);
-        int points = ui->comboBox_points->currentText().toInt();
-        oscui->osc->GetTime();
-        double tRange=oscui->osc->tRange;
-        double resol = tRange/points*1000;
-        ui->lineEdit_Resol->setText(QString::number(resol));
-        ui->lineEdit_repeatition->setText(QString::number(oscui->osc->trgRate));
     }else{
         logMsg.sprintf("Not Opened : %s", oscui->osc->name.toStdString().c_str());
         ui->actionOscilloscope->setEnabled(0);
@@ -175,7 +169,11 @@ MainWindow::MainWindow(QWidget *parent) :
             Write2Log("Database open Error.");
             ui->checkBox_TestRun->setEnabled(false);
             ui->comboBox_Chemical->setEnabled(false);
+            QMessageBox msgBox;
+            msgBox.setText("Database failed to load.");
+            msgBox.exec();
         }
+        dbTable = new QSqlTableModel();
         Write2Log("Database open succesful.");
         ui->checkBox_TestRun->setEnabled(true);
         ui->comboBox_Chemical->setEnabled(true);
@@ -184,6 +182,16 @@ MainWindow::MainWindow(QWidget *parent) :
         updateChemicalCombox();
         updateLaserCombox();
 
+    }
+
+    if(oscui->osc->IsOpen()){
+        Write2Log("----------- Get Time resolution and trigger rate.");
+        int points = ui->comboBox_points->currentText().toInt();
+        oscui->osc->GetTime();
+        double tRange=oscui->osc->tRange;
+        double resol = tRange/points*1000;
+        ui->lineEdit_Resol->setText(QString::number(resol));
+        ui->lineEdit_repeatition->setText(QString::number(oscui->osc->trgRate));
     }
 
     Write2Log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Ready.");
@@ -867,22 +875,33 @@ QStringList MainWindow::GetTableColEntries(QString tableName, int col)
 
 void MainWindow::updateChemicalCombox()
 {
-    QStringList ChemicalList = GetTableColEntries("Chemical", 1);
+    dbTable->clear();
+    dbTable->setTable("Chemical");
+    dbTable->select();
+    int nameIdx = dbTable->fieldIndex("NAME");
+    qDebug() << nameIdx;
+    QStringList ChemicalList = GetTableColEntries("Chemical", nameIdx);
     ui->comboBox_Chemical->clear();
     ui->comboBox_Chemical->addItems(ChemicalList);
 }
 
 void MainWindow::updateSampleCombox()
 {
+    dbTable->clear();
+    dbTable->setTable("Sample");
+    int nameIdx = dbTable->fieldIndex("NAME");
     QString ChemicalName = "'" + ui->comboBox_Chemical->currentText() + "'";
-    QStringList SampleList = GetTableColEntries("Sample Where Sample.Chemical = " + ChemicalName, 1);
+    QStringList SampleList = GetTableColEntries("Sample Where Sample.Chemical = " + ChemicalName, nameIdx);
     ui->comboBox_Sample->clear();
     ui->comboBox_Sample->addItems(SampleList);
 }
 
 void MainWindow::updateLaserCombox()
 {
-    QStringList LaserList = GetTableColEntries("Laser",1);
+    dbTable->clear();
+    dbTable->setTable("Laser");
+    int nameIdx = dbTable->fieldIndex("NAME");
+    QStringList LaserList = GetTableColEntries("Laser",nameIdx);
     ui->comboBox_laser->clear();
     ui->comboBox_laser->addItems(LaserList);
 }
@@ -899,23 +918,24 @@ void MainWindow::on_comboBox_Chemical_currentIndexChanged(int index)
 void MainWindow::on_comboBox_Sample_currentIndexChanged(int index)
 {
     if( index == -1 ) return;
+    dbTable->clear();
+    dbTable->setTable("Sample");
+    int solventIdx = dbTable->fieldIndex("Solvent");
+    int concentrationIdx = dbTable->fieldIndex("Concentration");
+    int dateIdx = dbTable->fieldIndex("Date");
+    int commentIdx = dbTable->fieldIndex("Comment");
+
     QString SampleName = "'" + ui->comboBox_Sample->currentText() + "'";
-    QStringList HostList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, 3);
+    QStringList SolventList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, solventIdx);
+    if(SolventList.size() == 1) ui->lineEdit_Solvent->setText(SolventList[0]);
 
-    if(HostList[0] == "-------"){
-        QStringList SolventList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, 4);
-        if(SolventList.size() == 1) ui->lineEdit_Solvent->setText(SolventList[0]);
-    }else{
-        if(HostList.size() == 1) ui->lineEdit_Solvent->setText(HostList[0]);
-    }
-
-    QStringList ConcentrationList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, 5);
+    QStringList ConcentrationList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, concentrationIdx);
     if(ConcentrationList.size() == 1) ui->lineEdit_Concentration->setText(ConcentrationList[0]);
 
-    QStringList CreationDateList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, 6);
+    QStringList CreationDateList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, dateIdx);
     if(CreationDateList.size() == 1) ui->lineEdit_CreationDate->setText( CreationDateList[0] );
 
-    QStringList CommentList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, 8);
+    QStringList CommentList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, commentIdx);
     if(CommentList.size() == 1) ui->lineEdit_Comment->setText( CommentList[0]);
 
 }
@@ -923,8 +943,11 @@ void MainWindow::on_comboBox_Sample_currentIndexChanged(int index)
 void MainWindow::on_comboBox_laser_currentIndexChanged(int index)
 {
     if( index == -1 ) return;
+    dbTable->clear();
+    dbTable->setTable("Laser");
+    int nameIdx = dbTable->fieldIndex("NAME");
     QString LaserName = "'" + ui->comboBox_laser->currentText() + "'";
-    QStringList WavelengthList = GetTableColEntries("Laser WHERE Laser.NAME = " + LaserName, 2);
+    QStringList WavelengthList = GetTableColEntries("Laser WHERE Laser.NAME = " + LaserName, nameIdx);
     if(WavelengthList.size() == 1) ui->lineEdit_waveLength->setText(WavelengthList[0]);
 }
 
@@ -971,23 +994,16 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
         QSqlQuery query;
         query.prepare("INSERT INTO Data (Sample, Date, Laser, repetition, Average, DataPoint, Temperature, TimeRange, Comment, PATH)"
                       "VALUES (:Sample, :Date, :Laser, :repetition, :Average, :DataPoint, :Temperature, :TimeRange, :Comment, :PATH)");
+
         query.bindValue(0, ui->comboBox_Sample->currentText());
         query.bindValue(1, dateTime.toString("yyyy-MM-dd"));
-
         query.bindValue(2, ui->comboBox_laser->currentText());
         query.bindValue(3, oscui->osc->GetTriggerRate());
         query.bindValue(4, oscui->osc->acqCount);
         query.bindValue(5, ui->comboBox_points->currentText());
-
         query.bindValue(6, ui->lineEdit_Temperature->text());
-
         query.bindValue(7, oscui->osc->tRange);
-
-        if( ui->lineEdit_Comment->text() != "<Comment>"){
-            query.bindValue(8, ui->lineEdit_Comment->text());
-        }else{
-            query.bindValue(8, "");
-        }
+        query.bindValue(8, ui->lineEdit_Comment->text());
 
         int len1 = DATA_PATH.length();
         int len2 = dirName.length();

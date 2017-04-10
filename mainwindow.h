@@ -80,6 +80,8 @@ private slots:
     void on_lineEdit_Temperature_editingFinished();
 
 
+    void on_actionCloseProgram_triggered();
+
 private:
     Ui::MainWindow *ui;
 

@@ -47,6 +47,6 @@ extern QString DIGITALMETER ;
 #define HALL4 0
 
 //naive version definition
-#define VERSION 2.1
+#define VERSION 2.11
 
 #endif // CONSTANT_H

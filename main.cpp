@@ -15,6 +15,9 @@ int main(int argc, char *argv[])
     }
 
     MainWindow w;
+
+    w.setWindowFlags(Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
+
     w.show();
     return a.exec();
 }

@@ -557,8 +557,9 @@ void MainWindow::on_pushButton_Auto_clicked()
     }
 
     Write2Log("========================== Start Auto DAQ.");
-    this->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
-    this->show();
+    //this->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
+    //this->show();
+    ui->actionCloseProgram->setEnabled(false);
     ui->lineEdit_start->setEnabled(0);
     ui->lineEdit_end->setEnabled(0);
     ui->lineEdit_step->setEnabled(0);
@@ -692,6 +693,7 @@ void MainWindow::on_pushButton_Auto_clicked()
     ui->lineEdit_step->setEnabled(1);
     ui->actionOscilloscope->setEnabled(1);
     ui->actionWave_From_Generator->setEnabled(1);
+    ui->actionCloseProgram->setEnabled(true);
 
 }
 
@@ -1040,3 +1042,8 @@ void MainWindow::on_lineEdit_Temperature_editingFinished()
     }
 }
 
+
+void MainWindow::on_actionCloseProgram_triggered()
+{
+    this->close();
+}

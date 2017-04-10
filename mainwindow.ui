@@ -567,6 +567,7 @@
    </attribute>
    <addaction name="actionWave_From_Generator"/>
    <addaction name="actionOscilloscope"/>
+   <addaction name="actionCloseProgram"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionWave_From_Generator">
@@ -577,6 +578,11 @@
   <action name="actionOscilloscope">
    <property name="text">
     <string>Oscilloscope</string>
+   </property>
+  </action>
+  <action name="actionCloseProgram">
+   <property name="text">
+    <string>CloseProgram</string>
    </property>
   </action>
  </widget>

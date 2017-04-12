@@ -593,7 +593,7 @@
    <property name="geometry">
     <rect>
      <x>410</x>
-     <y>290</y>
+     <y>280</y>
      <width>101</width>
      <height>20</height>
     </rect>
@@ -603,7 +603,7 @@
    <property name="geometry">
     <rect>
      <x>410</x>
-     <y>270</y>
+     <y>260</y>
      <width>101</width>
      <height>16</height>
     </rect>
@@ -623,6 +623,19 @@
    </property>
    <property name="text">
     <string>Log</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_getTrigRate">
+   <property name="geometry">
+    <rect>
+     <x>410</x>
+     <y>300</y>
+     <width>101</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Get Trigger</string>
    </property>
   </widget>
  </widget>

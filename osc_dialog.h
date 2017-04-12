@@ -86,6 +86,8 @@ private slots:
 
 
 
+    void on_pushButton_getTrigRate_clicked();
+
 private:
     Ui::osc_Dialog *ui;
 

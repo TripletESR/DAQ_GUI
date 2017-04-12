@@ -680,7 +680,8 @@ void MainWindow::on_pushButton_Auto_clicked()
         if( openFlag == 2){
             dataFile->AppendData("# Chemical      : " + ui->comboBox_Chemical->currentText(), dummy, dummy);
             dataFile->AppendData("# Sample        : " + ui->comboBox_Sample->currentText(), dummy, dummy);
-            dataFile->AppendData("# Laser         : " + ui->comboBox_Sample->currentText(), dummy, dummy);
+            dataFile->AppendData("# Laser         : " + ui->comboBox_laser->currentText(), dummy, dummy);
+            dataFile->AppendData("# waveLength    : " + ui->lineEdit_waveLength->text(), dummy, dummy);
             dataFile->AppendData("# Temperature   : " + ui->lineEdit_Temperature->text() + "K", dummy, dummy);
         }
 
@@ -945,7 +946,7 @@ void MainWindow::on_comboBox_laser_currentIndexChanged(int index)
     if( index == -1 ) return;
     dbTable->clear();
     dbTable->setTable("Laser");
-    int nameIdx = dbTable->fieldIndex("NAME");
+    int nameIdx = dbTable->fieldIndex("WaveLength");
     QString LaserName = "'" + ui->comboBox_laser->currentText() + "'";
     QStringList WavelengthList = GetTableColEntries("Laser WHERE Laser.NAME = " + LaserName, nameIdx);
     if(WavelengthList.size() == 1) ui->lineEdit_waveLength->setText(WavelengthList[0]);
@@ -979,7 +980,7 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
     dataFile = new QFileIO (dirName, fileName, 3);
     Write2Log(dataFile->Msg);
     connect(dataFile, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
-    //dataFile->FileStructure();
+    dataFile->FileStructure();
 
     if(dataFile != NULL){
         ui->pushButton_Save->setEnabled(1);
@@ -1007,7 +1008,7 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
 
         int len1 = DATA_PATH.length();
         int len2 = dirName.length();
-        query.bindValue(9, dirName.right(len2-len1) + fileName);
+        query.bindValue(9, dirName.right(len2-len1) + "/" + fileName);
         query.exec();
 
         Write2Log("Written to database : ");

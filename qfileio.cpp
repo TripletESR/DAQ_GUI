@@ -86,7 +86,10 @@ void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zd
     QString outStr;
     QString temp;
 
-    if( head.left(4) == "#"){
+    bool saveEnder = false;
+    if( head.left(1) == "#") saveEnder = true;
+
+    if( saveEnder){
         out << head + "\n";
         out.flush();
 
@@ -161,7 +164,6 @@ void QFileIO::AppendData(QString head, QVector<double> xdata, QVector<double> zd
             }
         }*/
     }
-
 
     //save ydata
     outStr.sprintf("%30s", head.toStdString().c_str());

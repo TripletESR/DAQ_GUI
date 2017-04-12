@@ -456,3 +456,25 @@ void osc_Dialog::on_checkBox_Log_clicked(bool checked)
 {
     osc->SetRemoteLog(checked);
 }
+
+void osc_Dialog::on_pushButton_getTrigRate_clicked()
+{
+    osc->GetTriggerChannel();
+    osc->GetTriggerRate();
+    ui->lineEdit_trgRate->setText(QString::number(osc->trgRate));
+
+    switch (osc->trgCh) {
+    case 1:
+        ui->radioButton_1->setChecked(1);
+        break;
+    case 2:
+        ui->radioButton_2->setChecked(1);
+        break;
+    case 3:
+        ui->radioButton_3->setChecked(1);
+        break;
+    case 4:
+        ui->radioButton_4->setChecked(1);
+        break;
+    }
+}

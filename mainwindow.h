@@ -78,7 +78,7 @@ private slots:
     void on_pushButton_ComfirmSelection_clicked();
 
     void on_lineEdit_Temperature_editingFinished();
-
+    void on_lineEdit_DataComment_editingFinished();
 
     void on_actionCloseProgram_triggered();
 
@@ -103,6 +103,8 @@ private:
     QSqlTableModel *dbTable;
 
     int openFlag;
+
+    const QString DataCommentStr = "<Comment: Laser Power, uW freq, power, type>";
 
 };
 

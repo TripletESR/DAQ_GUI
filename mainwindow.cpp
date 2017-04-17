@@ -160,6 +160,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->comboBox_laser->setEnabled(false);
     ui->lineEdit_repeatition->setEnabled(false);
     ui->lineEdit_Temperature->setEnabled(false);
+    ui->lineEdit_DataComment->setEnabled(false);
 
     if( isDBExist){
         db = QSqlDatabase::addDatabase("QSQLITE");
@@ -560,9 +561,16 @@ void MainWindow::on_pushButton_Auto_clicked()
     //this->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
     //this->show();
     ui->actionCloseProgram->setEnabled(false);
-    ui->lineEdit_start->setEnabled(0);
-    ui->lineEdit_end->setEnabled(0);
-    ui->lineEdit_step->setEnabled(0);
+    ui->lineEdit_start->setEnabled(false);
+    ui->lineEdit_end->setEnabled(false);
+    ui->lineEdit_step->setEnabled(false);
+    ui->comboBox_Chemical->setEnabled(false);
+    ui->comboBox_laser->setEnabled(false);
+    ui->comboBox_Sample->setEnabled(false);
+    ui->lineEdit_Temperature->setEnabled(false);
+    ui->lineEdit_DataComment->setEnabled(false);
+    ui->comboBox_points->setEnabled(false);
+
     const int ch = ui->spinBox_ch->value();
     //const int points = ui->spinBox_count->value();
     const int points = ui->comboBox_points->currentText().toInt();
@@ -683,16 +691,24 @@ void MainWindow::on_pushButton_Auto_clicked()
             dataFile->AppendData("# Laser         : " + ui->comboBox_laser->currentText(), dummy, dummy);
             dataFile->AppendData("# waveLength    : " + ui->lineEdit_waveLength->text(), dummy, dummy);
             dataFile->AppendData("# Temperature   : " + ui->lineEdit_Temperature->text() + "K", dummy, dummy);
+            dataFile->AppendData("# comment       : " + ui->lineEdit_DataComment->text(), dummy, dummy);
         }
 
     }
 
-    ui->lineEdit_start->setEnabled(1);
-    ui->lineEdit_end->setEnabled(1);
-    ui->lineEdit_step->setEnabled(1);
-    ui->actionOscilloscope->setEnabled(1);
-    ui->actionWave_From_Generator->setEnabled(1);
+    ui->lineEdit_start->setEnabled(true);
+    ui->lineEdit_end->setEnabled(true);
+    ui->lineEdit_step->setEnabled(true);
+    ui->actionOscilloscope->setEnabled(true);
+    ui->actionWave_From_Generator->setEnabled(true);
     ui->actionCloseProgram->setEnabled(true);
+
+    ui->comboBox_Chemical->setEnabled(true);
+    ui->comboBox_laser->setEnabled(true);
+    ui->comboBox_Sample->setEnabled(true);
+    ui->lineEdit_Temperature->setEnabled(true);
+    ui->lineEdit_DataComment->setEnabled(true);
+    ui->comboBox_points->setEnabled(true);
 
 }
 
@@ -912,8 +928,13 @@ void MainWindow::on_comboBox_Chemical_currentIndexChanged(int index)
     if (index == -1) return;
     ui->comboBox_Sample->setEnabled(true);
     ui->lineEdit_Temperature->setEnabled(true);
+    ui->lineEdit_Temperature->setText("<Temp in K>");
+    ui->lineEdit_DataComment->setEnabled(true);
+    ui->lineEdit_DataComment->setText(DataCommentStr);
+    ui->pushButton_ComfirmSelection->setEnabled(false);
     //ui->pushButton_ComfirmSelection->setEnabled(true);
     updateSampleCombox();
+
 }
 
 void MainWindow::on_comboBox_Sample_currentIndexChanged(int index)
@@ -937,8 +958,11 @@ void MainWindow::on_comboBox_Sample_currentIndexChanged(int index)
     if(CreationDateList.size() == 1) ui->lineEdit_CreationDate->setText( CreationDateList[0] );
 
     QStringList CommentList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, commentIdx);
-    if(CommentList.size() == 1) ui->lineEdit_Comment->setText( CommentList[0]);
+    if(CommentList.size() == 1) ui->lineEdit_SampleComment->setText( CommentList[0]);
 
+    ui->lineEdit_Temperature->setText("<Temp in K>");
+    ui->lineEdit_DataComment->setText(DataCommentStr);
+    ui->pushButton_ComfirmSelection->setEnabled(false);
 }
 
 void MainWindow::on_comboBox_laser_currentIndexChanged(int index)
@@ -949,7 +973,11 @@ void MainWindow::on_comboBox_laser_currentIndexChanged(int index)
     int nameIdx = dbTable->fieldIndex("WaveLength");
     QString LaserName = "'" + ui->comboBox_laser->currentText() + "'";
     QStringList WavelengthList = GetTableColEntries("Laser WHERE Laser.NAME = " + LaserName, nameIdx);
-    if(WavelengthList.size() == 1) ui->lineEdit_waveLength->setText(WavelengthList[0]);
+    if(WavelengthList.size() == 1) ui->lineEdit_waveLength->setText(WavelengthList[0] + " [nm]");
+
+    ui->lineEdit_Temperature->setText("<Temp in K>");
+    ui->lineEdit_DataComment->setText(DataCommentStr);
+    ui->pushButton_ComfirmSelection->setEnabled(false);
 }
 
 void MainWindow::on_pushButton_ComfirmSelection_clicked()
@@ -1004,7 +1032,7 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
         query.bindValue(5, ui->comboBox_points->currentText());
         query.bindValue(6, ui->lineEdit_Temperature->text());
         query.bindValue(7, oscui->osc->tRange);
-        query.bindValue(8, ui->lineEdit_Comment->text());
+        query.bindValue(8, ui->lineEdit_DataComment->text());
 
         int len1 = DATA_PATH.length();
         int len2 = dirName.length();
@@ -1034,15 +1062,26 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
 void MainWindow::on_lineEdit_Temperature_editingFinished()
 {
     double temperature = ui->lineEdit_Temperature->text().toDouble();
-    if( temperature > 0 ){
+    //ui->lineEdit_Temperature->setText(QString::number(temperature) + " K");
+    if( ui->lineEdit_DataComment->text() != DataCommentStr && temperature > 0 ){
         ui->pushButton_ComfirmSelection->setEnabled(true);
     }else{
         ui->pushButton_ComfirmSelection->setEnabled(false);
     }
 }
 
+void MainWindow::on_lineEdit_DataComment_editingFinished()
+{
+    double temperature = ui->lineEdit_Temperature->text().toDouble();
+    if(ui->lineEdit_DataComment->text() != DataCommentStr && temperature > 0){
+        ui->pushButton_ComfirmSelection->setEnabled(true);
+    }else{
+        ui->pushButton_ComfirmSelection->setEnabled(false);
+    }
+}
 
 void MainWindow::on_actionCloseProgram_triggered()
 {
     this->close();
 }
+

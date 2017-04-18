@@ -204,6 +204,7 @@ void osc_Dialog::DisplaySystemStatus()
     ui->comboBox_DVM_ch->setCurrentIndex(osc->DVMCh-1);
     ui->comboBox_DVM_Mode->setCurrentIndex(osc->DVMMode);
 
+    emit NewSettingAcquired();
 }
 
 void osc_Dialog::on_checkBox_Lock_clicked(bool checked) // like getting System Status
@@ -477,4 +478,6 @@ void osc_Dialog::on_pushButton_getTrigRate_clicked()
         ui->radioButton_4->setChecked(1);
         break;
     }
+
+    emit NewSettingAcquired();
 }

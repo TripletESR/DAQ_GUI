@@ -71,6 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(wfgui, SIGNAL(ReadOSCDMM()), oscui, SLOT(on_pushButton_GetDVM_clicked()));
     connect(oscui, SIGNAL(SendDMM(double)), wfgui, SLOT(SaveOscDMM(double)));
+    connect(oscui, SIGNAL(NewSettingAcquired()), this, SLOT(updatePlannel()));
 
     wfgui->OpenHallProbe();
     connect(wfgui->hallProbe, SIGNAL(SendMsg(QString)), this, SLOT(Write2Log(QString)));
@@ -188,11 +189,11 @@ MainWindow::MainWindow(QWidget *parent) :
     if(oscui->osc->IsOpen()){
         Write2Log("----------- Get Time resolution and trigger rate.");
         int points = ui->comboBox_points->currentText().toInt();
-        oscui->osc->GetTime();
+        //oscui->osc->GetTime();
         double tRange=oscui->osc->tRange;
         double resol = tRange/points*1000;
         ui->lineEdit_Resol->setText(QString::number(resol));
-        ui->lineEdit_repeatition->setText(QString::number(oscui->osc->trgRate));
+        ui->lineEdit_repeatition->setText(QString::number(oscui->osc->trgRate) + " [Trig/s]");
     }
 
     Write2Log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Ready.");
@@ -1097,5 +1098,14 @@ void MainWindow::on_lineEdit_DataComment_editingFinished()
 void MainWindow::on_actionCloseProgram_triggered()
 {
     this->close();
+}
+
+void MainWindow::updatePlannel()
+{
+    int points = ui->comboBox_points->currentText().toInt();
+    double tRange=oscui->osc->tRange;
+    double resol = tRange/points*1000;
+    ui->lineEdit_Resol->setText(QString::number(resol));
+    ui->lineEdit_repeatition->setText(QString::number(oscui->osc->trgRate) + " [Trig/s]");
 }
 

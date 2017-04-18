@@ -27,6 +27,7 @@ signals:
 
     void SendLogMsg(QString msg);
     void SendDMM(double dmm);
+    void NewSettingAcquired();
 
 public slots:
     void DisplaySystemStatus();

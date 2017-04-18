@@ -577,6 +577,7 @@
    </attribute>
    <addaction name="actionWave_From_Generator"/>
    <addaction name="actionOscilloscope"/>
+   <addaction name="separator"/>
    <addaction name="actionCloseProgram"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>

@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     progress(NULL)
 {
     ui->setupUi(this);
+    canCloseProgram = true;
     int configLoadedFlag = loadConfigurationFile();
 
     if(configLoadedFlag == 1) {
@@ -209,6 +210,16 @@ MainWindow::~MainWindow()
     Write2Log("========================= Program ended.");
     delete logFile;
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if( !canCloseProgram ){
+        event->ignore();
+    }else{
+        QApplication::closeAllWindows();
+        event->accept();
+    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
@@ -560,7 +571,7 @@ void MainWindow::on_pushButton_Auto_clicked()
     Write2Log("========================== Start Auto DAQ.");
     //this->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
     //this->show();
-    ui->actionCloseProgram->setEnabled(false);
+    canCloseProgram = false;
     ui->lineEdit_start->setEnabled(false);
     ui->lineEdit_end->setEnabled(false);
     ui->lineEdit_step->setEnabled(false);
@@ -701,7 +712,7 @@ void MainWindow::on_pushButton_Auto_clicked()
     ui->lineEdit_step->setEnabled(true);
     ui->actionOscilloscope->setEnabled(true);
     ui->actionWave_From_Generator->setEnabled(true);
-    ui->actionCloseProgram->setEnabled(true);
+    canCloseProgram = true;
 
     ui->comboBox_Chemical->setEnabled(true);
     ui->comboBox_laser->setEnabled(true);
@@ -900,7 +911,7 @@ void MainWindow::updateChemicalCombox()
     QStringList ChemicalList = GetTableColEntries("Chemical", nameIdx);
     enableUpdateSample = false;
     ui->comboBox_Chemical->clear();
-    ui->comboBox_Chemical->addItems(ChemicalList);
+    ui->comboBox_Chemical->addItems(ChemicalList); // when it added item, the index changed, it trigger on_combox_chemical_indexchange.
     int idIdx = dbTable->fieldIndex("ID");
     chemIDList = GetTableColEntries("Chemical", idIdx);
     enableUpdateSample = true;

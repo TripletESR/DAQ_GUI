@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QDir>
 #include <QEventLoop>
+#include <QCloseEvent>
 #include "qfileio.h"
 #include "wfg_dialog.h"
 #include "osc_dialog.h"
@@ -31,6 +32,7 @@ public:
     QString logMsg;
 
 private slots:
+    void closeEvent(QCloseEvent * event);
     void keyPressEvent(QKeyEvent* keyEvent);
     void keyReleaseEvent(QKeyEvent* keyEvent);
 
@@ -110,6 +112,7 @@ private:
     QStringList sampleIDList;
     QStringList laserIDList;
     bool enableUpdateSample;
+    bool canCloseProgram;
 
 };
 

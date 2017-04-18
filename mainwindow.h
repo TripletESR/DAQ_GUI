@@ -106,6 +106,11 @@ private:
 
     const QString DataCommentStr = "<Comment: Laser Power, uW freq, power, type>";
 
+    QStringList chemIDList;
+    QStringList sampleIDList;
+    QStringList laserIDList;
+    bool enableUpdateSample;
+
 };
 
 #endif // MAINWINDOW_H

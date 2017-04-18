@@ -896,10 +896,15 @@ void MainWindow::updateChemicalCombox()
     dbTable->setTable("Chemical");
     dbTable->select();
     int nameIdx = dbTable->fieldIndex("NAME");
-    qDebug() << nameIdx;
+    //qDebug() << nameIdx;
     QStringList ChemicalList = GetTableColEntries("Chemical", nameIdx);
+    enableUpdateSample = false;
     ui->comboBox_Chemical->clear();
     ui->comboBox_Chemical->addItems(ChemicalList);
+    int idIdx = dbTable->fieldIndex("ID");
+    chemIDList = GetTableColEntries("Chemical", idIdx);
+    enableUpdateSample = true;
+    updateSampleCombox();
 }
 
 void MainWindow::updateSampleCombox()
@@ -907,10 +912,12 @@ void MainWindow::updateSampleCombox()
     dbTable->clear();
     dbTable->setTable("Sample");
     int nameIdx = dbTable->fieldIndex("NAME");
-    QString ChemicalName = "'" + ui->comboBox_Chemical->currentText() + "'";
-    QStringList SampleList = GetTableColEntries("Sample Where Sample.Chemical = " + ChemicalName, nameIdx);
+    QString ChemicalID = chemIDList[ui->comboBox_Chemical->currentIndex()];
+    QStringList SampleList = GetTableColEntries("Sample Where Sample.ChemicalID = " + ChemicalID, nameIdx);
     ui->comboBox_Sample->clear();
     ui->comboBox_Sample->addItems(SampleList);
+    int idIdx = dbTable->fieldIndex("ID");
+    sampleIDList = GetTableColEntries("Sample Where Sample.ChemicalID = " + ChemicalID, idIdx);
 }
 
 void MainWindow::updateLaserCombox()
@@ -921,6 +928,8 @@ void MainWindow::updateLaserCombox()
     QStringList LaserList = GetTableColEntries("Laser",nameIdx);
     ui->comboBox_laser->clear();
     ui->comboBox_laser->addItems(LaserList);
+    int idIdx = dbTable->fieldIndex("ID");
+    laserIDList = GetTableColEntries("Laser", idIdx);
 }
 
 void MainWindow::on_comboBox_Chemical_currentIndexChanged(int index)
@@ -932,6 +941,7 @@ void MainWindow::on_comboBox_Chemical_currentIndexChanged(int index)
     ui->lineEdit_DataComment->setEnabled(true);
     ui->lineEdit_DataComment->setText(DataCommentStr);
     ui->pushButton_ComfirmSelection->setEnabled(false);
+    if( !enableUpdateSample) return;
     //ui->pushButton_ComfirmSelection->setEnabled(true);
     updateSampleCombox();
 
@@ -942,13 +952,17 @@ void MainWindow::on_comboBox_Sample_currentIndexChanged(int index)
     if( index == -1 ) return;
     dbTable->clear();
     dbTable->setTable("Sample");
-    int solventIdx = dbTable->fieldIndex("Solvent");
+    int solventIdx = dbTable->fieldIndex("SolventID");
     int concentrationIdx = dbTable->fieldIndex("Concentration");
     int dateIdx = dbTable->fieldIndex("Date");
     int commentIdx = dbTable->fieldIndex("Comment");
+    dbTable->clear();
+    dbTable->setTable("Solvent");
+    int solventNameIdx = dbTable->fieldIndex("NAME");
 
     QString SampleName = "'" + ui->comboBox_Sample->currentText() + "'";
-    QStringList SolventList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, solventIdx);
+    QStringList SolventIDList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, solventIdx);
+    QStringList SolventList = GetTableColEntries("Solvent WHERE Solvent.ID = " + SolventIDList[0], solventNameIdx);
     if(SolventList.size() == 1) ui->lineEdit_Solvent->setText(SolventList[0]);
 
     QStringList ConcentrationList = GetTableColEntries("Sample WHERE Sample.NAME = " + SampleName, concentrationIdx);
@@ -1021,12 +1035,12 @@ void MainWindow::on_pushButton_ComfirmSelection_clicked()
     if( ui->checkBox_TestRun->isChecked() == false){
 
         QSqlQuery query;
-        query.prepare("INSERT INTO Data (Sample, Date, Laser, repetition, Average, DataPoint, Temperature, TimeRange, Comment, PATH)"
-                      "VALUES (:Sample, :Date, :Laser, :repetition, :Average, :DataPoint, :Temperature, :TimeRange, :Comment, :PATH)");
+        query.prepare("INSERT INTO Data (SampleID, Date, LaserID, repetition, Average, DataPoint, Temperature, TimeRange, Comment, PATH)"
+                      "VALUES (:SampleID, :Date, :LaserID, :repetition, :Average, :DataPoint, :Temperature, :TimeRange, :Comment, :PATH)");
 
-        query.bindValue(0, ui->comboBox_Sample->currentText());
+        query.bindValue(0, sampleIDList[ui->comboBox_Sample->currentIndex()]);
         query.bindValue(1, dateTime.toString("yyyy-MM-dd"));
-        query.bindValue(2, ui->comboBox_laser->currentText());
+        query.bindValue(2, laserIDList[ui->comboBox_laser->currentIndex()]);
         query.bindValue(3, oscui->osc->GetTriggerRate());
         query.bindValue(4, oscui->osc->acqCount);
         query.bindValue(5, ui->comboBox_points->currentText());

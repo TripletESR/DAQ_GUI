@@ -1106,11 +1106,6 @@ void MainWindow::on_lineEdit_DataComment_editingFinished()
     }
 }
 
-void MainWindow::on_actionCloseProgram_triggered()
-{
-    this->close();
-}
-
 void MainWindow::updatePlannel()
 {
     int points = ui->comboBox_points->currentText().toInt();

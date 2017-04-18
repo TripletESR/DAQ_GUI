@@ -82,7 +82,6 @@ private slots:
     void on_lineEdit_Temperature_editingFinished();
     void on_lineEdit_DataComment_editingFinished();
 
-    void on_actionCloseProgram_triggered();
     void updatePlannel();
 
 private:

@@ -241,10 +241,14 @@ double Oscilloscope::GetTriggerRate()
 
     sprintf(cmd,":counter:enable 1\n"); SendCmd(cmd);
     sprintf(cmd,":counter:mode freq\n"); SendCmd(cmd);
+    sprintf(cmd,":counter:ndigits 3\n"); SendCmd(cmd);
     sprintf(cmd,":counter:source chan%d\n", trgCh); SendCmd(cmd);
     sprintf(cmd,":counter:current?\n");
 
     trgRate = Ask(cmd).toDouble();
+    //if( trgRate > 1e9 ){
+    //    trgRate = 5;
+    //}
     return trgRate;
 
 }
@@ -313,7 +317,9 @@ void Oscilloscope::GetData(int ch, const int points, bool Save2BG)
     if( status != VI_SUCCESS) return;
 
     GetTime();
-    GetSystemStatus();
+    //GetSystemStatus();
+    GetAcquireCount();
+    GetTriggerRate();
     GetChannelData(ch);
 
     if(Save2BG) SendMsg("Getting Background signals.");

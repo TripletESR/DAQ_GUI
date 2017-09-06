@@ -791,7 +791,8 @@ void MainWindow::on_lineEdit_step_editingFinished()
     ui->lineEdit_numData->setText(QString::number(n));
 
     double tRate = oscui->osc->GetTriggerRate();
-    if( tRate > 1e+8 || tRate == 0){
+    //if( tRate > 1e+8 || tRate == 0){
+    if( tRate == 0){
         ui->lineEdit_EstTime->setText("Trigger Rate is abnormal.");
         ui->pushButton_Auto->setEnabled(0);
         return;

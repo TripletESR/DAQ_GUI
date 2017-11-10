@@ -19,6 +19,27 @@ QSCPI::~QSCPI(){
     emit SendMsg(scpi_Msg);
 }
 
+void QSCPI::ErrorMassage()
+{
+    switch (status) {
+    case VI_SUCCESS_DEV_NPRESENT  : scpi_Msg = "VI_SUCCESS_DEV_NPRESENT   "; break;
+    case VI_WARN_CONFIG_NLOADED   : scpi_Msg = "VI_WARN_CONFIG_NLOADED    "; break;
+    case VI_ERROR_INV_OBJECT      : scpi_Msg = "VI_ERROR_INV_OBJECT       "; break;
+    case VI_ERROR_NSUP_OPER       : scpi_Msg = "VI_ERROR_NSUP_OPER        "; break;
+    case VI_ERROR_INV_RSRC_NAME   : scpi_Msg = "VI_ERROR_INV_RSRC_NAME    "; break;
+    case VI_ERROR_INV_ACC_MODE    : scpi_Msg = "VI_ERROR_INV_ACC_MODE     "; break;
+    case VI_ERROR_RSRC_NFOUND     : scpi_Msg = "VI_ERROR_RSRC_NFOUND      "; break;
+    case VI_ERROR_ALLOC           : scpi_Msg = "VI_ERROR_ALLOC            "; break;
+    case VI_ERROR_RSRC_BUSY       : scpi_Msg = "VI_ERROR_RSRC_BUSY        "; break;
+    case VI_ERROR_RSRC_LOCKED     : scpi_Msg = "VI_ERROR_RSRC_LOCKED      "; break;
+    case VI_ERROR_TMO             : scpi_Msg = "VI_ERROR_TMO              "; break;
+    case VI_ERROR_LIBRARY_NFOUND  : scpi_Msg = "VI_ERROR_LIBRARY_NFOUND   "; break;
+    case VI_ERROR_INTF_NUM_NCONFIG: scpi_Msg = "VI_ERROR_INTF_NUM_NCONFIG "; break;
+    case VI_ERROR_MACHINE_NAVAIL  : scpi_Msg = "VI_ERROR_MACHINE_NAVAIL   "; break;
+    case VI_ERROR_NPERMISSION     : scpi_Msg = "VI_ERROR_NPERMISSION      "; break;
+    }
+}
+
 void QSCPI::SendCmd(char *cmd){
     if( status != VI_SUCCESS ) return;
     viPrintf(device, cmd);

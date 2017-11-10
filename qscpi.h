@@ -20,6 +20,8 @@ public:
     explicit QSCPI(ViRsrc name);
     ~QSCPI();
 
+    void ErrorMassage();
+
 signals:
 
     void SendMsg(QString msg);
